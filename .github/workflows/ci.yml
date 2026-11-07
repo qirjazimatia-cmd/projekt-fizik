@@ -1,0 +1,23 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read            # leje minimale; asnjë sekret nuk përdoret këtu
+jobs:
+  checks-linux:             # funksionon edhe për kontribuesin me Windows (pa Mac)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - run: python3 Tests/check_content.py
+      - run: cd Server && python3 -m unittest -v test_server.py
+      - run: python3 Tests/check_supabase_contract.py
+      - run: bash Tools/check_no_secrets.sh
+  build-mac:                # kompilimi real me Xcode; nuk u ekzekutua nga autori i këtij skedari
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - run: xcodebuild -project ScienceQuest.xcodeproj -scheme ScienceQuest -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build test

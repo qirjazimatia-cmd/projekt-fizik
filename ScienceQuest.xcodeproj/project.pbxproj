@@ -1,0 +1,408 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+		D85F0E78A91C352E6A46F981 = {
+			isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchoolService.swift; sourceTree = "<group>";
+		};
+		82BFEBA0F1EA7CD06066342C = {
+			isa = PBXBuildFile; fileRef = D85F0E78A91C352E6A46F981;
+		};
+		4EB3222A7E33EA93A257883C = {
+			isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchoolHub.swift; sourceTree = "<group>";
+		};
+		94C469FBF40B171C96C727E1 = {
+			isa = PBXBuildFile; fileRef = 4EB3222A7E33EA93A257883C;
+		};
+		4BE39CDC8505411204B2DD5F = {
+			isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericAnswer.swift; sourceTree = "<group>";
+		};
+		B99DF2E4DCEF0B7A38A8EE91 = {
+			isa = PBXBuildFile; fileRef = 4BE39CDC8505411204B2DD5F;
+		};
+		1C68156EED2BCE58400BC1A7 = {
+			isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LessonDiagrams.swift; sourceTree = "<group>";
+		};
+		11D4A10AE7DCE5E48B54A5A5 = {
+			isa = PBXBuildFile; fileRef = 1C68156EED2BCE58400BC1A7;
+		};
+		AF4AFDBF65626C1096C20D84 = {
+isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationTests.swift; sourceTree = "<group>";
+		};
+		6690A8FCE2D821A6C23E8A0D = {
+isa = PBXGroup; children = (AF4AFDBF65626C1096C20D84); path = Tests; sourceTree = "<group>";
+		};
+		559639B145B07E1F7ADFE8A5 = {
+isa = PBXBuildFile; fileRef = AF4AFDBF65626C1096C20D84;
+		};
+		14B76F387D8C2FB34FC0F0A1 = {
+isa = PBXBuildFile; fileRef = 4BE39CDC8505411204B2DD5F;
+		};
+		4EB4C16A96B08295CE33CAAF = {
+isa = PBXBuildFile; fileRef = 916F66464EC16FC9E953767B;
+		};
+		FE45E394F88371CD8564BF93 = {
+isa = PBXBuildFile; fileRef = 11552022FDB05B4EA49AB140;
+		};
+		617108C0C90538616AFEC072 = {
+isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (559639B145B07E1F7ADFE8A5, 14B76F387D8C2FB34FC0F0A1); runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BA52342231EA8353595B81E = {
+isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (4EB4C16A96B08295CE33CAAF, FE45E394F88371CD8564BF93); runOnlyForDeploymentPostprocessing = 0;
+		};
+		888FDC3B7074842737C0A55F = {
+isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0;
+		};
+		87F4C9E3839D0BD609C0DC86 = {
+isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScienceQuestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		81D9F2F626612FA28DA4DEB8 = {
+isa = XCBuildConfiguration; name = Debug; buildSettings = {
+ CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; PRODUCT_BUNDLE_IDENTIFIER = org.example.ScienceQuestTests;
+ PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = auto; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+ IPHONEOS_DEPLOYMENT_TARGET = 16.0; MACOSX_DEPLOYMENT_TARGET = 13.0; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";
+ };
+		};
+		3D0FDE5C5552DF9D269A37FF = {
+isa = XCBuildConfiguration; name = Release; buildSettings = {
+ CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; PRODUCT_BUNDLE_IDENTIFIER = org.example.ScienceQuestTests;
+ PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = auto; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+ IPHONEOS_DEPLOYMENT_TARGET = 16.0; MACOSX_DEPLOYMENT_TARGET = 13.0; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";
+ };
+		};
+		2D4B4987D85FBBA640B3A339 = {
+isa = XCConfigurationList; buildConfigurations = (81D9F2F626612FA28DA4DEB8, 3D0FDE5C5552DF9D269A37FF); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;
+		};
+		A342D2AF138D156163488404 = {
+isa = PBXNativeTarget; buildConfigurationList = 2D4B4987D85FBBA640B3A339; buildPhases = (617108C0C90538616AFEC072, 888FDC3B7074842737C0A55F, 1BA52342231EA8353595B81E); buildRules = (); dependencies = (); name = ScienceQuestTests; productName = ScienceQuestTests; productReference = 87F4C9E3839D0BD609C0DC86; productType = "com.apple.product-type.bundle.unit-test";
+		};
+
+		E321C781979C959BCBB92542 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = LessonLibrary.swift;
+			sourceTree = "<group>";
+		};
+		8BAC9D931531AE52033E9BE1 = {
+			isa = PBXBuildFile;
+			fileRef = E321C781979C959BCBB92542;
+		};
+		13C3807B00A36196E63304FF = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = SpringLab.swift;
+			sourceTree = "<group>";
+		};
+		681E36992B0A7BF50E48C3B0 = {
+			isa = PBXBuildFile;
+			fileRef = 13C3807B00A36196E63304FF;
+		};
+		916F66464EC16FC9E953767B = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.json;
+			path = Lessons.json;
+			sourceTree = "<group>";
+		};
+		3BAFF7C54EB9D21835FC474B = {
+			isa = PBXBuildFile;
+			fileRef = 916F66464EC16FC9E953767B;
+		};
+
+		2FEE7077844B381E23EB45DC = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = LabScenes.swift;
+			sourceTree = "<group>";
+		};
+		90B8E69C3DFADB8D348B4660 = {
+			isa = PBXBuildFile;
+			fileRef = 2FEE7077844B381E23EB45DC;
+		};
+		B187621DEF0345BDC4D60BBD = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ChemistryMixer.swift;
+			sourceTree = "<group>";
+		};
+		16C0665FB8B19AF3DAF11E7C = {
+			isa = PBXBuildFile;
+			fileRef = B187621DEF0345BDC4D60BBD;
+		};
+		B9F97A6B7CA44D8D07FD5E60 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = LabGames.swift;
+			sourceTree = "<group>";
+		};
+		EF40F14ECB2DCF8CD429337E = {
+			isa = PBXBuildFile;
+			fileRef = B9F97A6B7CA44D8D07FD5E60;
+		};
+		F5F99632E9D227C488EDDA66 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = PracticalLab.swift;
+			sourceTree = "<group>";
+		};
+		4F515A5F2AB716297F5DE070 = {
+			isa = PBXBuildFile;
+			fileRef = F5F99632E9D227C488EDDA66;
+		};
+		EC4A53BB89575AFB8A349FF5 = {
+			isa = PBXFileReference;
+			explicitFileType = wrapper.application;
+			includeInIndex = 0;
+			path = ScienceQuest.app;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B8D7158D0FE156888DF6FF06 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = ScienceQuestApp.swift;
+			sourceTree = "<group>";
+		};
+		DA3EEA6DE66154F79F32BB36 = {
+			isa = PBXBuildFile;
+			fileRef = B8D7158D0FE156888DF6FF06;
+		};
+		CB3A96E2482B5B9BB129C112 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = Content.swift;
+			sourceTree = "<group>";
+		};
+		D5100F9AB60B5AB6BDB05462 = {
+			isa = PBXBuildFile;
+			fileRef = CB3A96E2482B5B9BB129C112;
+		};
+		0EB53438B75F5C2BA06C6FBE = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = Games.swift;
+			sourceTree = "<group>";
+		};
+		868C6ED045335944B13C6688 = {
+			isa = PBXBuildFile;
+			fileRef = 0EB53438B75F5C2BA06C6FBE;
+		};
+		56627523C8E856E293CE9301 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = Practice.swift;
+			sourceTree = "<group>";
+		};
+		15533C916085534699BA37E5 = {
+			isa = PBXBuildFile;
+			fileRef = 56627523C8E856E293CE9301;
+		};
+		A3CC999981AC5BCD9DDD2A45 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = SubjectRooms.swift;
+			sourceTree = "<group>";
+		};
+		A0C9F870FBF15396A2AFD541 = {
+			isa = PBXBuildFile;
+			fileRef = A3CC999981AC5BCD9DDD2A45;
+		};
+		2585517364D7598F99F99603 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = Accounts.swift;
+			sourceTree = "<group>";
+		};
+		7ADC8BB52DD158C789009A15 = {
+			isa = PBXBuildFile;
+			fileRef = 2585517364D7598F99F99603;
+		};
+		11552022FDB05B4EA49AB140 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.json;
+			path = Exercises.json;
+			sourceTree = "<group>";
+		};
+		8EE8EDC0387F54B58E6BBB1D = {
+			isa = PBXBuildFile;
+			fileRef = 11552022FDB05B4EA49AB140;
+		};
+		A4A18E5AD13552CC898F4E7D = {
+			isa = PBXFileReference;
+			lastKnownFileType = folder.assetcatalog;
+			path = Assets.xcassets;
+			sourceTree = "<group>";
+		};
+		F2C0545513C75D6792AEB664 = {
+			isa = PBXBuildFile;
+			fileRef = A4A18E5AD13552CC898F4E7D;
+		};
+		B011ECEF5972515FA3ED91C4 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.xml;
+			path = PrivacyInfo.xcprivacy;
+			sourceTree = "<group>";
+		};
+		766E4E5B3F015763A00FE810 = {
+			isa = PBXBuildFile;
+			fileRef = B011ECEF5972515FA3ED91C4;
+		};
+		8047407F5EBA5C84AAE0C35A = {
+			isa = PBXGroup;
+			children = (E321C781979C959BCBB92542, 13C3807B00A36196E63304FF, 916F66464EC16FC9E953767B, B8D7158D0FE156888DF6FF06, CB3A96E2482B5B9BB129C112, 0EB53438B75F5C2BA06C6FBE, 56627523C8E856E293CE9301, A3CC999981AC5BCD9DDD2A45, 2585517364D7598F99F99603, 11552022FDB05B4EA49AB140, A4A18E5AD13552CC898F4E7D, B011ECEF5972515FA3ED91C4, 2FEE7077844B381E23EB45DC, B187621DEF0345BDC4D60BBD, B9F97A6B7CA44D8D07FD5E60, F5F99632E9D227C488EDDA66, D85F0E78A91C352E6A46F981, 4EB3222A7E33EA93A257883C, 4BE39CDC8505411204B2DD5F, 1C68156EED2BCE58400BC1A7);
+			path = App;
+			sourceTree = "<group>";
+		};
+		1AB1AD9DB8F65E0B8DC7690A = {
+			isa = PBXGroup;
+			children = (EC4A53BB89575AFB8A349FF5, 87F4C9E3839D0BD609C0DC86);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		35EB76D3FAAF5812BB05D88F = {
+			isa = PBXGroup;
+			children = (8047407F5EBA5C84AAE0C35A, 1AB1AD9DB8F65E0B8DC7690A, 6690A8FCE2D821A6C23E8A0D);
+			sourceTree = "<group>";
+		};
+		5F819B6930EF52058E9FB29D = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (8BAC9D931531AE52033E9BE1, 681E36992B0A7BF50E48C3B0, DA3EEA6DE66154F79F32BB36, D5100F9AB60B5AB6BDB05462, 868C6ED045335944B13C6688, 15533C916085534699BA37E5, A0C9F870FBF15396A2AFD541, 7ADC8BB52DD158C789009A15, 90B8E69C3DFADB8D348B4660, 16C0665FB8B19AF3DAF11E7C, EF40F14ECB2DCF8CD429337E, 4F515A5F2AB716297F5DE070, 82BFEBA0F1EA7CD06066342C, 94C469FBF40B171C96C727E1, B99DF2E4DCEF0B7A38A8EE91, 11D4A10AE7DCE5E48B54A5A5);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		04EFAEDB32DB50AF8035158C = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6E5FCBFE5B1D51FA94352884 = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (3BAFF7C54EB9D21835FC474B, 8EE8EDC0387F54B58E6BBB1D, F2C0545513C75D6792AEB664, 766E4E5B3F015763A00FE810);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		695BE367E9BA567E89D759A7 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+			};
+			name = Debug;
+		};
+		54406C0003AB55C889790A68 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+			};
+			name = Release;
+		};
+		356B1ED65863531B9C4AE1A6 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (695BE367E9BA567E89D759A7, 54406C0003AB55C889790A68);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6FBB7AD7D270581AB155CC08 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 16;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = App/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Science Quest";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 7.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.ScienceQuest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9D0E8B6DDEA45831A9D4C3CF = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 16;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = App/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Science Quest";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 7.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.ScienceQuest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		457E250DEBDC58E382500873 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (6FBB7AD7D270581AB155CC08, 9D0E8B6DDEA45831A9D4C3CF);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A8B34FEEF1775F63B0E796C6 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 457E250DEBDC58E382500873;
+			buildPhases = (5F819B6930EF52058E9FB29D, 04EFAEDB32DB50AF8035158C, 6E5FCBFE5B1D51FA94352884);
+			buildRules = ();
+			dependencies = ();
+			name = ScienceQuest;
+			productName = ScienceQuest;
+			productReference = EC4A53BB89575AFB8A349FF5;
+			productType = "com.apple.product-type.application";
+		};
+		C21B5EDDF2545CACA55E5426 = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = 356B1ED65863531B9C4AE1A6;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = sq;
+			hasScannedForEncodings = 0;
+			knownRegions = (sq, Base);
+			mainGroup = 35EB76D3FAAF5812BB05D88F;
+			productRefGroup = 1AB1AD9DB8F65E0B8DC7690A;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (A8B34FEEF1775F63B0E796C6, A342D2AF138D156163488404);
+		};
+	};
+	rootObject = C21B5EDDF2545CACA55E5426;
+}

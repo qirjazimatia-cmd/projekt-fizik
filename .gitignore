@@ -1,0 +1,17 @@
+.DS_Store
+xcuserdata/
+*.xcuserstate
+DerivedData/
+Verification/
+build/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+__pycache__/
+# Sekrete dhe konfigurim lokal (mos i fut kurrë në Git)
+.env
+Config.xcconfig
+*.pem
+*.p12
+*.mobileprovision
+*.cer

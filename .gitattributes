@@ -1,0 +1,9 @@
+# JSON i madh: diff i lexueshëm, pa konvertim fundi rreshtash
+*.json text eol=lf
+*.swift text eol=lf
+*.py text eol=lf
+*.sql text eol=lf
+*.command text eol=lf
+*.sh text eol=lf
+# project.pbxproj: SHMANG ndryshimet e njëkohshme. Mos përdor merge=union (mund të dublikojë objekte).
+*.png binary

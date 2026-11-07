@@ -1,0 +1,33 @@
+SCIENCEQUEST 7.0 — KONTROLLI I PAKETËS
+
+KRYER NË MJEDIS LINUX
+- 13 teste automatike Python të serverit: PASS.
+- Një provë me dy klientë HTTP të pavarur: e njëjta llogari/ID, tokenë të veçantë.
+- Regjistrim i dyfishtë dhe regjistrim konkurrues me të njëjtin email: vetëm një llogari.
+- Ftesë mësuesi: lidhje me emailin, skadim, përdorim i vetëm; kodi i vjetër i përbashkët refuzohet.
+- Klasa të ndryshme në të njëjtin nivel, miratim anëtarësimi, ndalim i vlerësimit nga nxënësi ose mësues tjetër.
+- Afat i ruajtur, rifillim pa ndryshim kohe/varianti, refuzim i përgjigjes së vonuar, çelës i fshehur nga nxënësi.
+- Presja, pika, thyesat, toleranca numerike; pikë manuale dhe komente.
+- Lidhje/revokim prindi, evente me kufizim klase, rikuperim me ndërrim kodi dhe anulim seancash, fshirje llogarie.
+- Konflikti i progresit nuk mbishkruan versionin e serverit pa kontroll versioni.
+- 1 600 variante pyetjesh serveri (4 lëndë × 5 nivele × 80 raste): përgjigje numerike të fundme dhe metadata të vlefshme. Ky kontroll është strukturor, jo vërtetim i pavarur akademik i çdo formule të gjeneratorit.
+- 600 mësime, 600 ushtrime, 120 kapituj: ID unike; 30 mësime dhe 30 ushtrime për çdo lëndë/nivel.
+- 600 grupe objektivash të veçanta; 575 seksione arsyetimi të lidhura me shembullin; 25 tema të zgjeruara të matematikës të ruajtura.
+- 411 çifte llogaritjesh shembull/vetëkontroll u rillogaritën nga shprehjet e strukturuara; përputhen me vlerat e deklaruara.
+- Lidhjet mësim–ushtrim përputhen me lëndën dhe nivelin.
+- Të gjithë ID-të dhe përmbajtja e mëparshme e 600 ushtrimeve janë ruajtur; janë shtuar vetëm toleranca dhe udhëzimi i saktësisë.
+- 27 tema me ilustrime shkencore; 573 harta zgjidhjeje me hapa. Nuk janë 600 ilustrime anatomike/fizike të veçanta.
+- Të 20 kombinimet lëndë/nivel kanë të paktën gjashtë përgjigje të ndryshme për lojërat e çiftimit.
+- 17 skedarë Swift, përfshirë testin: parser sintakse pa gabime. Ky nuk është typecheck ose kompilim SwiftUI.
+- 69 objekte të projektit Xcode pa identifikues të dyfishtë ose referenca të pambështetura; burimet e reja të lidhura me target-in.
+- Info.plist dhe PrivacyInfo.xcprivacy të lexueshëm si plist.
+
+NUK ËSHTË KRYER KËTU
+- Kompilimi i projektit me SDK Apple, xcodebuild, XCTest në Mac ose Simulator.
+- Ekzekutimi dhe inspektimi vizual i UI-së në iPhone/iPad/Mac.
+- Lidhja me një server real të shkollës në internet, TLS/certifikatë reale, ose test ngarkese shkollore.
+- Audit i jashtëm sigurie dhe redaktim/certifikim akademik i të gjithë bankës.
+
+PËR TA PROVUAR NË MAC
+Hap ScienceQuest.xcodeproj; ekzekuto VERIFY-ON-MAC.command ose Product → Test.
+Ndiq PROVAT-NE-XCODE.md. Rezultatet e ardhshme të Xcode nuk janë parashikuar si PASS.
