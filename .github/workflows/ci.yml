@@ -21,3 +21,4 @@ jobs:
       - uses: actions/checkout@v4
         with: { persist-credentials: false }
       - run: xcodebuild -project ScienceQuest.xcodeproj -scheme ScienceQuest -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build test
+      - run: xcodebuild -project ScienceQuest.xcodeproj -scheme ScienceQuest -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build

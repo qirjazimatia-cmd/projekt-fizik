@@ -9,7 +9,13 @@ Ndiq këto rregulla në çdo bisedë, pa përjashtim.
 - Gjuha e punës: shqip.
 
 ## 2. Para çdo pune: lexo detyrat
-- `gh issue list --repo qirjazimatia-cmd/projekt-fizik --state open --limit 100 --json number,title,labels`
+Në bisedat e Claude, GraphQL i GitHub nuk lejohet (`gh issue list`, `gh pr list`, `gh label list` dështojnë). Përdor REST me `gh api`:
+- Detyrat e hapura: `gh api "repos/qirjazimatia-cmd/projekt-fizik/issues?state=open&per_page=100" --jq '.[] | select(.pull_request|not) | "#\(.number) [\(.labels|map(.name)|join(","))] \(.title)"'`
+- Merr detyrën: `gh api -X POST repos/qirjazimatia-cmd/projekt-fizik/issues/<nr>/labels -f "labels[]=<matia|juri>" -f "labels[]=në-punë"` dhe koment: `gh api -X POST repos/qirjazimatia-cmd/projekt-fizik/issues/<nr>/comments -f body="Filloi: ..."`
+- PR-të e hapura dhe skedarët e tyre: `gh api "repos/qirjazimatia-cmd/projekt-fizik/pulls?state=open" --jq '.[] | "#\(.number) \(.head.ref) \(.title)"'` dhe `gh api repos/qirjazimatia-cmd/projekt-fizik/pulls/<nr>/files --jq '.[].filename'`
+- Krijo PR: `gh api -X POST repos/qirjazimatia-cmd/projekt-fizik/pulls -f title=... -f head=<dega> -f base=main -f body=...`
+- Gjendja e CI: `gh api "repos/qirjazimatia-cmd/projekt-fizik/actions/runs?branch=<dega>&per_page=3" --jq '.workflow_runs[] | "\(.status) \(.conclusion)"'`
+- Bashko PR (vetëm kur CI kalon): `gh api -X PUT repos/qirjazimatia-cmd/projekt-fizik/pulls/<nr>/merge -f merge_method=squash`
 - Etiketat: `matia`, `juri` (pronari), `në-punë` (po punohet tani), `supabase` (prek bazën e të dhënave), `zona-e-përbashkët`.
 - **Mos prek kurrë një detyrë me etiketën e personit tjetër**, edhe nëse ai është offline. Thuaj kush e ka dhe sugjero një detyrë të lirë (pa pronar) ose të personit që po flet.
 - Kur fillon një detyrë: vendos etiketën e personit + `në-punë` dhe shkruaj një koment "Filloi: <çfarë>".
@@ -18,12 +24,12 @@ Ndiq këto rregulla në çdo bisedë, pa përjashtim.
 ## 3. Zonat
 - **Matia:** faqja "Sot", koordinimi i ngarkesës së testeve, versioni web.
 - **Juri:** projektet, portofoli, aktivitetet/klubet.
-- **Zona e përbashkët** (`App/SchoolService.swift`, `App/Accounts.swift`, `App/ScienceQuestApp.swift`, `app.gate`, `api_snapshot`, `api_me`, autentikimi): ndryshime të vogla, në PR të veçantë, bashkohen shpejt. Para ndryshimit kontrollo PR-të e hapura të personit tjetër që prekin të njëjtin skedar (`gh pr list --json number,title,files`). Nëse po, prit ose koordinohu me një koment te PR-ja e tij.
+- **Zona e përbashkët** (`App/SchoolService.swift`, `App/Accounts.swift`, `App/ScienceQuestApp.swift`, `app.gate`, `api_snapshot`, `api_me`, autentikimi): ndryshime të vogla, në PR të veçantë, bashkohen shpejt. Para ndryshimit kontrollo PR-të e hapura të personit tjetër që prekin të njëjtin skedar (shih komandat e PR-ve më sipër). Nëse po, prit ose koordinohu me një koment te PR-ja e tij.
 
 ## 4. Git
 - Askush nuk shkruan direkt te `main`. Degë: `matia/<detyra>` ose `juri/<detyra>`.
 - Para se të fillosh: `git fetch origin main` dhe nis degën nga `origin/main` më i ri.
-- Hap Pull Request me `Closes #<nr>`. CI (`.github/workflows/ci.yml`) kontrollon dhe ndërton në macOS; bashko vetëm kur CI kalon.
+- Hap Pull Request me `Closes #<nr>`. CI (`.github/workflows/ci.yml`) kontrollon dhe ndërton në macOS dhe iOS Simulator (kjo është prova e vetme e kompilimit kur Xcode i personit nuk është i arritshëm); bashko vetëm kur CI kalon.
 - Pas bashkimit, thuaj personit: Xcode → Source Control → Pull (ose `git pull`).
 
 ## 5. Supabase (`projekt-fizik`, i përbashkët)
