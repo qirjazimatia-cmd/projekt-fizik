@@ -37,6 +37,11 @@ struct SchoolHub: View {
                 if account.role == .student { studentTools }
                 if account.role == .parent { familyTools }
                 classList
+                if SupabaseConfig.enabled {
+                    NavigationLink { ProjectsScreen(ownedClasses: model.data.classes.filter { $0.owner == account.identity.replacingOccurrences(of:"school-",with:"") }) } label: {
+                        Tile(icon:"folder",title:"Projektet",detail:"Individuale dhe në grup: role, ditar kontributesh, versione dorëzimi me skedarë")
+                    }
+                }
                 assignedTests
                 results
                 if !model.message.isEmpty { Text(model.message).foregroundStyle(Color.red) }
@@ -348,6 +353,7 @@ struct ExamComposer: View {
 struct SubmissionFilesView: View {
     let files: [AttachmentFile]
     let editable: Bool
+    var emptyHint: String? = nil
     var onAdd: (() -> Void)? = nil
     var onRemove: ((AttachmentFile) -> Void)? = nil
     var onOpen: ((AttachmentFile) -> Void)? = nil
@@ -355,7 +361,7 @@ struct SubmissionFilesView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Skedarët").font(.headline)
             if files.isEmpty {
-                Text(editable ? "Mund të shtosh dokument, foto, audio ose video (deri 25 MB secili, gjithsej 10 për test)." : "Asnjë skedar.").font(.footnote)
+                Text(editable ? (emptyHint ?? "Mund të shtosh dokument, foto, audio ose video (deri 25 MB secili, gjithsej 10 për test).") : "Asnjë skedar.").font(.footnote)
             }
             ForEach(files) { file in
                 HStack {
