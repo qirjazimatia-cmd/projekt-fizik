@@ -22,3 +22,5 @@ jobs:
         with: { persist-credentials: false }
       - run: xcodebuild -project ScienceQuest.xcodeproj -scheme ScienceQuest -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build test
       - run: xcodebuild -project ScienceQuest.xcodeproj -scheme ScienceQuest -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+      # Apple Watch (#17): aplikacioni i orës ndërtohet më vete; ndërtimi iOS më sipër e fut brenda aplikacionit të iPhone-it.
+      - run: xcodebuild -project ScienceQuest.xcodeproj -scheme ScienceQuestWatch -destination 'generic/platform=watchOS Simulator' CODE_SIGNING_ALLOWED=NO build

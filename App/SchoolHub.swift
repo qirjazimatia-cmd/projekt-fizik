@@ -45,13 +45,16 @@ struct SchoolHub: View {
                 assignedTests
                 results
                 if !model.message.isEmpty { Text(model.message).foregroundStyle(Color.red) }
-                Button("Përditëso klasat dhe rezultatet") { Task { await model.refresh(account.token) } }
+                Button("Përditëso klasat dhe rezultatet") { Task { await model.refresh(account.token); await WatchPublisher.publish(model.data) } }
             } else {
                 Text("Për klasa, teste me afat dhe rezultate mes pajisjeve, hyr te llogaria e shkollës. Mësimet dhe laboratorët punojnë edhe pa lidhje.")
                 Text("Të dhënat e vjetra lokale ruhen në pajisje; nuk publikohen automatikisht si teste të reja.").font(.footnote)
             }
         }.disabled(model.busy).textFieldStyle(.roundedBorder)
-        .task { if account.isOnline { await model.refresh(account.token) } }
+        .task(id: account.isOnline) {
+            // Apple Watch (#17): përmbledhja shkon në orë pas çdo rifreskimi; pa llogari, ora pastrohet.
+            if account.isOnline { await model.refresh(account.token); await WatchPublisher.publish(model.data) } else { WatchPublisher.clear() }
+        }
         .confirmationDialog("Të fshihet klasa?", isPresented: Binding(get: { classToDelete != nil }, set: { if !$0 { classToDelete = nil } }), titleVisibility: .visible, presenting: classToDelete) { group in
             Button("Fshi «" + group.name + "» përgjithmonë", role: .destructive) {
                 if selectedClass == group.id { selectedClass = "" }
