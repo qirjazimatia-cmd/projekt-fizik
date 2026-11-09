@@ -142,26 +142,11 @@ final class LessonTutor {
         select(lesson)
     }
 
-    /// Teksti i lexuar nga një foto: zgjidh ekuacionet dhe llogaritjet që gjen, përndryshe kërkon temën.
-    func reply(toPhotoLines lines: [String]) -> TutorReply {
-        let clean = lines.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
-        guard !clean.isEmpty else {
-            return TutorReply(text: "Nuk arrita të lexoj tekst në këtë foto. Provo një foto më të qartë, me dritë të mirë dhe vetëm me ushtrimin, ose shkruaje pyetjen.")
-        }
-        var solved: [String] = []
-        for line in clean {
-            if let equation = TutorMath.solve(line) { solved.append(equation.explanation) }
-            else if let value = TutorMath.evaluate(line) { solved.append("\(value.expression) = \(TutorMath.format(value.result))") }
-        }
-        if !solved.isEmpty {
-            return TutorReply(title: "Nga fotoja", text: solved.joined(separator: "\n\n") +
-                              "\n\nKontrolloje që e lexova saktë ushtrimin. Nëse jo, shkruaje dhe e zgjidhim bashkë.",
-                              suggestions: ["Më jep një ushtrim tjetër", "Shpjegoje më thjesht"])
-        }
-        var answer = reply(to: clean.joined(separator: " "))
-        let preview = clean.joined(separator: " ").prefix(160)
-        answer.text = "Nga fotoja lexova: «\(preview)»\n\n" + answer.text
-        return answer
+    /// Kërkesat që i kryen më mirë asistenti lokal (ushtrimet e aplikacionit dhe përgjigjet e tyre), edhe kur ka internet.
+    func prefersLocal(_ text: String) -> Bool {
+        if case .none = waiting {} else { return true }
+        let intent = Self.understand(text).intent
+        return [.exercise, .hint, .reveal, .quiz].contains(intent)
     }
 
     func start(with lessonID: String) -> TutorReply? {
@@ -673,7 +658,7 @@ enum TutorMath {
                 i += 1
                 return value
             }
-            if chars[i] == "x", let x { i += 1; return x }
+            if chars[i] == "x", let value = x { i += 1; return value }
             let start = i
             while i < chars.count, chars[i].isNumber || chars[i] == "." { i += 1 }
             guard i > start else { return nil }

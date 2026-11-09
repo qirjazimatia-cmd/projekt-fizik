@@ -137,10 +137,7 @@ final class ValidationTests: XCTestCase {
         for text in ["x^3 = 8","2 + 3 = 5","Çfarë është ekuacioni?","1/x = 2"] { XCTAssertNil(TutorMath.solve(text),text) }
         let chat=try tutor()
         XCTAssertEqual(chat.reply(to:"2x + 3 = 11").title,"Ekuacioni")
-        let photo=chat.reply(toPhotoLines:["Ushtrimi 4","Zgjidh:","5x - 2 = 13"])
-        XCTAssertEqual(photo.title,"Nga fotoja"); XCTAssertTrue(photo.text.contains("x = 3"))
-        XCTAssertTrue(chat.reply(toPhotoLines:["Teorema e Pitagorës"]).text.hasPrefix("Nga fotoja lexova"))
-        XCTAssertTrue(chat.reply(toPhotoLines:[]).text.contains("Nuk arrita"))
+        XCTAssertTrue(chat.prefersLocal("më jep një ushtrim")); XCTAssertFalse(chat.prefersLocal("Çfarë është fotosinteza?"))
         XCTAssertEqual(LessonTutor.name,"Bosko AI")
     }
     func testBoskoExercisesHintsAndRoles() throws {
