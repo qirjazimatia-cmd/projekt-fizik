@@ -63,24 +63,33 @@ Deno.serve(async (req) => {
     contents[contents.length - 1].parts.push({ inline_data: { mime_type: mime, data: image.data } });
   }
 
-  const model = clean(Deno.env.get("GEMINI_MODEL")) || "gemini-flash-latest";
+  // Kur një model është i zënë (503/429/500), provojmë përsëri dhe pastaj një model tjetër falas.
+  const primary = clean(Deno.env.get("GEMINI_MODEL")) || "gemini-flash-latest";
+  const models = [...new Set([primary, primary, "gemini-flash-lite-latest", "gemini-2.5-flash"])];
+  const payload = JSON.stringify({
+    systemInstruction: { parts: [{ text: system(body.role ?? "student", body.lesson ?? "") }] },
+    contents,
+    generationConfig: { temperature: 0.4, maxOutputTokens: 2048 },
+  });
   const started = Date.now();
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: system(body.role ?? "student", body.lesson ?? "") }] },
-      contents,
-      generationConfig: { temperature: 0.4, maxOutputTokens: 2048 },
-    }),
-  }).catch((e) => { console.error("bosko-ai: fetch", String(e)); return null; });
-
-  if (!response) return reply({ error: "Bosko AI nuk u lidh dot. Provo përsëri." }, 502);
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    console.error("bosko-ai: gemini", response.status, JSON.stringify(result).slice(0, 500));
-    if (response.status === 429) return reply({ error: "Bosko AI është shumë i zënë tani (kufiri falas). Provo pas pak minutash." }, 429);
-    return reply({ error: "Bosko AI nuk u përgjigj (" + response.status + "). Provo përsëri." }, 502);
+  let result: any = {};
+  let status = 0;
+  for (const [attempt, model] of [primary, ...models].entries()) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 700));
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+      body: payload,
+    }).catch((e) => { console.error("bosko-ai: fetch", model, String(e)); return null; });
+    status = response?.status ?? 0;
+    result = response ? await response.json().catch(() => ({})) : {};
+    if (response?.ok) break;
+    console.error("bosko-ai: gemini", model, status, JSON.stringify(result).slice(0, 300));
+    if (![0, 429, 500, 503, 404].includes(status)) break;
+  }
+  if (status < 200 || status >= 300) {
+    if (status === 429 || status === 503) return reply({ error: "Bosko AI është shumë i zënë tani (shumë njerëz po e përdorin). Provo përsëri pas një minute." }, 503);
+    return reply({ error: "Bosko AI nuk u përgjigj (" + status + "). Provo përsëri." }, 502);
   }
   const parts = result?.candidates?.[0]?.content?.parts ?? [];
   const text = parts.map((p: { text?: string }) => p.text ?? "").join("").trim();
