@@ -1,4 +1,7 @@
 import SwiftUI
+import PhotosUI
+import ImageIO
+import UniformTypeIdentifiers
 
 // MARK: - Asistenti i mësimeve
 // Shpjegon temat duke kërkuar te 600 mësimet e aplikacionit. Punon në pajisje: pa internet, pa shërbim me pagesë,
@@ -210,71 +213,521 @@ extension StudyLesson {
         TutorLesson(id: id, subject: subject, title: title, introduction: introduction,
                     sections: sections.map { (title: $0.title, text: $0.text) }, problem: example.problem, steps: example.steps,
                     conclusion: example.conclusion, pitfall: pitfall, recap: recap, checkPrompt: check.prompt,
-                    checkOptions: check.options, checkCorrect: check.correct, checkWhy: check.why)
+                    checkOptions: check.options, checkCorrect: check.correct, checkWhy: check.why, exerciseIDs: exerciseIDs)
     }
 }
 
-private struct ChatLine: Identifiable {
-    let id = UUID()
-    let fromStudent: Bool
-    let reply: TutorReply
+extension Exercise {
+    var tutorExercise: TutorExercise {
+        TutorExercise(id: id, kind: kind, prompt: prompt, unit: unit, why: why, accuracy: accuracy, answers: answers, choices: choices, tolerance: tolerance)
+    }
 }
 
+extension SchoolRole {
+    var tutorRole: TutorRole {
+        switch self {
+        case .teacher: return .teacher
+        case .parent: return .parent
+        case .student: return .student
+        }
+    }
+}
+
+private struct ChatLine: Identifiable, Codable {
+    var id = UUID()
+    let fromStudent: Bool
+    let reply: TutorReply
+    /// Emri i fotos së ruajtur në pajisje (BoskoAI/foto/...), nëse mesazhi kishte foto.
+    var imageName: String? = nil
+    /// Përgjigje nga Bosko AI me internet (jo nga asistenti lokal).
+    var online: Bool? = nil
+}
+
+/// Një bisedë e ruajtur me Bosko AI.
+private struct ChatConversation: Identifiable, Codable {
+    var id = UUID()
+    var title = "Bisedë e re"
+    var updated = Date()
+    var lines: [ChatLine] = []
+    var hasQuestions: Bool { lines.contains(where: { $0.fromStudent }) }
+    var lastLessonID: String? { lines.last(where: { !$0.fromStudent && $0.reply.lessonID != nil })?.reply.lessonID }
+}
+
+/// Ruan bisedat dhe fotot në pajisje (një listë për çdo rol). Fshihen vetëm kur përdoruesi i fshin vetë.
+private enum ChatHistory {
+    static var folder: URL? {
+        guard let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
+        let folder = base.appendingPathComponent("BoskoAI", isDirectory: true)
+        try? FileManager.default.createDirectory(at: folder.appendingPathComponent("foto", isDirectory: true), withIntermediateDirectories: true)
+        return folder
+    }
+    private static func url(_ role: TutorRole) -> URL? { folder?.appendingPathComponent("bisedat-\(role).json") }
+    static func imageURL(_ name: String) -> URL? { folder?.appendingPathComponent("foto", isDirectory: true).appendingPathComponent(name) }
+
+    static func load(_ role: TutorRole) -> [ChatConversation] {
+        var list: [ChatConversation] = []
+        if let url = url(role), let data = try? Data(contentsOf: url) {
+            list = (try? JSONDecoder().decode([ChatConversation].self, from: data)) ?? []
+        }
+        // Biseda e vetme e versionit të mëparshëm ("Dija") bëhet bisedë e parë e listës.
+        if let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            let old = base.appendingPathComponent("Dija/biseda-\(role).json")
+            if let data = try? Data(contentsOf: old), let lines = try? JSONDecoder().decode([ChatLine].self, from: data),
+               lines.contains(where: { $0.fromStudent }) {
+                list.append(ChatConversation(title: title(for: lines), lines: lines))
+                save(list, role)
+                try? FileManager.default.removeItem(at: old)
+            }
+        }
+        return list.sorted { $0.updated > $1.updated }
+    }
+    static func save(_ list: [ChatConversation], _ role: TutorRole) {
+        let kept = list.filter { $0.hasQuestions }.prefix(100).map { conversation -> ChatConversation in
+            var copy = conversation
+            copy.lines = Array(copy.lines.suffix(400))
+            return copy
+        }
+        guard let url = url(role), let data = try? JSONEncoder().encode(Array(kept)) else { return }
+        try? data.write(to: url, options: .atomic)
+    }
+    static func saveImage(_ data: Data) -> String? {
+        let name = UUID().uuidString + ".jpg"
+        guard let url = imageURL(name), (try? data.write(to: url, options: .atomic)) != nil else { return nil }
+        return name
+    }
+    static func deleteImages(of conversation: ChatConversation) {
+        for name in conversation.lines.compactMap({ $0.imageName }) {
+            if let url = imageURL(name) { try? FileManager.default.removeItem(at: url) }
+        }
+    }
+    static func title(for lines: [ChatLine]) -> String {
+        guard let first = lines.first(where: { $0.fromStudent }) else { return "Bisedë e re" }
+        let text = first.reply.text.replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: .whitespaces)
+        if text.isEmpty { return first.imageName != nil ? "📷 Foto" : "Bisedë e re" }
+        return text.count > 42 ? String(text.prefix(40)) + "…" : text
+    }
+}
+
+/// Fotot: i zvogëlon në JPEG (deri 1600 px), pa UIKit/AppKit, që të shkojnë shpejt dhe të zënë pak vend.
+private enum ChatImage {
+    static func jpeg(from data: Data, maxPixels: Int = 1600) -> Data? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+        let options: [CFString: Any] = [kCGImageSourceCreateThumbnailFromImageAlways: true, kCGImageSourceCreateThumbnailWithTransform: true,
+                                        kCGImageSourceThumbnailMaxPixelSize: maxPixels]
+        guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
+        let output = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(output as CFMutableData, UTType.jpeg.identifier as CFString, 1, nil) else { return nil }
+        CGImageDestinationAddImage(destination, image, [kCGImageDestinationLossyCompressionQuality: 0.8] as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return output as Data
+    }
+    static func cgImage(_ data: Data) -> CGImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+        return CGImageSourceCreateImageAtIndex(source, 0, nil)
+    }
+}
+
+/// Lidhja me Bosko AI me internet (Edge Function `bosko-ai` te Supabase, që pyet Gemini). Çelësi nuk është në aplikacion.
+private enum BoskoOnline {
+    struct Failure: LocalizedError { let message: String; var errorDescription: String? { message } }
+    private struct Answer: Decodable { let text: String?; let error: String? }
+
+    @MainActor
+    static func ask(history: [ChatLine], image: Data?, role: TutorRole, lesson: String?) async throws -> String {
+        SupabaseAuth.shared.loadStored()
+        guard SupabaseConfig.enabled, SupabaseAuth.shared.session != nil else {
+            throw Failure(message: "Për Bosko AI me internet duhet të jesh i kyçur në llogari.")
+        }
+        let token = try await SupabaseAuth.shared.accessToken()
+        var base = SupabaseConfig.url
+        while base.hasSuffix("/") { base.removeLast() }
+        guard let url = URL(string: base + "/functions/v1/bosko-ai") else { throw Failure(message: "Adresa e shërbimit nuk është e vlefshme.") }
+        let messages: [[String: String]] = history.suffix(16).compactMap { line -> [String: String]? in
+            var text = line.reply.text
+            if let title = line.reply.title, !line.fromStudent { text = title + "\n" + text }
+            if line.imageName != nil && line.fromStudent && text.isEmpty { text = "(foto)" }
+            return text.isEmpty ? nil : ["role": line.fromStudent ? "user" : "model", "text": text]
+        }
+        var body: [String: Any] = ["messages": messages, "role": "\(role)"]
+        if let lesson { body["lesson"] = lesson }
+        if let image { body["image"] = ["mime": "image/jpeg", "data": image.base64EncodedString()] }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"; request.timeoutInterval = 90
+        request.setValue(SupabaseConfig.key, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        let answer = try? JSONDecoder().decode(Answer.self, from: data)
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode), let text = answer?.text, !text.isEmpty else {
+            let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+            throw Failure(message: answer?.error ?? (code == 404 ? "Bosko AI me internet nuk është aktivizuar ende te Supabase." : "Bosko AI nuk u përgjigj (\(code))."))
+        }
+        return text
+    }
+}
+
+/// "Bosko AI": biseda me asistentin e mësimeve, me listë bisedash anash (si te Claude). Me internet përgjigjet vijnë nga
+/// Bosko AI online (kupton edhe foto); pa internet përgjigjet asistenti lokal nga mësimet e aplikacionit.
 struct TutorChat: View {
-    /// Kur hapet nga një mësim, biseda nis me atë temë.
+    /// Kur hapet nga një mësim, nis një bisedë e re me atë temë.
     var startingLesson: StudyLesson? = nil
-    @State private var tutor = LessonTutor(search: LessonAssistantIndex.shared, lessons: StudyLesson.all.map(\.tutorLesson))
-    @State private var lines: [ChatLine] = []
+    private let role: TutorRole
+    @State private var tutor: LessonTutor
+    @State private var conversations: [ChatConversation] = []
+    @State private var currentID: UUID?
     @State private var draft = ""
+    @State private var pendingImage: Data?
+    @State private var loaded = false
+    @State private var showList = true
+    @State private var showListSheet = false
+    @State private var toDelete: ChatConversation?
+    @State private var photoItem: PhotosPickerItem?
+    @State private var showPhotoPicker = false
+    @State private var showFileImporter = false
+    @State private var showCamera = false
+    /// Bisedat që po presin përgjigje nga Bosko AI online (secila bisedë e vetën).
+    @State private var waitingIDs: Set<UUID> = []
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    #endif
+
+    init(startingLesson: StudyLesson? = nil, role: SchoolRole = .student) {
+        self.startingLesson = startingLesson
+        self.role = role.tutorRole
+        _tutor = State(initialValue: Self.makeTutor(role.tutorRole))
+    }
+
+    private static func makeTutor(_ role: TutorRole) -> LessonTutor {
+        LessonTutor(search: LessonAssistantIndex.shared, lessons: StudyLesson.all.map(\.tutorLesson),
+                    exercises: Exercise.all.map(\.tutorExercise), role: role)
+    }
+
+    private var compact: Bool {
+        #if os(iOS)
+        return sizeClass == .compact
+        #else
+        return false
+        #endif
+    }
+    private var lines: [ChatLine] { conversations.first(where: { $0.id == currentID })?.lines ?? [] }
+    private var saved: [ChatConversation] { conversations.filter { $0.hasQuestions } }
+    private var thinking: Bool { currentID.map { waitingIDs.contains($0) } ?? false }
+    private var canSend: Bool { !thinking && (pendingImage != nil || !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) }
 
     var body: some View {
+        HStack(spacing: 0) {
+            if showList && !compact {
+                ConversationList(conversations: saved, currentID: currentID,
+                                 choose: { open($0) }, delete: { toDelete = $0 }, newChat: { newConversation() })
+                    .frame(width: 250)
+                Divider()
+            }
+            chatColumn
+        }
+        .background(Color.paper)
+        .navigationTitle(LessonTutor.name)
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button {
+                    if compact { showListSheet = true } else { withAnimation { showList.toggle() } }
+                } label: { Label("Bisedat", systemImage: "sidebar.left") }
+                Button { newConversation() } label: { Label("Bisedë e re", systemImage: "square.and.pencil") }
+            }
+        }
+        .sheet(isPresented: $showListSheet) {
+            NavigationStack {
+                ConversationList(conversations: saved, currentID: currentID,
+                                 choose: { open($0); showListSheet = false }, delete: { toDelete = $0 },
+                                 newChat: { newConversation(); showListSheet = false })
+                    .navigationTitle("Bisedat")
+                    .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Mbyll") { showListSheet = false } } }
+            }
+        }
+        .confirmationDialog("Ta fshij këtë bisedë?", isPresented: Binding(get: { toDelete != nil }, set: { if !$0 { toDelete = nil } }),
+                            titleVisibility: .visible) {
+            Button("Fshi bisedën", role: .destructive) { if let c = toDelete { delete(c) } }
+            Button("Anulo", role: .cancel) { toDelete = nil }
+        } message: {
+            Text("«\(toDelete?.title ?? "")» fshihet bashkë me fotot e saj. Bisedat e tjera mbeten.")
+        }
+        .photosPicker(isPresented: $showPhotoPicker, selection: $photoItem, matching: .images)
+        .onChange(of: photoItem) { item in
+            guard let item else { return }
+            photoItem = nil
+            Task { @MainActor in
+                if let data = try? await item.loadTransferable(type: Data.self) { attach(data) }
+            }
+        }
+        .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [.image]) { result in
+            guard case .success(let url) = result else { return }
+            let access = url.startAccessingSecurityScopedResource()
+            let data = try? Data(contentsOf: url)
+            if access { url.stopAccessingSecurityScopedResource() }
+            if let data { attach(data) }
+        }
+        #if os(iOS)
+        .sheet(isPresented: $showCamera) {
+            CameraPicker(done: { attach($0) }, close: { showCamera = false }).ignoresSafeArea()
+        }
+        #endif
+        .onAppear { load() }
+    }
+
+    private var chatColumn: some View {
         VStack(spacing: 0) {
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 12) {
                         ChatIntro()
                         ForEach(lines) { line in ChatBubble(line: line).id(line.id) }
+                        if thinking {
+                            HStack(spacing: 8) { ProgressView(); Text("Bosko po mendon…").foregroundStyle(.secondary) }
+                                .padding(.vertical, 6).id("thinking")
+                        }
                     }
                     .frame(maxWidth: 720, alignment: .leading).padding(16).frame(maxWidth: .infinity)
                 }
                 .onChange(of: lines.count) { _ in
                     if let last = lines.last { withAnimation { proxy.scrollTo(last.id, anchor: .bottom) } }
                 }
+                .onChange(of: thinking) { now in
+                    if now { withAnimation { proxy.scrollTo("thinking", anchor: .bottom) } }
+                }
             }
             ChatSuggestions(items: lines.last(where: { !$0.fromStudent })?.reply.suggestions ?? LessonAssistantIndex.examples.prefix(3).map { $0 }) { send($0) }
-            HStack {
-                TextField("Shkruaj këtu…", text: $draft, axis: .vertical).textFieldStyle(.roundedBorder).lineLimit(1...4).onSubmit { send(draft) }
-                Button { send(draft) } label: { Image(systemName: "arrow.up.circle.fill").font(.title) }
-                    .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    .accessibilityLabel("Dërgo")
-            }.padding(12).background(.white)
+            composer
         }
-        .background(Color.paper)
-        .navigationTitle("Bisedo me asistentin")
-        .onAppear {
-            guard lines.isEmpty else { return }
-            if let lesson = startingLesson, let first = tutor.start(with: lesson.id) {
-                lines.append(ChatLine(fromStudent: false, reply: first))
-            } else {
-                lines.append(ChatLine(fromStudent: false, reply: tutor.reply(to: "përshëndetje")))
+    }
+
+    /// Kutia e shkrimit: foto (opsionale) + tekst (opsional), dërgohen bashkë me një shtypje.
+    private var composer: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if let pendingImage, let image = ChatImage.cgImage(pendingImage) {
+                ZStack(alignment: .topTrailing) {
+                    Image(decorative: image, scale: 1).resizable().scaledToFill()
+                        .frame(width: 84, height: 84).clipShape(RoundedRectangle(cornerRadius: 10))
+                    Button { self.pendingImage = nil } label: {
+                        Image(systemName: "xmark.circle.fill").font(.title3).foregroundStyle(.white, .black.opacity(0.6))
+                    }
+                    .buttonStyle(.plain).padding(4).accessibilityLabel("Hiq foton")
+                }
+            }
+            HStack(alignment: .bottom) {
+                Menu {
+                    Button { showPhotoPicker = true } label: { Label("Nga fotot", systemImage: "photo") }
+                    #if os(iOS)
+                    if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                        Button { showCamera = true } label: { Label("Bëj foto", systemImage: "camera") }
+                    }
+                    #endif
+                    Button { showFileImporter = true } label: { Label("Nga një skedar", systemImage: "folder") }
+                } label: {
+                    Image(systemName: "camera.fill").font(.title3)
+                }
+                .fixedSize()
+                .accessibilityLabel("Shto një foto")
+                TextField(pendingImage == nil ? "Shkruaj këtu…" : "Shto një pyetje për foton (s'është e detyrueshme)…", text: $draft, axis: .vertical)
+                    .textFieldStyle(.roundedBorder).lineLimit(1...5)
+                    .onSubmit { if canSend { send(draft) } }
+                Button { send(draft) } label: { Image(systemName: "arrow.up.circle.fill").font(.title) }
+                    .buttonStyle(.plain).foregroundStyle(canSend ? Color.lagoon : Color.secondary)
+                    .disabled(!canSend)
+                    .keyboardShortcut(.return, modifiers: .command)
+                    .accessibilityLabel("Dërgo")
             }
         }
+        .padding(12).background(.white)
+    }
+
+    // MARK: Bisedat
+
+    private func load() {
+        guard !loaded else { return }
+        loaded = true
+        conversations = ChatHistory.load(role)
+        if let lesson = startingLesson, let first = tutor.start(with: lesson.id) {
+            let conversation = ChatConversation(lines: [ChatLine(fromStudent: false, reply: first)])
+            conversations.insert(conversation, at: 0)
+            currentID = conversation.id
+        } else if let latest = conversations.first {
+            open(latest)
+        } else {
+            newConversation()
+        }
+    }
+
+    private func open(_ conversation: ChatConversation) {
+        currentID = conversation.id
+        tutor = Self.makeTutor(role)
+        tutor.resume(lessonID: conversation.lastLessonID)
+    }
+
+    private func newConversation() {
+        // Një bisedë bosh nuk dyfishohet: thjesht mbetemi te ajo.
+        conversations.removeAll { !$0.hasQuestions && $0.id != currentID }
+        if let current = conversations.first(where: { $0.id == currentID }), !current.hasQuestions { return }
+        tutor = Self.makeTutor(role)
+        let conversation = ChatConversation(lines: [ChatLine(fromStudent: false, reply: tutor.welcome())])
+        conversations.insert(conversation, at: 0)
+        currentID = conversation.id
+    }
+
+    private func delete(_ conversation: ChatConversation) {
+        ChatHistory.deleteImages(of: conversation)
+        conversations.removeAll { $0.id == conversation.id }
+        toDelete = nil
+        ChatHistory.save(conversations, role)
+        if currentID == conversation.id {
+            currentID = nil
+            if let next = conversations.first(where: { $0.hasQuestions }) { open(next) } else { newConversation() }
+        }
+    }
+
+    private func append(_ newLines: [ChatLine], to id: UUID?) {
+        guard let index = conversations.firstIndex(where: { $0.id == id }) else { return }
+        conversations[index].lines.append(contentsOf: newLines)
+        conversations[index].updated = Date()
+        conversations[index].title = ChatHistory.title(for: conversations[index].lines)
+        let conversation = conversations.remove(at: index)
+        conversations.insert(conversation, at: 0)
+        ChatHistory.save(conversations, role)
+    }
+
+    // MARK: Dërgimi
+
+    private func attach(_ data: Data) {
+        if let jpeg = ChatImage.jpeg(from: data) { pendingImage = jpeg }
+    }
+
+    /// Materiali nga 600 mësimet e aplikacionit që i jepet Bosko AI: tema e bisedës dhe mësimet që i përshtaten pyetjes.
+    /// Kështu përgjigjet ndjekin programin dhe fjalorin e shkollës.
+    private func lessonContext(_ conversation: ChatConversation?, question: String) -> String? {
+        var ids: [String] = []
+        if let id = conversation?.lastLessonID { ids.append(id) }
+        if !question.isEmpty {
+            for hit in LessonAssistantIndex.shared.search(question, limit: 3) where !ids.contains(hit.id) { ids.append(hit.id) }
+        }
+        let parts = ids.prefix(3).compactMap { id -> String? in
+            guard let lesson = LessonAssistantIndex.byID[id] else { return nil }
+            let sections = lesson.sections.prefix(3).map { $0.title + ": " + $0.text }.joined(separator: "\n")
+            return "• " + lesson.title + "\n" + lesson.introduction + "\n" + sections + "\nPërmbledhje: " + lesson.recap.joined(separator: " ")
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: "\n\n")
     }
 
     private func send(_ text: String) {
         let clean = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !clean.isEmpty else { return }
-        draft = ""
-        lines.append(ChatLine(fromStudent: true, reply: TutorReply(text: clean)))
-        lines.append(ChatLine(fromStudent: false, reply: tutor.reply(to: clean)))
+        let image = pendingImage
+        guard !thinking, !clean.isEmpty || image != nil, let id = currentID else { return }
+        draft = ""; pendingImage = nil
+        let imageName = image.flatMap { ChatHistory.saveImage($0) }
+        append([ChatLine(fromStudent: true, reply: TutorReply(text: clean), imageName: imageName)], to: id)
+
+        // Ushtrimet e aplikacionit (dhe kontrolli i përgjigjeve) mbeten te asistenti lokal.
+        if image == nil && tutor.prefersLocal(clean) {
+            append([ChatLine(fromStudent: false, reply: tutor.reply(to: clean))], to: id)
+            return
+        }
+        let history = conversations.first(where: { $0.id == id })?.lines ?? []
+        let context = lessonContext(conversations.first(where: { $0.id == id }), question: clean)
+        waitingIDs.insert(id)
+        Task { @MainActor in
+            do {
+                let answer = try await BoskoOnline.ask(history: history, image: image, role: role, lesson: context)
+                append([ChatLine(fromStudent: false, reply: TutorReply(text: answer, suggestions: ["Shpjegoje më thjesht", "Më jep një shembull", "Më jep një ushtrim"]), online: true)], to: id)
+            } catch {
+                let reason = (error as? LocalizedError)?.errorDescription ?? "Nuk ka lidhje me internetin."
+                if image != nil || clean.isEmpty {
+                    append([ChatLine(fromStudent: false, reply: TutorReply(title: "Fotoja nuk u dërgua",
+                        text: reason + "\n\nFotot i kupton vetëm Bosko AI me internet. Provo përsëri pas pak, ose shkruaje ushtrimin këtu."))], to: id)
+                } else {
+                    var local = tutor.reply(to: clean)
+                    local.text = "(Pa internet tani: " + reason + " Po të përgjigjem nga mësimet e aplikacionit.)\n\n" + local.text
+                    append([ChatLine(fromStudent: false, reply: local)], to: id)
+                }
+            }
+            waitingIDs.remove(id)
+        }
     }
 }
+
+private struct ConversationList: View {
+    let conversations: [ChatConversation]
+    let currentID: UUID?
+    let choose: (ChatConversation) -> Void
+    let delete: (ChatConversation) -> Void
+    let newChat: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Button(action: newChat) {
+                Label("Bisedë e re", systemImage: "square.and.pencil").frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .buttonStyle(.bordered).padding(12)
+            if conversations.isEmpty {
+                Text("Bisedat e tua do shfaqen këtu. Ruhen në këtë pajisje derisa t'i fshish.")
+                    .font(.footnote).foregroundStyle(.secondary).padding(.horizontal, 12)
+                Spacer()
+            } else {
+                List {
+                    ForEach(conversations) { conversation in
+                        HStack {
+                            Button { choose(conversation) } label: {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(conversation.title).lineLimit(1)
+                                        .fontWeight(conversation.id == currentID ? .semibold : .regular)
+                                    Text(conversation.updated, format: .dateTime.day().month().hour().minute())
+                                        .font(.caption2).foregroundStyle(.secondary)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            Button { delete(conversation) } label: { Image(systemName: "trash").font(.caption) }
+                                .buttonStyle(.plain).foregroundStyle(.secondary).accessibilityLabel("Fshi bisedën")
+                        }
+                        .listRowBackground(conversation.id == currentID ? Color.lagoon.opacity(0.14) : Color.clear)
+                    }
+                }
+                .listStyle(.plain)
+            }
+        }
+        .background(Color.paper)
+    }
+}
+
+#if os(iOS)
+/// Kamera e iPhone/iPad për të fotografuar ushtrimin.
+private struct CameraPicker: UIViewControllerRepresentable {
+    let done: (Data) -> Void
+    let close: () -> Void
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.delegate = context.coordinator
+        return picker
+    }
+    func updateUIViewController(_ controller: UIImagePickerController, context: Context) {}
+    func makeCoordinator() -> Coordinator { Coordinator(done: done, close: close) }
+    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let done: (Data) -> Void
+        let close: () -> Void
+        init(done: @escaping (Data) -> Void, close: @escaping () -> Void) { self.done = done; self.close = close }
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            if let image = info[.originalImage] as? UIImage, let data = image.jpegData(compressionQuality: 0.9) { done(data) }
+            close()
+        }
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { close() }
+    }
+}
+#endif
 
 private struct ChatIntro: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label("Asistenti i mësimeve", systemImage: "bubble.left.and.bubble.right.fill").font(.title2.bold())
-            Text("Pyet për një temë, pastaj thuaj \"më thjesht\", \"shembull\", \"pse?\", \"më shumë\" ose \"më pyet\". Punon në pajisjen tënde, edhe pa internet. Shpjegimet vijnë nga mësimet e aplikacionit, jo nga interneti.")
+            Label(LessonTutor.name + " · asistenti i mësimeve", systemImage: "sparkles").font(.title2.bold())
+            Text("Pyet çfarë të duash për mësimet, ose dërgo foton e ushtrimit 📷 (me ose pa pyetje). Me internet përgjigjet Bosko AI online; pa internet të ndihmon nga mësimet e aplikacionit. Bisedat ruhen në këtë pajisje.")
                 .font(.footnote).foregroundStyle(.secondary)
             NavigationLink("Kërko temat si listë") { LessonAssistant() }.font(.footnote)
         }
@@ -283,16 +736,28 @@ private struct ChatIntro: View {
 
 private struct ChatBubble: View {
     let line: ChatLine
+    private var formatted: AttributedString {
+        (try? AttributedString(markdown: line.reply.text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
+            ?? AttributedString(line.reply.text)
+    }
     var body: some View {
         HStack {
             if line.fromStudent { Spacer(minLength: 40) }
             VStack(alignment: .leading, spacing: 8) {
+                if let name = line.imageName, let url = ChatHistory.imageURL(name), let data = try? Data(contentsOf: url),
+                   let image = ChatImage.cgImage(data) {
+                    Image(decorative: image, scale: 1).resizable().scaledToFit()
+                        .frame(maxWidth: 260, maxHeight: 260).clipShape(RoundedRectangle(cornerRadius: 10))
+                }
                 if let title = line.reply.title { Text(title).font(.headline) }
-                Text(line.reply.text).fixedSize(horizontal: false, vertical: true)
+                if !line.reply.text.isEmpty { Text(formatted).textSelection(.enabled).fixedSize(horizontal: false, vertical: true) }
                 if !line.fromStudent, let id = line.reply.lessonID, let lesson = LessonAssistantIndex.byID[id] {
                     NavigationLink { StudyReader(lesson: lesson) } label: {
                         Label("Burimi: " + lesson.title, systemImage: "book").font(.caption.bold())
                     }.buttonStyle(.plain).foregroundStyle(Color.lagoon)
+                }
+                if line.online == true {
+                    Label("Bosko AI online · kontrolloje me mësuesin kur ke dyshime", systemImage: "sparkles").font(.caption2).foregroundStyle(.secondary)
                 }
             }
             .padding(12)

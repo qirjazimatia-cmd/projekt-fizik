@@ -228,7 +228,7 @@ struct StudyReader: View {
                     }
                 }
                 NavigationLink { TutorChat(startingLesson: lesson) } label: {
-                    Label("Bisedo me asistentin për këtë temë", systemImage: "bubble.left.and.bubble.right")
+                    Label("Pyet " + LessonTutor.name + " për këtë temë", systemImage: "sparkles")
                 }.buttonStyle(.bordered)
                 introduction
                 LessonDiagramView(lesson:lesson)

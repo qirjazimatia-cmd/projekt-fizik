@@ -352,6 +352,7 @@ isa = PBXNativeTarget; buildConfigurationList = 2D4B4987D85FBBA640B3A339; buildP
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Science Quest";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Bosko AI përdor kamerën vetëm kur fotografon një ushtrim për ta zgjidhur. Fotoja lexohet në pajisje dhe nuk dërgohet gjëkundi.";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -381,6 +382,7 @@ isa = PBXNativeTarget; buildConfigurationList = 2D4B4987D85FBBA640B3A339; buildP
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Science Quest";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Bosko AI përdor kamerën vetëm kur fotografon një ushtrim për ta zgjidhur. Fotoja lexohet në pajisje dhe nuk dërgohet gjëkundi.";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

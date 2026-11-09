@@ -61,7 +61,7 @@ final class ValidationTests: XCTestCase {
     }
 
     // Biseda me asistentin: përshëndetje, temë, pyetje vijuese dhe pyetje prove.
-    private func tutor() throws -> LessonTutor {
+    private func tutor(role: TutorRole = .student) throws -> LessonTutor {
         let url=try XCTUnwrap(Bundle(for:Self.self).url(forResource:"Lessons",withExtension:"json"))
         let raw=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:url)) as? [[String:Any]])
         let lessons:[TutorLesson]=raw.map { l in
@@ -74,9 +74,16 @@ final class ValidationTests: XCTestCase {
                                conclusion:example["conclusion"] as? String ?? "", pitfall:l["pitfall"] as? String ?? "",
                                recap:l["recap"] as? [String] ?? [], checkPrompt:check["prompt"] as? String ?? "",
                                checkOptions:check["options"] as? [String] ?? [], checkCorrect:check["correct"] as? Int ?? 0,
-                               checkWhy:check["why"] as? String ?? "")
+                               checkWhy:check["why"] as? String ?? "", exerciseIDs:l["exerciseIDs"] as? [String] ?? [])
         }
-        return LessonTutor(search:try assistantIndex(), lessons:lessons)
+        let exerciseURL=try XCTUnwrap(Bundle(for:Self.self).url(forResource:"Exercises",withExtension:"json"))
+        let bank=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:exerciseURL)) as? [[String:Any]])
+        let exercises=bank.map { e in
+            TutorExercise(id:e["id"] as! String, kind:e["kind"] as? String ?? "", prompt:e["prompt"] as? String ?? "", unit:e["unit"] as? String ?? "",
+                          why:e["why"] as? String ?? "", accuracy:e["accuracy"] as? String ?? "", answers:e["answers"] as? [String] ?? [],
+                          choices:e["choices"] as? [String] ?? [], tolerance:e["tolerance"] as? Double ?? 0)
+        }
+        return LessonTutor(search:try assistantIndex(), lessons:lessons, exercises:exercises, role:role)
     }
     func testTutorUnderstandsSmallTalk() {
         XCTAssertEqual(LessonTutor.understand("Përshëndetje!").intent,.greeting)
@@ -107,5 +114,53 @@ final class ValidationTests: XCTestCase {
         XCTAssertNil(chat.reply(to:"xyzqw kot").title)
         XCTAssertEqual(chat.current?.id,"LB2-07", "fjalë e panjohur nuk e ndryshon temën")
         XCTAssertEqual(chat.start(with:"LM1-23")?.lessonID,"LM1-23")
+    }
+
+    func testBoskoCalculates() {
+        XCTAssertEqual(TutorMath.evaluate("Sa bën 3 + 4 × 2?")?.result,11)
+        XCTAssertEqual(TutorMath.evaluate("20% e 750")?.result,150)
+        XCTAssertEqual(TutorMath.evaluate("rrënja e 144")?.result,12)
+        XCTAssertEqual(TutorMath.evaluate("12 : 4")?.result,3)
+        XCTAssertEqual(TutorMath.evaluate("2^10")?.result,1024)
+        XCTAssertEqual(TutorMath.evaluate("(2,5 + 1,5) x 3")?.result,12)
+        for text in ["Kapitulli 3-4","LM1-03","5","-5","Çfarë është fotosinteza?","12 : 0"] { XCTAssertNil(TutorMath.evaluate(text),text) }
+        XCTAssertEqual(TutorMath.format(2.5),"2,5")
+    }
+    func testBoskoSolvesEquationsAndPhotos() throws {
+        XCTAssertEqual(TutorMath.solve("2x + 3 = 11")?.solutions,[4])
+        XCTAssertEqual(TutorMath.solve("Zgjidh ekuacionin: 3(x - 1) = x + 5")?.solutions,[4])
+        XCTAssertEqual(TutorMath.solve("x² - 5x + 6 = 0")?.solutions,[2,3])
+        XCTAssertEqual(TutorMath.solve("x^2 = 9")?.solutions,[-3,3])
+        XCTAssertEqual(TutorMath.solve("(x+1)(x-1) = 0")?.solutions,[-1,1])
+        XCTAssertEqual(TutorMath.solve("0,5x = 2")?.solutions,[4])
+        XCTAssertEqual(TutorMath.solve("x^2 + 1 = 0")?.solutions,[])
+        for text in ["x^3 = 8","2 + 3 = 5","Çfarë është ekuacioni?","1/x = 2"] { XCTAssertNil(TutorMath.solve(text),text) }
+        let chat=try tutor()
+        XCTAssertEqual(chat.reply(to:"2x + 3 = 11").title,"Ekuacioni")
+        XCTAssertTrue(chat.prefersLocal("më jep një ushtrim")); XCTAssertFalse(chat.prefersLocal("Çfarë është fotosinteza?"))
+        XCTAssertEqual(LessonTutor.name,"Bosko AI")
+    }
+    func testBoskoExercisesHintsAndRoles() throws {
+        let chat=try tutor()
+        _=chat.start(with:"LM1-23")
+        let exercise=chat.reply(to:"më jep një ushtrim")
+        XCTAssertEqual(exercise.title,"Ushtrim"); XCTAssertTrue(exercise.text.contains("syprin"))
+        XCTAssertFalse(chat.reply(to:"25").text.hasPrefix("Saktë"), "përgjigje e gabuar: provo përsëri")
+        XCTAssertEqual(chat.reply(to:"një ndihmë").title,"Një ndihmë")
+        XCTAssertTrue(chat.reply(to:"30").text.hasPrefix("Saktë!"))
+        _=chat.start(with:"LM1-14")
+        XCTAssertEqual(chat.reply(to:"ushtrim").suggestions.prefix(3),["1","2","3"])
+        XCTAssertTrue(chat.reply(to:"1").text.hasPrefix("Saktë!"))
+        XCTAssertEqual(chat.reply(to:"Kam test nesër për përqindjet").title?.hasPrefix("Plani për"),true)
+        XCTAssertEqual(chat.reply(to:"Çfarë folëm?").title,"Çfarë folëm")
+        XCTAssertTrue(chat.reply(to:"Sa bën 3 + 4 × 2?").text.contains("= 11"))
+        XCTAssertTrue(try tutor().reply(to:"E kam të vështirë").text.contains("temë"))
+        let teacher=try tutor(role:.teacher)
+        XCTAssertTrue(teacher.welcome().text.contains("orë mësimi"))
+        let lesson=teacher.reply(to:"Si ta shpjegoj teoremën e Pitagorës?")
+        XCTAssertEqual(lesson.lessonID,"LM1-23"); XCTAssertEqual(lesson.title?.hasPrefix("Si ta zhvilloni"),true)
+        XCTAssertEqual(teacher.reply(to:"më pyet").title,"Pyetje për klasën")
+        let parent=try tutor(role:.parent).reply(to:"Si ta ndihmoj fëmijën me përqindjet?")
+        XCTAssertEqual(parent.title?.hasSuffix("për prindin"),true)
     }
 }

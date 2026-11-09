@@ -19,6 +19,8 @@ for needle in ("internal_issue_login_code", "api_loginCodeVerify", "session_2fa_
     if needle not in sql: errors.append(f"SQL nuk përmban '{needle}' (0004)")
 edge = (root/"Supabase/functions/send-login-code/index.ts").read_text(encoding="utf-8")
 if "SMTP_PASS" not in edge or re.search(r"(password|pass)\s*[:=]\s*[\"'][^\"']{6,}", edge, re.I): errors.append("Edge Function: fjalëkalimi SMTP duhet të vijë nga secrets, jo të shkruhet në kod")
+ai = (root/"Supabase/functions/bosko-ai/index.ts").read_text(encoding="utf-8")
+if 'Deno.env.get("GEMINI_API_KEY")' not in ai or re.search(r"AIza[0-9A-Za-z_-]{20,}", ai): errors.append("Edge Function bosko-ai: çelësi Gemini duhet të vijë nga secrets, jo të shkruhet në kod")
 if "emailLogin" not in swift or "loginCodeVerify" not in swift or "send-login-code" not in swift: errors.append("Swift nuk përdor rrjedhën e kodit me email")
 if "mfaSetup" not in swift or "classDelete" not in swift or "examDelete" not in swift: errors.append("Swift nuk përdor mfaSetup/classDelete/examDelete")
 tables = re.findall(r"create table (?:if not exists )?app\.(\w+)", sql)
