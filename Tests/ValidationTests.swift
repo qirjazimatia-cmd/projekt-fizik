@@ -29,4 +29,34 @@ final class ValidationTests: XCTestCase {
             XCTAssertNotNil(lesson["diagram"])
         }
     }
+
+    // Asistenti i mësimeve: kërkimi në pajisje gjen temën e duhur. Pritjet u nxorën nga i njëjti algoritëm (prototip në Python).
+    private func assistantIndex() throws -> LessonSearch {
+        let url=try XCTUnwrap(Bundle(for:Self.self).url(forResource:"Lessons",withExtension:"json"))
+        let lessons=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:url)) as? [[String:Any]])
+        return LessonSearch(lessons.map { l in
+            let sections=(l["sections"] as? [[String:String]] ?? []).map { ($0["title"] ?? "")+" "+($0["text"] ?? "") }
+            let example=l["example"] as? [String:Any] ?? [:]
+            return .lesson(id:l["id"] as! String, subject:l["subject"] as! String, level:l["level"] as! Int, title:l["title"] as! String,
+                           chapterTitle:l["chapterTitle"] as! String, objectives:l["objectives"] as? [String] ?? [],
+                           introduction:l["introduction"] as? String ?? "", sections:sections,
+                           example:(example["problem"] as? String ?? "")+" "+(example["steps"] as? [String] ?? []).joined(separator:" "),
+                           recap:l["recap"] as? [String] ?? [])
+        })
+    }
+    func testAssistantNormalizesAlbanianText() {
+        XCTAssertEqual(LessonSearch.tokens("Çfarë është Fotosinteza? Shpejtësia, ë ç!"),["fotos","shpej"])
+    }
+    func testAssistantFindsTheRightLesson() throws {
+        let index=try assistantIndex()
+        let expected=["Si llogaritet shpejtësia mesatare?":"LF1-06","Çfarë është fotosinteza":"LB1-23","teorema e Pitagorës":"LM1-23",
+                      "barazimi i ekuacionit kimik":"LK1-22","si funksionon osmoza":"LB2-07","Ligji i dytë i Njutonit":"LF1-13",
+                      "energjia kinetike":"LF1-24","pH e acideve":"LK1-29"]
+        for (query,id) in expected { XCTAssertEqual(index.search(query).first?.id,id,query) }
+        XCTAssertEqual(index.search("shpejtësia mesatare",subject:"Kimi").first?.id,"LK3-01")
+        XCTAssertEqual(index.search("shpejtësia mesatare",level:3).first?.id,"LK3-01")
+        XCTAssertTrue(index.search("xyzqw kot").isEmpty)
+        XCTAssertTrue(index.search("   ").isEmpty)
+        XCTAssertLessThanOrEqual(index.search("energjia",limit:5).count,5)
+    }
 }
