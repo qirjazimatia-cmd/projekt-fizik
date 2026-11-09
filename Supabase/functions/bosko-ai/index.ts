@@ -1,7 +1,7 @@
 // Don Bosko Connect · Edge Function `bosko-ai`
 // Bosko AI: asistenti i mësimeve me internet. Merr bisedën (dhe një foto opsionale) nga aplikacioni dhe pyet Google Gemini
 // (niveli falas i API-së). Çelësi ruhet si SECRET te Supabase (Edge Functions → Secrets → GEMINI_API_KEY), jo këtu dhe jo në Git.
-// Opsionale: GEMINI_MODEL (parazgjedhja "gemini-flash-latest").
+// Opsionale: GEMINI_MODEL (parazgjedhja "gemini-flash-lite-latest", më i shpejti).
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const headers = { "Content-Type": "application/json" };
@@ -64,9 +64,9 @@ Deno.serve(async (req) => {
   }
 
   // Kur një model është i zënë (503/429/500), provojmë përsëri dhe pastaj një model tjetër falas.
-  const primary = clean(Deno.env.get("GEMINI_MODEL")) || "gemini-flash-latest";
-  // Çdo provë ka afat 22 s (Gemini ndonjëherë rri pa u përgjigjur kur është i ngarkuar); gjithsej jo më shumë se ~70 s.
-  const models = [...new Set([primary, "gemini-flash-lite-latest", "gemini-2.5-flash"])];
+  const primary = clean(Deno.env.get("GEMINI_MODEL")) || "gemini-flash-lite-latest";
+  // Modeli "lite" përgjigjet zakonisht për 1–3 s. Çdo provë ka afat të shkurtër, që Bosko të mos rrijë duke pritur.
+  const models = [...new Set([primary, "gemini-flash-lite-latest", "gemini-2.5-flash-lite", "gemini-flash-latest"])];
   const payload = JSON.stringify({
     systemInstruction: { parts: [{ text: system(body.role ?? "student", body.lesson ?? "") }] },
     contents,
@@ -75,14 +75,14 @@ Deno.serve(async (req) => {
   const started = Date.now();
   let result: any = {};
   let status = 0;
-  for (const [attempt, model] of [...models, primary].entries()) {
-    if (Date.now() - started > 60_000) break;
-    if (attempt > 0) await new Promise((r) => setTimeout(r, 500));
+  for (const [attempt, model] of models.entries()) {
+    if (Date.now() - started > 40_000) break;
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 200));
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: payload,
-      signal: AbortSignal.timeout(22_000),
+      signal: AbortSignal.timeout(model.includes("lite") ? 12_000 : 18_000),
     }).catch((e) => { console.error("bosko-ai: fetch", model, String(e)); return null; });
     status = response?.status ?? 0;
     result = response ? await response.json().catch(() => ({})) : {};
