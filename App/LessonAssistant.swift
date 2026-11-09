@@ -230,10 +230,31 @@ extension SchoolRole {
     }
 }
 
-private struct ChatLine: Identifiable {
-    let id = UUID()
+private struct ChatLine: Identifiable, Codable {
+    var id = UUID()
     let fromStudent: Bool
     let reply: TutorReply
+}
+
+/// Ruan bisedat me Dijën në pajisje (një për çdo rol), derisa përdoruesi t'i fshijë vetë.
+private enum ChatHistory {
+    private static func url(_ role: TutorRole) -> URL? {
+        guard let folder = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("Dija", isDirectory: true) else { return nil }
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return folder.appendingPathComponent("biseda-\(role).json")
+    }
+    static func load(_ role: TutorRole) -> [ChatLine] {
+        guard let url = url(role), let data = try? Data(contentsOf: url) else { return [] }
+        return (try? JSONDecoder().decode([ChatLine].self, from: data)) ?? []
+    }
+    static func save(_ lines: [ChatLine], _ role: TutorRole) {
+        guard let url = url(role), let data = try? JSONEncoder().encode(Array(lines.suffix(500))) else { return }
+        try? data.write(to: url, options: .atomic)
+    }
+    static func clear(_ role: TutorRole) {
+        if let url = url(role) { try? FileManager.default.removeItem(at: url) }
+    }
 }
 
 /// "Dija": faqja e bisedës me asistenten e mësimeve. Hapet nga menyja anësore, nga faqja kryesore dhe nga çdo mësim.
@@ -243,6 +264,8 @@ struct TutorChat: View {
     @State private var tutor: LessonTutor
     @State private var lines: [ChatLine] = []
     @State private var draft = ""
+    @State private var loaded = false
+    @State private var confirmClear = false
 
     init(startingLesson: StudyLesson? = nil, role: SchoolRole = .student) {
         self.startingLesson = startingLesson
@@ -274,14 +297,34 @@ struct TutorChat: View {
         }
         .background(Color.paper)
         .navigationTitle(LessonTutor.name)
-        .onAppear {
-            guard lines.isEmpty else { return }
-            if let lesson = startingLesson, let first = tutor.start(with: lesson.id) {
-                lines.append(ChatLine(fromStudent: false, reply: first))
-            } else {
-                lines.append(ChatLine(fromStudent: false, reply: tutor.welcome()))
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button(role: .destructive) { confirmClear = true } label: { Label("Fshi bisedën", systemImage: "trash") }
+                    .disabled(lines.count <= 1)
             }
         }
+        .confirmationDialog("Ta fshij gjithë bisedën me \(LessonTutor.name)?", isPresented: $confirmClear, titleVisibility: .visible) {
+            Button("Fshi bisedën", role: .destructive) { clearHistory() }
+            Button("Anulo", role: .cancel) {}
+        } message: {
+            Text("Biseda ruhet vetëm në këtë pajisje. Pasi ta fshish, nuk kthehet më.")
+        }
+        .onAppear {
+            guard !loaded else { return }
+            loaded = true
+            lines = ChatHistory.load(tutor.role)
+            if let lesson = startingLesson, let first = tutor.start(with: lesson.id) {
+                lines.append(ChatLine(fromStudent: false, reply: first))
+            } else if lines.isEmpty {
+                lines.append(ChatLine(fromStudent: false, reply: tutor.welcome()))
+            }
+            ChatHistory.save(lines, tutor.role)
+        }
+    }
+
+    private func clearHistory() {
+        ChatHistory.clear(tutor.role)
+        lines = [ChatLine(fromStudent: false, reply: tutor.welcome())]
     }
 
     private func send(_ text: String) {
@@ -290,6 +333,7 @@ struct TutorChat: View {
         draft = ""
         lines.append(ChatLine(fromStudent: true, reply: TutorReply(text: clean)))
         lines.append(ChatLine(fromStudent: false, reply: tutor.reply(to: clean)))
+        ChatHistory.save(lines, tutor.role)
     }
 }
 

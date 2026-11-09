@@ -35,7 +35,7 @@ enum TutorIntent: Equatable {
     case topic
 }
 
-struct TutorReply: Equatable {
+struct TutorReply: Equatable, Codable {
     var title: String? = nil
     var text: String
     var lessonID: String? = nil
