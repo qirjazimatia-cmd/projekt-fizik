@@ -27,7 +27,7 @@ function system(role: string, lesson: string): string {
     "Shkruaj tekst të thjeshtë: pa LaTeX dhe pa tituj markdown. Përdor x², √, ·, numra hapash (1., 2., 3.) dhe **të theksuar** vetëm për rezultatin.",
     "Mbaje përgjigjen të shkurtër (zakonisht nën 200 fjalë) dhe në fund bëj një pyetje të vogël ose jep një hap të ardhshëm.",
     "Nëse nuk je i sigurt, thuaje hapur. Mos shpik fakte. Përdoruesit janë kryesisht të mitur: mos fol për tema të papërshtatshme dhe mos kërko të dhëna personale.",
-    lesson ? "Tema e bisedës nga mësimet e aplikacionit:\n" + lesson.slice(0, 1500) : "",
+    lesson ? "Materiali i shkollës (mësimet e aplikacionit). Mbështetu te ky material kur i përshtatet pyetjes dhe përdor të njëjtat terma; nëse pyetja është për diçka tjetër, përgjigju normalisht:\n" + lesson.slice(0, 6000) : "",
   ].filter(Boolean).join("\n");
 }
 
@@ -65,7 +65,8 @@ Deno.serve(async (req) => {
 
   // Kur një model është i zënë (503/429/500), provojmë përsëri dhe pastaj një model tjetër falas.
   const primary = clean(Deno.env.get("GEMINI_MODEL")) || "gemini-flash-latest";
-  const models = [...new Set([primary, primary, "gemini-flash-lite-latest", "gemini-2.5-flash"])];
+  // Çdo provë ka afat 22 s (Gemini ndonjëherë rri pa u përgjigjur kur është i ngarkuar); gjithsej jo më shumë se ~70 s.
+  const models = [...new Set([primary, "gemini-flash-lite-latest", "gemini-2.5-flash"])];
   const payload = JSON.stringify({
     systemInstruction: { parts: [{ text: system(body.role ?? "student", body.lesson ?? "") }] },
     contents,
@@ -74,12 +75,14 @@ Deno.serve(async (req) => {
   const started = Date.now();
   let result: any = {};
   let status = 0;
-  for (const [attempt, model] of [primary, ...models].entries()) {
-    if (attempt > 0) await new Promise((r) => setTimeout(r, 700));
+  for (const [attempt, model] of [...models, primary].entries()) {
+    if (Date.now() - started > 60_000) break;
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 500));
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: payload,
+      signal: AbortSignal.timeout(22_000),
     }).catch((e) => { console.error("bosko-ai: fetch", model, String(e)); return null; });
     status = response?.status ?? 0;
     result = response ? await response.json().catch(() => ({})) : {};
@@ -88,7 +91,7 @@ Deno.serve(async (req) => {
     if (![0, 429, 500, 503, 404].includes(status)) break;
   }
   if (status < 200 || status >= 300) {
-    if (status === 429 || status === 503) return reply({ error: "Bosko AI është shumë i zënë tani (shumë njerëz po e përdorin). Provo përsëri pas një minute." }, 503);
+    if (status === 0 || status === 429 || status === 503) return reply({ error: "Bosko AI është shumë i zënë tani (shumë njerëz po e përdorin). Provo përsëri pas një minute." }, 503);
     return reply({ error: "Bosko AI nuk u përgjigj (" + status + "). Provo përsëri." }, 502);
   }
   const parts = result?.candidates?.[0]?.content?.parts ?? [];

@@ -352,7 +352,7 @@ private enum BoskoOnline {
         if let lesson { body["lesson"] = lesson }
         if let image { body["image"] = ["mime": "image/jpeg", "data": image.base64EncodedString()] }
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"; request.timeoutInterval = 60
+        request.httpMethod = "POST"; request.timeoutInterval = 90
         request.setValue(SupabaseConfig.key, forHTTPHeaderField: "apikey")
         request.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -386,7 +386,8 @@ struct TutorChat: View {
     @State private var showPhotoPicker = false
     @State private var showFileImporter = false
     @State private var showCamera = false
-    @State private var thinking = false
+    /// Bisedat që po presin përgjigje nga Bosko AI online (secila bisedë e vetën).
+    @State private var waitingIDs: Set<UUID> = []
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var sizeClass
     #endif
@@ -411,6 +412,7 @@ struct TutorChat: View {
     }
     private var lines: [ChatLine] { conversations.first(where: { $0.id == currentID })?.lines ?? [] }
     private var saved: [ChatConversation] { conversations.filter { $0.hasQuestions } }
+    private var thinking: Bool { currentID.map { waitingIDs.contains($0) } ?? false }
     private var canSend: Bool { !thinking && (pendingImage != nil || !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) }
 
     var body: some View {
@@ -598,9 +600,20 @@ struct TutorChat: View {
         if let jpeg = ChatImage.jpeg(from: data) { pendingImage = jpeg }
     }
 
-    private func lessonContext(_ conversation: ChatConversation?) -> String? {
-        guard let id = conversation?.lastLessonID, let lesson = LessonAssistantIndex.byID[id] else { return nil }
-        return lesson.title + "\n" + lesson.introduction + "\nPërmbledhje: " + lesson.recap.joined(separator: " ")
+    /// Materiali nga 600 mësimet e aplikacionit që i jepet Bosko AI: tema e bisedës dhe mësimet që i përshtaten pyetjes.
+    /// Kështu përgjigjet ndjekin programin dhe fjalorin e shkollës.
+    private func lessonContext(_ conversation: ChatConversation?, question: String) -> String? {
+        var ids: [String] = []
+        if let id = conversation?.lastLessonID { ids.append(id) }
+        if !question.isEmpty {
+            for hit in LessonAssistantIndex.shared.search(question, limit: 3) where !ids.contains(hit.id) { ids.append(hit.id) }
+        }
+        let parts = ids.prefix(3).compactMap { id -> String? in
+            guard let lesson = LessonAssistantIndex.byID[id] else { return nil }
+            let sections = lesson.sections.prefix(3).map { $0.title + ": " + $0.text }.joined(separator: "\n")
+            return "• " + lesson.title + "\n" + lesson.introduction + "\n" + sections + "\nPërmbledhje: " + lesson.recap.joined(separator: " ")
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: "\n\n")
     }
 
     private func send(_ text: String) {
@@ -617,8 +630,8 @@ struct TutorChat: View {
             return
         }
         let history = conversations.first(where: { $0.id == id })?.lines ?? []
-        let context = lessonContext(conversations.first(where: { $0.id == id }))
-        thinking = true
+        let context = lessonContext(conversations.first(where: { $0.id == id }), question: clean)
+        waitingIDs.insert(id)
         Task { @MainActor in
             do {
                 let answer = try await BoskoOnline.ask(history: history, image: image, role: role, lesson: context)
@@ -634,7 +647,7 @@ struct TutorChat: View {
                     append([ChatLine(fromStudent: false, reply: local)], to: id)
                 }
             }
-            thinking = false
+            waitingIDs.remove(id)
         }
     }
 }
