@@ -227,6 +227,9 @@ struct StudyReader: View {
                         Button("Përmbledhje dhe vetëkontroll") { jump(200, proxy) }
                     }
                 }
+                NavigationLink { LessonAssistant(startingLesson: lesson) } label: {
+                    Label("Shpjegoje hap pas hapi me asistentin", systemImage: "questionmark.bubble")
+                }.buttonStyle(.bordered)
                 introduction
                 LessonDiagramView(lesson:lesson)
                 ForEach(lesson.sections.indices, id: \.self) { index in
