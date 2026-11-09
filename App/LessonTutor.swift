@@ -506,11 +506,11 @@ enum TutorMath {
             .replacingOccurrences(of: "+", with: " + ").replacingOccurrences(of: "-", with: " − ").replacingOccurrences(of: ".", with: ",")
         return (shown.trimmingCharacters(in: .whitespaces), value)
     }
-    private static func percentOf(_ text: String) -> (String, Double)? {
+    private static func percentOf(_ text: String) -> (expression: String, result: Double)? {
         guard let match = text.range(of: #"(\d+(?:[.,]\d+)?)\s*%\s*(?:e|i|te|të|nga)?\s*(\d+(?:[.,]\d+)?)"#, options: .regularExpression) else { return nil }
         let numbers = text[match].split(whereSeparator: { !"0123456789.,".contains($0) }).compactMap { NumericAnswer.parse(String($0)) }
         guard numbers.count == 2 else { return nil }
-        return ("\(format(numbers[0]))% e \(format(numbers[1]))", numbers[0] / 100 * numbers[1])
+        return (expression: "\(format(numbers[0]))% e \(format(numbers[1]))", result: numbers[0] / 100 * numbers[1])
     }
     private struct Parser {
         let chars: [Character]
