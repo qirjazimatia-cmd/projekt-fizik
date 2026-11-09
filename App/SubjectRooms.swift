@@ -84,7 +84,7 @@ struct Dashboard: View {
                 Divider().background(.white.opacity(0.6)).padding(.vertical, 6)
                 tab(.lab, "Laboratori", "Lab", "flask.fill", expanded)
                 tab(.events, "Eventet", "Eventet", "calendar", expanded)
-                tab(.assistant, LessonTutor.name + " · asistentja", LessonTutor.name, "sparkles", expanded)
+                tab(.assistant, LessonTutor.name + " · asistenti", LessonTutor.name, "sparkles", expanded)
                 tab(.desk, role.title, "Profili", "person.fill", expanded)
             }.padding(.horizontal, expanded ? 12 : 4).padding(.vertical, 12)
         }.frame(width: expanded ? 198 : 58).frame(maxHeight: .infinity)

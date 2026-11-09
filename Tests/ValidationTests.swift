@@ -116,7 +116,7 @@ final class ValidationTests: XCTestCase {
         XCTAssertEqual(chat.start(with:"LM1-23")?.lessonID,"LM1-23")
     }
 
-    func testDijaCalculates() {
+    func testBoskoCalculates() {
         XCTAssertEqual(TutorMath.evaluate("Sa bën 3 + 4 × 2?")?.result,11)
         XCTAssertEqual(TutorMath.evaluate("20% e 750")?.result,150)
         XCTAssertEqual(TutorMath.evaluate("rrënja e 144")?.result,12)
@@ -126,7 +126,24 @@ final class ValidationTests: XCTestCase {
         for text in ["Kapitulli 3-4","LM1-03","5","-5","Çfarë është fotosinteza?","12 : 0"] { XCTAssertNil(TutorMath.evaluate(text),text) }
         XCTAssertEqual(TutorMath.format(2.5),"2,5")
     }
-    func testDijaExercisesHintsAndRoles() throws {
+    func testBoskoSolvesEquationsAndPhotos() throws {
+        XCTAssertEqual(TutorMath.solve("2x + 3 = 11")?.solutions,[4])
+        XCTAssertEqual(TutorMath.solve("Zgjidh ekuacionin: 3(x - 1) = x + 5")?.solutions,[4])
+        XCTAssertEqual(TutorMath.solve("x² - 5x + 6 = 0")?.solutions,[2,3])
+        XCTAssertEqual(TutorMath.solve("x^2 = 9")?.solutions,[-3,3])
+        XCTAssertEqual(TutorMath.solve("(x+1)(x-1) = 0")?.solutions,[-1,1])
+        XCTAssertEqual(TutorMath.solve("0,5x = 2")?.solutions,[4])
+        XCTAssertEqual(TutorMath.solve("x^2 + 1 = 0")?.solutions,[])
+        for text in ["x^3 = 8","2 + 3 = 5","Çfarë është ekuacioni?","1/x = 2"] { XCTAssertNil(TutorMath.solve(text),text) }
+        let chat=try tutor()
+        XCTAssertEqual(chat.reply(to:"2x + 3 = 11").title,"Ekuacioni")
+        let photo=chat.reply(toPhotoLines:["Ushtrimi 4","Zgjidh:","5x - 2 = 13"])
+        XCTAssertEqual(photo.title,"Nga fotoja"); XCTAssertTrue(photo.text.contains("x = 3"))
+        XCTAssertTrue(chat.reply(toPhotoLines:["Teorema e Pitagorës"]).text.hasPrefix("Nga fotoja lexova"))
+        XCTAssertTrue(chat.reply(toPhotoLines:[]).text.contains("Nuk arrita"))
+        XCTAssertEqual(LessonTutor.name,"Bosko AI")
+    }
+    func testBoskoExercisesHintsAndRoles() throws {
         let chat=try tutor()
         _=chat.start(with:"LM1-23")
         let exercise=chat.reply(to:"më jep një ushtrim")

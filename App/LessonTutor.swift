@@ -1,6 +1,6 @@
 import Foundation
 
-/// "Dija": asistenti i mësimeve. Flet natyrshëm, gjen temën te 600 mësimet dhe e zgjeron sipas kërkesës
+/// "Bosko AI": asistenti i mësimeve. Flet natyrshëm, gjen temën te 600 mësimet dhe e zgjeron sipas kërkesës
 /// (më thjesht, shembull hap pas hapi, pse, më shumë, gabimi, pyetje prove), jep ushtrime nga banka dhe i kontrollon,
 /// llogarit shprehje, bën plan përgatitjeje dhe i përshtatet rolit (nxënës, prind, mësues).
 /// Punon në pajisje, pa internet dhe pa model të shkarkuar. Nuk shpik përmbajtje: çdo shpjegim vjen nga mësimet.
@@ -43,7 +43,7 @@ struct TutorReply: Equatable, Codable {
 }
 
 final class LessonTutor {
-    static let name = "Dija"
+    static let name = "Bosko AI"
     private let search: LessonSearch
     private let lessons: [String: TutorLesson]
     private let exercises: [String: TutorExercise]
@@ -136,6 +136,34 @@ final class LessonTutor {
     // MARK: Përgjigjja
 
     /// Nis bisedën me një mësim të zgjedhur (p.sh. nga ekrani i mësimit).
+    /// Kur rihapet një bisedë e ruajtur: rikthen temën pa shkruar mesazh të ri.
+    func resume(lessonID: String?) {
+        guard let lessonID, let lesson = lessons[lessonID] else { return }
+        select(lesson)
+    }
+
+    /// Teksti i lexuar nga një foto: zgjidh ekuacionet dhe llogaritjet që gjen, përndryshe kërkon temën.
+    func reply(toPhotoLines lines: [String]) -> TutorReply {
+        let clean = lines.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        guard !clean.isEmpty else {
+            return TutorReply(text: "Nuk arrita të lexoj tekst në këtë foto. Provo një foto më të qartë, me dritë të mirë dhe vetëm me ushtrimin, ose shkruaje pyetjen.")
+        }
+        var solved: [String] = []
+        for line in clean {
+            if let equation = TutorMath.solve(line) { solved.append(equation.explanation) }
+            else if let value = TutorMath.evaluate(line) { solved.append("\(value.expression) = \(TutorMath.format(value.result))") }
+        }
+        if !solved.isEmpty {
+            return TutorReply(title: "Nga fotoja", text: solved.joined(separator: "\n\n") +
+                              "\n\nKontrolloje që e lexova saktë ushtrimin. Nëse jo, shkruaje dhe e zgjidhim bashkë.",
+                              suggestions: ["Më jep një ushtrim tjetër", "Shpjegoje më thjesht"])
+        }
+        var answer = reply(to: clean.joined(separator: " "))
+        let preview = clean.joined(separator: " ").prefix(160)
+        answer.text = "Nga fotoja lexova: «\(preview)»\n\n" + answer.text
+        return answer
+    }
+
     func start(with lessonID: String) -> TutorReply? {
         guard let lesson = lessons[lessonID] else { return nil }
         select(lesson)
@@ -146,10 +174,10 @@ final class LessonTutor {
     func welcome() -> TutorReply {
         switch role {
         case .teacher:
-            return TutorReply(text: "Përshëndetje! Jam \(Self.name), asistentja e mësimeve. Mund t'ju ndihmoj të përgatitni një orë mësimi, të gjeni pyetje për klasën ose të shpjegoni një temë në mënyrë më të thjeshtë. Për cilën temë po punoni?",
+            return TutorReply(text: "Përshëndetje! Jam \(Self.name), asistenti i mësimeve. Mund t'ju ndihmoj të përgatitni një orë mësimi, të gjeni pyetje për klasën ose të shpjegoni një temë në mënyrë më të thjeshtë. Për cilën temë po punoni?",
                               suggestions: ["Si ta shpjegoj teoremën e Pitagorës?", "Pyetje për klasën për fotosintezën", "Kush je?"])
         case .parent:
-            return TutorReply(text: "Përshëndetje! Jam \(Self.name), asistentja e mësimeve. Mund t'ju shpjegoj çfarë po mëson fëmija dhe si ta ndihmoni në shtëpi, pa pasur nevojë të jeni ekspert. Për cilën temë doni të flasim?",
+            return TutorReply(text: "Përshëndetje! Jam \(Self.name), asistenti i mësimeve. Mund t'ju shpjegoj çfarë po mëson fëmija dhe si ta ndihmoni në shtëpi, pa pasur nevojë të jeni ekspert. Për cilën temë doni të flasim?",
                               suggestions: ["Si ta ndihmoj fëmijën me përqindjet?", "Çfarë është fotosinteza?", "Kush je?"])
         case .student:
             return TutorReply(text: "Përshëndetje! Jam \(Self.name). Më pyet për çdo temë të matematikës, fizikës, kimisë ose biologjisë dhe e shohim bashkë hap pas hapi. Mund të të jap edhe ushtrime, ta llogaris diçka, ose të të bëj një plan për testin.",
@@ -167,6 +195,12 @@ final class LessonTutor {
         waiting = .none
 
         // 2. Llogaritje e drejtpërdrejtë.
+        if let equation = TutorMath.solve(text) {
+            return TutorReply(title: "Ekuacioni", text: equation.explanation + "\n\n" +
+                              pick(["Provo ta zëvendësosh zgjidhjen në ekuacion: duhet të dalin dy anët të barabarta.",
+                                    "Do një ekuacion tjetër për ta provuar vetë?", "Nëse vjen nga një ushtrim, më thuaj temën dhe e lidhim me mësimin."]),
+                              suggestions: ["Më jep një ushtrim", "Çfarë është ekuacioni?"])
+        }
         if let value = TutorMath.evaluate(text) {
             return TutorReply(title: "Llogaritja", text: "\(value.expression) = \(TutorMath.format(value.result))\n\n" +
                               pick(["Do që ta shohim nga cila temë vjen kjo llogaritje?", "Nëse vjen nga një ushtrim, më thuaj temën dhe të ndihmoj me hapat.",
@@ -219,7 +253,7 @@ final class LessonTutor {
                               (current == nil ? "Kur të duhet, më pyet për një temë." : "Do ta provosh veten me një ushtrim?"),
                               lessonID: current?.id, suggestions: current == nil ? [] : ["Më jep një ushtrim", "Temë të ngjashme"])
         case .whoAreYou:
-            return TutorReply(text: "Jam \(Self.name), asistentja e mësimeve e ScienceQuest. Punoj në pajisjen tënde, edhe pa internet, dhe di gjithçka që është te 600 mësimet dhe 600 ushtrimet e aplikacionit: ta shpjegoj më thjesht, me shembull hap pas hapi, të them pse ndodh dhe ku gabohet zakonisht, të jap ushtrime e t'i kontrolloj, të llogaris dhe të bëj plan për testin.\n\nNuk jam si Google: nuk di gjëra jashtë mësimeve dhe nuk shpik përgjigje. Kur nuk e di, ta them.",
+            return TutorReply(text: "Jam \(Self.name), asistenti i mësimeve e ScienceQuest. Punoj në pajisjen tënde, edhe pa internet, dhe di gjithçka që është te 600 mësimet dhe 600 ushtrimet e aplikacionit: ta shpjegoj më thjesht, me shembull hap pas hapi, të them pse ndodh dhe ku gabohet zakonisht, të jap ushtrime e t'i kontrolloj, të llogaris dhe të bëj plan për testin.\n\nNuk jam si Google: nuk di gjëra jashtë mësimeve dhe nuk shpik përgjigje. Kur nuk e di, ta them.",
                               suggestions: ["Çfarë është fotosinteza?", "Kam test nesër për përqindjet"])
         case .goodbye:
             return TutorReply(text: pick(["Mirupafshim! Suksese me mësimet.", "Shihemi! Mos harro të pushosh pak.", "Natën e mirë! Bëre punë të mirë sot."]))
@@ -506,6 +540,82 @@ enum TutorMath {
             .replacingOccurrences(of: "+", with: " + ").replacingOccurrences(of: "-", with: " − ").replacingOccurrences(of: ".", with: ",")
         return (shown.trimmingCharacters(in: .whitespaces), value)
     }
+    /// Zgjidh ekuacione me një të panjohur x, deri në shkallë të dytë: "2x + 3 = 11", "x² - 5x + 6 = 0", "3(x - 1) = x + 5".
+    static func solve(_ text: String) -> (equation: String, solutions: [Double], explanation: String)? {
+        var s = text.lowercased().replacingOccurrences(of: "×", with: "*").replacingOccurrences(of: "·", with: "*")
+            .replacingOccurrences(of: "÷", with: "/").replacingOccurrences(of: "−", with: "-").replacingOccurrences(of: "–", with: "-")
+            .replacingOccurrences(of: "²", with: "^2").replacingOccurrences(of: "³", with: "^3")
+        s = s.replacingOccurrences(of: #"(\d),(\d)"#, with: "$1.$2", options: .regularExpression)
+        guard let range = s.range(of: #"[0-9x+\-*/^().\s]+=[0-9x+\-*/^().\s]+"#, options: .regularExpression) else { return nil }
+        let compact = s[range].filter { !$0.isWhitespace }
+        let sides = compact.split(separator: "=", omittingEmptySubsequences: false).map(String.init)
+        guard sides.count == 2, compact.contains("x"), !sides[0].isEmpty, !sides[1].isEmpty else { return nil }
+        // Shumëzimi i nënkuptuar: 2x, 3(x+1), (x+1)(x-2), x(x+3).
+        func implicit(_ side: String) -> [Character] {
+            var out: [Character] = []
+            for c in side {
+                if let last = out.last, (last.isNumber || last == "x" || last == ")") && (c == "x" || c == "(") {
+                    out.append("*")
+                } else if let last = out.last, last == ")" || last == "x", c.isNumber {
+                    out.append("*")
+                }
+                out.append(c)
+            }
+            return out
+        }
+        let left = implicit(sides[0]), right = implicit(sides[1])
+        func f(_ x: Double) -> Double? {
+            var l = Parser(left, x: x), r = Parser(right, x: x)
+            guard let a = l.parse(), let b = r.parse(), a.isFinite, b.isFinite else { return nil }
+            return a - b
+        }
+        guard let f0 = f(0), let f1 = f(1), let fm = f(-1) else { return nil }
+        let c = f0, b = (f1 - fm) / 2, a = (f1 + fm) / 2 - f0
+        // Kontroll: ekuacioni duhet të jetë vërtet i shkallës së parë ose të dytë.
+        for probe in [2.0, 3.0, -2.5, 7.0] {
+            guard let value = f(probe) else { return nil }
+            let expected = a * probe * probe + b * probe + c
+            guard abs(value - expected) <= 1e-7 * max(1, abs(value), abs(expected)) else { return nil }
+        }
+        let shown = sides[0].replacingOccurrences(of: "*", with: "·") + " = " + sides[1].replacingOccurrences(of: "*", with: "·")
+        let eps = 1e-12
+        func clean(_ v: Double) -> Double { abs(v) < 1e-12 ? 0 : (abs(v - v.rounded()) < 1e-9 ? v.rounded() : v) }
+        func term(_ k: Double, _ symbol: String, first: Bool) -> String {
+            let k = clean(k)
+            if k == 0 { return "" }
+            let sign = k < 0 ? (first ? "−" : " − ") : (first ? "" : " + ")
+            let magnitude = abs(k)
+            let number = (magnitude == 1 && !symbol.isEmpty) ? "" : format(magnitude)
+            return sign + number + symbol
+        }
+        if abs(a) < eps {
+            guard abs(b) > eps else {
+                let text = abs(c) < eps ? "Të dyja anët janë gjithmonë të barabarta: çdo numër është zgjidhje." : "Të dyja anët nuk barazohen kurrë: ekuacioni nuk ka zgjidhje."
+                return (shown, [], "\(shown)\n\n" + text)
+            }
+            let x = clean(-c / b)
+            let normal = (term(b, "x", first: true) + term(c, "", first: false)) + " = 0"
+            let steps = "1. I kalojmë të gjitha në një anë: \(normal)\n2. Veçojmë x: \(term(b, "x", first: true)) = \(format(clean(-c)))\n3. Pjesëtojmë me \(format(clean(b))): x = \(format(x))"
+            return (shown, [x], "\(shown)\n\n\(steps)\n\nZgjidhja: x = \(format(x))")
+        }
+        let normal = term(a, "x²", first: true) + term(b, "x", first: false) + term(c, "", first: false) + " = 0"
+        let d = clean(b * b - 4 * a * c)
+        var steps = "1. E shkruajmë në formën ax² + bx + c = 0: \(normal)\n   a = \(format(clean(a))), b = \(format(clean(b))), c = \(format(clean(c)))\n2. Dallori: D = b² − 4ac = \(format(d))"
+        if d < 0 {
+            steps += "\n3. D < 0, prandaj ekuacioni nuk ka zgjidhje në numrat realë."
+            return (shown, [], "\(shown)\n\n\(steps)")
+        }
+        if d == 0 {
+            let x = clean(-b / (2 * a))
+            steps += "\n3. D = 0, pra ka një zgjidhje: x = −b / 2a = \(format(x))"
+            return (shown, [x], "\(shown)\n\n\(steps)\n\nZgjidhja: x = \(format(x))")
+        }
+        let root = d.squareRoot()
+        let x1 = clean((-b - root) / (2 * a)), x2 = clean((-b + root) / (2 * a))
+        let (low, high) = (min(x1, x2), max(x1, x2))
+        steps += "\n3. D > 0, pra ka dy zgjidhje: x = (−b ± √D) / 2a"
+        return (shown, [low, high], "\(shown)\n\n\(steps)\n\nZgjidhjet: x₁ = \(format(low)), x₂ = \(format(high))")
+    }
     private static func percentOf(_ text: String) -> (expression: String, result: Double)? {
         guard let match = text.range(of: #"(\d+(?:[.,]\d+)?)\s*%\s*(?:e|i|te|të|nga)?\s*(\d+(?:[.,]\d+)?)"#, options: .regularExpression) else { return nil }
         let numbers = text[match].split(whereSeparator: { !"0123456789.,".contains($0) }).compactMap { NumericAnswer.parse(String($0)) }
@@ -514,8 +624,9 @@ enum TutorMath {
     }
     private struct Parser {
         let chars: [Character]
+        let x: Double?
         var i = 0
-        init(_ chars: [Character]) { self.chars = chars }
+        init(_ chars: [Character], x: Double? = nil) { self.chars = chars; self.x = x }
         mutating func parse() -> Double? {
             guard let value = expression(), i == chars.count else { return nil }
             return value
@@ -549,7 +660,7 @@ enum TutorMath {
         }
         private mutating func unary() -> Double? {
             guard i < chars.count else { return nil }
-            if chars[i] == "-" { i += 1; return unary().map { -$0 } }
+            if chars[i] == "-" { i += 1; return power().map { -$0 } }  // −x² = −(x²)
             if chars[i] == "+" { i += 1; return unary() }
             if chars[i] == "√" { i += 1; guard let v = unary(), v >= 0 else { return nil }; return v.squareRoot() }
             return primary()
@@ -562,6 +673,7 @@ enum TutorMath {
                 i += 1
                 return value
             }
+            if chars[i] == "x", let x { i += 1; return x }
             let start = i
             while i < chars.count, chars[i].isNumber || chars[i] == "." { i += 1 }
             guard i > start else { return nil }
