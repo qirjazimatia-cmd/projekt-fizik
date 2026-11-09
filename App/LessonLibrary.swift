@@ -227,8 +227,8 @@ struct StudyReader: View {
                         Button("Përmbledhje dhe vetëkontroll") { jump(200, proxy) }
                     }
                 }
-                NavigationLink { LessonAssistant(startingLesson: lesson) } label: {
-                    Label("Shpjegoje hap pas hapi me asistentin", systemImage: "questionmark.bubble")
+                NavigationLink { TutorChat(startingLesson: lesson) } label: {
+                    Label("Bisedo me asistentin për këtë temë", systemImage: "bubble.left.and.bubble.right")
                 }.buttonStyle(.bordered)
                 introduction
                 LessonDiagramView(lesson:lesson)

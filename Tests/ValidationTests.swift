@@ -59,4 +59,53 @@ final class ValidationTests: XCTestCase {
         XCTAssertTrue(index.search("   ").isEmpty)
         XCTAssertLessThanOrEqual(index.search("energjia",limit:5).count,5)
     }
+
+    // Biseda me asistentin: përshëndetje, temë, pyetje vijuese dhe pyetje prove.
+    private func tutor() throws -> LessonTutor {
+        let url=try XCTUnwrap(Bundle(for:Self.self).url(forResource:"Lessons",withExtension:"json"))
+        let raw=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:url)) as? [[String:Any]])
+        let lessons:[TutorLesson]=raw.map { l in
+            let example=l["example"] as? [String:Any] ?? [:]
+            let check=l["check"] as? [String:Any] ?? [:]
+            return TutorLesson(id:l["id"] as! String, subject:l["subject"] as! String, title:l["title"] as! String,
+                               introduction:l["introduction"] as? String ?? "",
+                               sections:(l["sections"] as? [[String:String]] ?? []).map { (title:$0["title"] ?? "",text:$0["text"] ?? "") },
+                               problem:example["problem"] as? String ?? "", steps:example["steps"] as? [String] ?? [],
+                               conclusion:example["conclusion"] as? String ?? "", pitfall:l["pitfall"] as? String ?? "",
+                               recap:l["recap"] as? [String] ?? [], checkPrompt:check["prompt"] as? String ?? "",
+                               checkOptions:check["options"] as? [String] ?? [], checkCorrect:check["correct"] as? Int ?? 0,
+                               checkWhy:check["why"] as? String ?? "")
+        }
+        return LessonTutor(search:try assistantIndex(), lessons:lessons)
+    }
+    func testTutorUnderstandsSmallTalk() {
+        XCTAssertEqual(LessonTutor.understand("Përshëndetje!").intent,.greeting)
+        XCTAssertEqual(LessonTutor.understand("Si je?").intent,.howAreYou)
+        XCTAssertEqual(LessonTutor.understand("Faleminderit shumë").intent,.thanks)
+        XCTAssertEqual(LessonTutor.understand("Kush je ti?").intent,.whoAreYou)
+        XCTAssertEqual(LessonTutor.understand("S'e kuptova").intent,.simpler)
+        XCTAssertEqual(LessonTutor.understand("Më jep një shembull").intent,.example)
+        XCTAssertEqual(LessonTutor.understand("Hapi tjetër").intent,.nextStep)
+        XCTAssertEqual(LessonTutor.understand("Zgjeroje pak").intent,.more)
+        XCTAssertEqual(LessonTutor.understand("Më pyet").intent,.quiz)
+        XCTAssertEqual(LessonTutor.understand("Çfarë është fotosinteza?").intent,.topic)
+    }
+    func testTutorConversation() throws {
+        let chat=try tutor()
+        XCTAssertNil(chat.reply(to:"Përshëndetje").lessonID)
+        XCTAssertNil(chat.reply(to:"Si je?").lessonID)
+        XCTAssertNil(chat.reply(to:"më shumë").lessonID, "pa temë, pyet për cilën temë")
+        XCTAssertEqual(chat.reply(to:"Çfarë është fotosinteza?").lessonID,"LB1-23")
+        let example=chat.reply(to:"shembull")
+        XCTAssertEqual(example.lessonID,"LB1-23"); XCTAssertTrue(example.text.contains("Hapi 1"))
+        XCTAssertTrue(chat.reply(to:"hapi tjetër").text.contains("Hapi 2"))
+        let quiz=chat.reply(to:"më pyet")
+        XCTAssertEqual(quiz.title,"Pyetje prove"); XCTAssertEqual(quiz.suggestions,["1","2","3"])
+        XCTAssertTrue(chat.reply(to:"1").text.hasPrefix("Saktë!"))
+        XCTAssertEqual(chat.reply(to:"pse ndodh osmoza").lessonID,"LB2-07", "temë e re me pyetje vijuese")
+        XCTAssertEqual(chat.current?.id,"LB2-07")
+        XCTAssertNil(chat.reply(to:"xyzqw kot").title)
+        XCTAssertEqual(chat.current?.id,"LB2-07", "fjalë e panjohur nuk e ndryshon temën")
+        XCTAssertEqual(chat.start(with:"LM1-23")?.lessonID,"LM1-23")
+    }
 }
