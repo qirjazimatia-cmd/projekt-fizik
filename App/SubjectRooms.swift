@@ -21,7 +21,7 @@ extension Subject {
 }
 
 private enum Destination: Hashable {
-    case home, lab, events, desk, subject(Subject)
+    case home, lab, events, assistant, desk, subject(Subject)
 }
 
 struct Dashboard: View {
@@ -52,6 +52,7 @@ struct Dashboard: View {
                         case .home: HomePage(role: role) { select(.subject($0)) }
                         case .desk: RoleDesk(role: role)
                         case .events: if account.isOnline { SharedSchoolCalendar() } else { SchoolEventsView() }
+                        case .assistant: TutorChat(role: role)
                         case .lab: Lab()
                         case .subject(let subject): SubjectRoom(subject: subject)
                         }
@@ -83,6 +84,7 @@ struct Dashboard: View {
                 Divider().background(.white.opacity(0.6)).padding(.vertical, 6)
                 tab(.lab, "Laboratori", "Lab", "flask.fill", expanded)
                 tab(.events, "Eventet", "Eventet", "calendar", expanded)
+                tab(.assistant, LessonTutor.name + " · asistentja", LessonTutor.name, "sparkles", expanded)
                 tab(.desk, role.title, "Profili", "person.fill", expanded)
             }.padding(.horizontal, expanded ? 12 : 4).padding(.vertical, 12)
         }.frame(width: expanded ? 198 : 58).frame(maxHeight: .infinity)

@@ -210,7 +210,23 @@ extension StudyLesson {
         TutorLesson(id: id, subject: subject, title: title, introduction: introduction,
                     sections: sections.map { (title: $0.title, text: $0.text) }, problem: example.problem, steps: example.steps,
                     conclusion: example.conclusion, pitfall: pitfall, recap: recap, checkPrompt: check.prompt,
-                    checkOptions: check.options, checkCorrect: check.correct, checkWhy: check.why)
+                    checkOptions: check.options, checkCorrect: check.correct, checkWhy: check.why, exerciseIDs: exerciseIDs)
+    }
+}
+
+extension Exercise {
+    var tutorExercise: TutorExercise {
+        TutorExercise(id: id, kind: kind, prompt: prompt, unit: unit, why: why, accuracy: accuracy, answers: answers, choices: choices, tolerance: tolerance)
+    }
+}
+
+extension SchoolRole {
+    var tutorRole: TutorRole {
+        switch self {
+        case .teacher: return .teacher
+        case .parent: return .parent
+        case .student: return .student
+        }
     }
 }
 
@@ -220,12 +236,19 @@ private struct ChatLine: Identifiable {
     let reply: TutorReply
 }
 
+/// "Dija": faqja e bisedës me asistenten e mësimeve. Hapet nga menyja anësore, nga faqja kryesore dhe nga çdo mësim.
 struct TutorChat: View {
     /// Kur hapet nga një mësim, biseda nis me atë temë.
     var startingLesson: StudyLesson? = nil
-    @State private var tutor = LessonTutor(search: LessonAssistantIndex.shared, lessons: StudyLesson.all.map(\.tutorLesson))
+    @State private var tutor: LessonTutor
     @State private var lines: [ChatLine] = []
     @State private var draft = ""
+
+    init(startingLesson: StudyLesson? = nil, role: SchoolRole = .student) {
+        self.startingLesson = startingLesson
+        _tutor = State(initialValue: LessonTutor(search: LessonAssistantIndex.shared, lessons: StudyLesson.all.map(\.tutorLesson),
+                                                 exercises: Exercise.all.map(\.tutorExercise), role: role.tutorRole))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -250,13 +273,13 @@ struct TutorChat: View {
             }.padding(12).background(.white)
         }
         .background(Color.paper)
-        .navigationTitle("Bisedo me asistentin")
+        .navigationTitle(LessonTutor.name)
         .onAppear {
             guard lines.isEmpty else { return }
             if let lesson = startingLesson, let first = tutor.start(with: lesson.id) {
                 lines.append(ChatLine(fromStudent: false, reply: first))
             } else {
-                lines.append(ChatLine(fromStudent: false, reply: tutor.reply(to: "përshëndetje")))
+                lines.append(ChatLine(fromStudent: false, reply: tutor.welcome()))
             }
         }
     }
@@ -273,8 +296,8 @@ struct TutorChat: View {
 private struct ChatIntro: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label("Asistenti i mësimeve", systemImage: "bubble.left.and.bubble.right.fill").font(.title2.bold())
-            Text("Pyet për një temë, pastaj thuaj \"më thjesht\", \"shembull\", \"pse?\", \"më shumë\" ose \"më pyet\". Punon në pajisjen tënde, edhe pa internet. Shpjegimet vijnë nga mësimet e aplikacionit, jo nga interneti.")
+            Label(LessonTutor.name + " · asistentja e mësimeve", systemImage: "sparkles").font(.title2.bold())
+            Text("Pyet për një temë dhe vazhdo bisedën: \"më thjesht\", \"shembull\", \"pse?\", \"më jep një ushtrim\", \"kam test nesër\". Llogarit edhe shprehje. Punon në pajisjen tënde, pa internet; shpjegimet vijnë nga mësimet e aplikacionit.")
                 .font(.footnote).foregroundStyle(.secondary)
             NavigationLink("Kërko temat si listë") { LessonAssistant() }.font(.footnote)
         }
