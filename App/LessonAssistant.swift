@@ -202,3 +202,117 @@ private struct SelfCheck: View {
         return index == picked ? "xmark.circle.fill" : "circle"
     }
 }
+
+// MARK: - Biseda me asistentin
+
+extension StudyLesson {
+    var tutorLesson: TutorLesson {
+        TutorLesson(id: id, subject: subject, title: title, introduction: introduction,
+                    sections: sections.map { (title: $0.title, text: $0.text) }, problem: example.problem, steps: example.steps,
+                    conclusion: example.conclusion, pitfall: pitfall, recap: recap, checkPrompt: check.prompt,
+                    checkOptions: check.options, checkCorrect: check.correct, checkWhy: check.why)
+    }
+}
+
+private struct ChatLine: Identifiable {
+    let id = UUID()
+    let fromStudent: Bool
+    let reply: TutorReply
+}
+
+struct TutorChat: View {
+    /// Kur hapet nga një mësim, biseda nis me atë temë.
+    var startingLesson: StudyLesson? = nil
+    @State private var tutor = LessonTutor(search: LessonAssistantIndex.shared, lessons: StudyLesson.all.map(\.tutorLesson))
+    @State private var lines: [ChatLine] = []
+    @State private var draft = ""
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 12) {
+                        ChatIntro()
+                        ForEach(lines) { line in ChatBubble(line: line).id(line.id) }
+                    }
+                    .frame(maxWidth: 720, alignment: .leading).padding(16).frame(maxWidth: .infinity)
+                }
+                .onChange(of: lines.count) { _ in
+                    if let last = lines.last { withAnimation { proxy.scrollTo(last.id, anchor: .bottom) } }
+                }
+            }
+            ChatSuggestions(items: lines.last(where: { !$0.fromStudent })?.reply.suggestions ?? LessonAssistantIndex.examples.prefix(3).map { $0 }) { send($0) }
+            HStack {
+                TextField("Shkruaj këtu…", text: $draft, axis: .vertical).textFieldStyle(.roundedBorder).lineLimit(1...4).onSubmit { send(draft) }
+                Button { send(draft) } label: { Image(systemName: "arrow.up.circle.fill").font(.title) }
+                    .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .accessibilityLabel("Dërgo")
+            }.padding(12).background(.white)
+        }
+        .background(Color.paper)
+        .navigationTitle("Bisedo me asistentin")
+        .onAppear {
+            guard lines.isEmpty else { return }
+            if let lesson = startingLesson, let first = tutor.start(with: lesson.id) {
+                lines.append(ChatLine(fromStudent: false, reply: first))
+            } else {
+                lines.append(ChatLine(fromStudent: false, reply: tutor.reply(to: "përshëndetje")))
+            }
+        }
+    }
+
+    private func send(_ text: String) {
+        let clean = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !clean.isEmpty else { return }
+        draft = ""
+        lines.append(ChatLine(fromStudent: true, reply: TutorReply(text: clean)))
+        lines.append(ChatLine(fromStudent: false, reply: tutor.reply(to: clean)))
+    }
+}
+
+private struct ChatIntro: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label("Asistenti i mësimeve", systemImage: "bubble.left.and.bubble.right.fill").font(.title2.bold())
+            Text("Pyet për një temë, pastaj thuaj \"më thjesht\", \"shembull\", \"pse?\", \"më shumë\" ose \"më pyet\". Punon në pajisjen tënde, edhe pa internet. Shpjegimet vijnë nga mësimet e aplikacionit, jo nga interneti.")
+                .font(.footnote).foregroundStyle(.secondary)
+            NavigationLink("Kërko temat si listë") { LessonAssistant() }.font(.footnote)
+        }
+    }
+}
+
+private struct ChatBubble: View {
+    let line: ChatLine
+    var body: some View {
+        HStack {
+            if line.fromStudent { Spacer(minLength: 40) }
+            VStack(alignment: .leading, spacing: 8) {
+                if let title = line.reply.title { Text(title).font(.headline) }
+                Text(line.reply.text).fixedSize(horizontal: false, vertical: true)
+                if !line.fromStudent, let id = line.reply.lessonID, let lesson = LessonAssistantIndex.byID[id] {
+                    NavigationLink { StudyReader(lesson: lesson) } label: {
+                        Label("Burimi: " + lesson.title, systemImage: "book").font(.caption.bold())
+                    }.buttonStyle(.plain).foregroundStyle(Color.lagoon)
+                }
+            }
+            .padding(12)
+            .foregroundStyle(line.fromStudent ? Color.white : Color.black.opacity(0.86))
+            .background(line.fromStudent ? Color.lagoon : Color.white, in: RoundedRectangle(cornerRadius: 16))
+            if !line.fromStudent { Spacer(minLength: 40) }
+        }
+    }
+}
+
+private struct ChatSuggestions: View {
+    let items: [String]
+    let choose: (String) -> Void
+    var body: some View {
+        if !items.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(items, id: \.self) { item in Button(item) { choose(item) }.buttonStyle(.bordered) }
+                }.padding(.horizontal, 12).padding(.vertical, 6)
+            }
+        }
+    }
+}

@@ -132,7 +132,7 @@ struct HomePage: View {
             }
             Group {
                 NavigationLink { StudySubjects() } label: { Tile(icon: "books.vertical.fill", title: "Mësime sipas kapitujve", detail: "600 mësime · 120 kapituj · Pesë nivele") }
-                NavigationLink { LessonAssistant() } label: { Tile(icon: "questionmark.bubble.fill", title: "Asistenti i mësimeve", detail: "Pyet çfarë nuk kupton · punon edhe pa internet") }
+                NavigationLink { TutorChat() } label: { Tile(icon: "bubble.left.and.bubble.right.fill", title: "Bisedo me asistentin", detail: "Pyet çfarë nuk kupton · punon edhe pa internet") }
                 NavigationLink { RoleDesk(role: role) } label: { Tile(icon: "person.fill", title: role.title, detail: "Detyrat dhe aktivitetet e profilit") }
                 NavigationLink { PracticeMenu() } label: { Tile(icon: "magnifyingglass", title: role == .student ? "Ushtrimet e mia" : "Gjej detyrën", detail: role == .student ? "Ushtrime dhe detyra për klasën time" : "Kërko ushtrimin me kodin e mësuesit") }
                 NavigationLink { Lab() } label: { Tile(icon: "slider.horizontal.3", title: "Eksperimento", detail: "43 simulime, përzierje të lira, lojëra dhe prova praktike") }
