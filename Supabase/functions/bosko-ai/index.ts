@@ -1,7 +1,7 @@
 // Don Bosko Connect · Edge Function `bosko-ai`
 // Bosko AI: asistenti i mësimeve me internet. Merr bisedën (dhe një foto opsionale) nga aplikacioni dhe pyet Google Gemini
 // (niveli falas i API-së). Çelësi ruhet si SECRET te Supabase (Edge Functions → Secrets → GEMINI_API_KEY), jo këtu dhe jo në Git.
-// Opsionale: GEMINI_MODEL (parazgjedhja "gemini-flash-lite-latest", më i shpejti).
+// Opsionale: GEMINI_MODEL (parazgjedhja "gemini-3.5-flash-lite"), GROQ_API_KEY (rezervë falas, shumë e shpejtë), GROQ_MODEL.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const headers = { "Content-Type": "application/json" };
@@ -63,40 +63,64 @@ Deno.serve(async (req) => {
     contents[contents.length - 1].parts.push({ inline_data: { mime_type: mime, data: image.data } });
   }
 
-  // Kur një model është i zënë (503/429/500), provojmë përsëri dhe pastaj një model tjetër falas.
-  const primary = clean(Deno.env.get("GEMINI_MODEL")) || "gemini-flash-lite-latest";
-  // Modeli "lite" përgjigjet zakonisht për 1–3 s. Çdo provë ka afat të shkurtër, që Bosko të mos rrijë duke pritur.
-  const models = [...new Set([primary, "gemini-flash-lite-latest", "gemini-2.5-flash-lite", "gemini-flash-latest"])];
   const payload = JSON.stringify({
     systemInstruction: { parts: [{ text: system(body.role ?? "student", body.lesson ?? "") }] },
     contents,
     generationConfig: { temperature: 0.4, maxOutputTokens: 2048 },
   });
   const started = Date.now();
-  let result: any = {};
-  let status = 0;
-  for (const [attempt, model] of models.entries()) {
-    if (Date.now() - started > 40_000) break;
-    if (attempt > 0) await new Promise((r) => setTimeout(r, 200));
+
+  // Një pyetje te një model Gemini, me afat. Kthen tekstin ose null.
+  async function gemini(model: string, ms: number, signal?: AbortSignal): Promise<string | null> {
+    const timeout = AbortSignal.timeout(ms);
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: payload,
-      signal: AbortSignal.timeout(model.includes("lite") ? 12_000 : 18_000),
-    }).catch((e) => { console.error("bosko-ai: fetch", model, String(e)); return null; });
-    status = response?.status ?? 0;
-    result = response ? await response.json().catch(() => ({})) : {};
-    if (response?.ok) break;
-    console.error("bosko-ai: gemini", model, status, JSON.stringify(result).slice(0, 300));
-    if (![0, 429, 500, 503, 404].includes(status)) break;
+      signal: signal ? AbortSignal.any([timeout, signal]) : timeout,
+    }).catch((e) => { console.error("bosko-ai: fetch", model, String(e).slice(0, 80)); return null; });
+    if (!response) return null;
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) { console.error("bosko-ai: gemini", model, response.status, JSON.stringify(result).slice(0, 200)); return null; }
+    const text = (result?.candidates?.[0]?.content?.parts ?? []).map((p: { text?: string }) => p.text ?? "").join("").trim();
+    return text || null;
   }
-  if (status < 200 || status >= 300) {
-    if (status === 0 || status === 429 || status === 503) return reply({ error: "Bosko AI është shumë i zënë tani (shumë njerëz po e përdorin). Provo përsëri pas një minute." }, 503);
-    return reply({ error: "Bosko AI nuk u përgjigj (" + status + "). Provo përsëri." }, 502);
+
+  // Rezerva opsionale: Groq (falas, shumë i shpejtë), vetëm për tekst. Aktivizohet me secret GROQ_API_KEY.
+  async function groq(ms: number): Promise<string | null> {
+    const groqKey = clean(Deno.env.get("GROQ_API_KEY"));
+    if (!groqKey || image?.data) return null;
+    const chat = [{ role: "system", content: system(body.role ?? "student", body.lesson ?? "") },
+      ...messages.map((m) => ({ role: m.role === "model" ? "assistant" : "user", content: m.text }))];
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + groqKey },
+      body: JSON.stringify({ model: clean(Deno.env.get("GROQ_MODEL")) || "llama-3.3-70b-versatile", messages: chat, temperature: 0.4, max_tokens: 1500 }),
+      signal: AbortSignal.timeout(ms),
+    }).catch((e) => { console.error("bosko-ai: groq fetch", String(e).slice(0, 80)); return null; });
+    if (!response) return null;
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) { console.error("bosko-ai: groq", response.status, JSON.stringify(result).slice(0, 200)); return null; }
+    return (result?.choices?.[0]?.message?.content ?? "").trim() || null;
   }
-  const parts = result?.candidates?.[0]?.content?.parts ?? [];
-  const text = parts.map((p: { text?: string }) => p.text ?? "").join("").trim();
-  console.log("bosko-ai: ok", { ms: Date.now() - started, image: Boolean(image?.data), chars: text.length });
-  if (!text) return reply({ error: "Nuk mund të përgjigjem për këtë. Provo ta pyesësh ndryshe." }, 422);
+
+  // 1) Dy modelet e shpejta "lite" njëkohësisht: fiton i pari që përgjigjet (zakonisht 1–3 s).
+  const primary = clean(Deno.env.get("GEMINI_MODEL")) || "gemini-3.5-flash-lite";
+  const fast = [...new Set([primary, "gemini-flash-lite-latest"])];
+  const race = new AbortController();
+  let text: string | null = await new Promise<string | null>((resolve) => {
+    let left = fast.length;
+    for (const model of fast) {
+      gemini(model, 9_000, race.signal).then((t) => {
+        if (t) { race.abort(); resolve(t); } else if (--left === 0) resolve(null);
+      });
+    }
+  });
+  let via = "gemini-lite";
+  // 2) Nëse Google është i ngarkuar: Groq (nëse ka çelës), pastaj modeli Flash.
+  if (!text) { text = await groq(10_000); via = "groq"; }
+  if (!text) { text = await gemini("gemini-flash-latest", 15_000); via = "gemini-flash"; }
+  console.log("bosko-ai:", text ? "ok" : "fail", { ms: Date.now() - started, via, image: Boolean(image?.data), chars: text?.length ?? 0 });
+  if (!text) return reply({ error: "Bosko AI është shumë i zënë tani (shërbimi falas i Google është i ngarkuar). Provo përsëri pas pak." }, 503);
   return reply({ text });
 });
