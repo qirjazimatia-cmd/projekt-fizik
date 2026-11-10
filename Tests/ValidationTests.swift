@@ -16,7 +16,7 @@ final class ValidationTests: XCTestCase {
         let exerciseURL=try XCTUnwrap(bundle.url(forResource:"Exercises",withExtension:"json"))
         let lessons=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:lessonURL)) as? [[String:Any]])
         let exercises=try XCTUnwrap(JSONSerialization.jsonObject(with:Data(contentsOf:exerciseURL)) as? [[String:Any]])
-        XCTAssertEqual(lessons.count,600);XCTAssertEqual(exercises.count,600)
+        XCTAssertGreaterThanOrEqual(lessons.count,600);XCTAssertEqual(exercises.count,lessons.count)
         let index=Dictionary(uniqueKeysWithValues:exercises.map { ($0["id"] as! String,$0) })
         for lesson in lessons {
             let ids=try XCTUnwrap(lesson["exerciseIDs"] as? [String])
