@@ -10893,5 +10893,1266 @@
     "unit": "",
     "tolerance": 0.0,
     "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M1-31",
+    "subject": "Matematikë",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Një katror ka syprinë 225 cm². Sa është perimetri i tij?",
+    "answers": [
+      "60"
+    ],
+    "why": "Brinja √225 = 15 cm; perimetri 4 · 15 = 60 cm.",
+    "choices": [],
+    "unit": "cm",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M1-32",
+    "subject": "Matematikë",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Sa është √70, e rrumbullakuar në 1 shifër pas presjes?",
+    "answers": [
+      "8.4"
+    ],
+    "why": "64 < 70 < 81; 8,4² = 70,56 dhe 8,3² = 68,89, ndaj √70 ≈ 8,37 ≈ 8,4.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.05,
+    "accuracy": "Rrumbullakos në 1 shifër pas presjes (gabimi absolut ≤ 0,05)."
+  },
+  {
+    "id": "M1-33",
+    "subject": "Matematikë",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Largësia Tokë–Hënë është rreth 3,84 · 10⁵ km. Shkruaje si numër të zakonshëm (në km).",
+    "answers": [
+      "384000"
+    ],
+    "why": "Presja lëviz 5 vende djathtas: 384 000 km.",
+    "choices": [],
+    "unit": "km",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M1-34",
+    "subject": "Matematikë",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Shkruaj 2,5 · 10⁻³ si numër dhjetor.",
+    "answers": [
+      "0.0025"
+    ],
+    "why": "Presja lëviz 3 vende majtas: 0,0025.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M1-35",
+    "subject": "Matematikë",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Sa është (4 · 10³) · (5 · 10⁴)? Shkruaje si numër të zakonshëm.",
+    "answers": [
+      "200000000"
+    ],
+    "why": "4 · 5 = 20 dhe 10⁷: 20 · 10⁷ = 2 · 10⁸ = 200 000 000.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M2-31",
+    "subject": "Matematikë",
+    "level": 2,
+    "kind": "number",
+    "prompt": "Në një rreth, AB është diametër dhe C një pikë në rreth. Nëse ∠CAB = 28°, sa është ∠CBA?",
+    "answers": [
+      "62"
+    ],
+    "why": "∠ACB = 90° (mbi diametër), pra ∠CBA = 180° − 90° − 28° = 62°.",
+    "choices": [],
+    "unit": "°",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M2-32",
+    "subject": "Matematikë",
+    "level": 2,
+    "kind": "number",
+    "prompt": "Nga pika P hiqen dy tangjente PA dhe PB te një rreth me qendër O. Nëse ∠APB = 50°, sa është ∠AOB?",
+    "answers": [
+      "130"
+    ],
+    "why": "Te A dhe B këndet janë 90°; në katërkëndëshin OAPB: ∠AOB = 360° − 90° − 90° − 50° = 130°.",
+    "choices": [],
+    "unit": "°",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M2-33",
+    "subject": "Matematikë",
+    "level": 2,
+    "kind": "number",
+    "prompt": "Një kordë 24 cm ndodhet 5 cm larg qendrës. Sa është rrezja e rrethit?",
+    "answers": [
+      "13"
+    ],
+    "why": "r = √(12² + 5²) = √169 = 13 cm.",
+    "choices": [],
+    "unit": "cm",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M2-34",
+    "subject": "Matematikë",
+    "level": 2,
+    "kind": "select",
+    "prompt": "Cilat katërkëndësha mund të brendashkruhen gjithmonë në një rreth?",
+    "answers": [
+      "Drejtkëndëshi",
+      "Katrori"
+    ],
+    "why": "Te drejtkëndëshi dhe katrori këndet e kundërta janë 90° + 90° = 180°.",
+    "choices": [
+      "Drejtkëndëshi",
+      "Rombi jo katror",
+      "Katrori",
+      "Paralelogrami jo drejtkëndësh"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M2-35",
+    "subject": "Matematikë",
+    "level": 2,
+    "kind": "number",
+    "prompt": "Një rrotë me rreze 30 cm rrotullohet me 60°. Sa cm lëviz një pikë në buzë të saj? (π ≈ 3,14)",
+    "answers": [
+      "31.4"
+    ],
+    "why": "l = (60/360) · 2 · 3,14 · 30 = 31,4 cm.",
+    "choices": [],
+    "unit": "cm",
+    "tolerance": 0.05,
+    "accuracy": "Rrumbullakos në 1 shifër pas presjes (gabimi absolut ≤ 0,05)."
+  },
+  {
+    "id": "M3-31",
+    "subject": "Matematikë",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Sa zero ka funksioni y = sin x në intervalin [0, 4π] (përfshirë skajet)?",
+    "answers": [
+      "5"
+    ],
+    "why": "Zerot janë në 0, π, 2π, 3π, 4π: gjithsej 5.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M3-32",
+    "subject": "Matematikë",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Një valë ka formulën y = 5 sin(πx/2). Sa është perioda e saj?",
+    "answers": [
+      "4"
+    ],
+    "why": "T = 2π/(π/2) = 4.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M3-33",
+    "subject": "Matematikë",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Sa zgjidhje ka ekuacioni sin x = 0,3 në intervalin [0, 4π]?",
+    "answers": [
+      "4"
+    ],
+    "why": "Dy zgjidhje për çdo periodë 2π; në dy periodë: 4.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M3-34",
+    "subject": "Matematikë",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Nëse sin x = 5/13 dhe x në kuadrantin I, sa është cos x? (shkruaje si numër dhjetor)",
+    "answers": [
+      "0.923"
+    ],
+    "why": "cos x = √(1 − 25/169) = 12/13 ≈ 0,923.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "M3-35",
+    "subject": "Matematikë",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Në trekëndëshin ABC: A = 40°, C = 80°, a = 12 cm. Sa është brinja c? (2 shifra pas presjes)",
+    "answers": [
+      "18.39"
+    ],
+    "why": "c = 12 · sin 80° / sin 40° ≈ 12 · 0,9848 / 0,6428 ≈ 18,39 cm.",
+    "choices": [],
+    "unit": "cm",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "M4-31",
+    "subject": "Matematikë",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Sa është pjesa imagjinare e (2 + 3i) + (5 − 7i)?",
+    "answers": [
+      "-4"
+    ],
+    "why": "Mblidhen pjesët imagjinare: 3 + (−7) = −4.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M4-32",
+    "subject": "Matematikë",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Sa është pjesa reale e (1 + i)/(1 − i)?",
+    "answers": [
+      "0"
+    ],
+    "why": "(1 + i)(1 + i)/2 = (1 + 2i − 1)/2 = i, pra pjesa reale është 0.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M4-33",
+    "subject": "Matematikë",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Sa është largësia mes numrave 1 + 2i dhe 4 + 6i në planin kompleks?",
+    "answers": [
+      "5"
+    ],
+    "why": "|(4 − 1) + (6 − 2)i| = √(9 + 16) = 5.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M4-34",
+    "subject": "Matematikë",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Sa është pjesa reale e (cos 20° + i sin 20°)⁹?",
+    "answers": [
+      "-1"
+    ],
+    "why": "De Moivre: cos 180° + i sin 180° = −1.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M4-35",
+    "subject": "Matematikë",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Rrënjët e x² + 2x + 5 = 0 janë p ± qi. Sa është q (pozitive)?",
+    "answers": [
+      "2"
+    ],
+    "why": "D = 4 − 20 = −16; x = (−2 ± 4i)/2 = −1 ± 2i, pra q = 2.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M5-31",
+    "subject": "Matematikë",
+    "level": 5,
+    "kind": "number",
+    "prompt": "aₙ = 3aₙ₋₁ − 4 me a₀ = 5. Sa është a₄?",
+    "answers": [
+      "245"
+    ],
+    "why": "L = −4/(1 − 3) = 2; aₙ = 2 + 3ⁿ(5 − 2) = 2 + 3ⁿ⁺¹, pra a₄ = 2 + 243 = 245 (kontroll: 11, 29, 83, 245).",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M5-32",
+    "subject": "Matematikë",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Në sa mënyra mund të mbulohet një shirit 2 × 8 me pllaka domino 2 × 1?",
+    "answers": [
+      "34"
+    ],
+    "why": "Rekurrenca tₙ = tₙ₋₁ + tₙ₋₂ me t₁ = 1, t₂ = 2: 1, 2, 3, 5, 8, 13, 21, 34.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M5-33",
+    "subject": "Matematikë",
+    "level": 5,
+    "kind": "number",
+    "prompt": "aₙ = 5aₙ₋₁ − 6aₙ₋₂ me a₀ = 2, a₁ = 5. Sa është a₅?",
+    "answers": [
+      "275"
+    ],
+    "why": "aₙ = 2ⁿ + 3ⁿ, pra a₅ = 32 + 243 = 275.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M5-34",
+    "subject": "Matematikë",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Sa është mbetja kur F₁₀₀ (Fibonaçi, F₁ = F₂ = 1) pjesëtohet me 2?",
+    "answers": [
+      "1"
+    ],
+    "why": "Mod 2 vargu është 1, 1, 0 me periodë 3; 100 = 3 · 33 + 1, pra F₁₀₀ ≡ F₁ ≡ 1.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "M5-35",
+    "subject": "Matematikë",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Sa fjalë me gjatësi 5 nga germat a, b, c nuk kanë dy a rresht?",
+    "answers": [
+      "164"
+    ],
+    "why": "w₅ = 2w₄ + 2w₃ = 2 · 60 + 2 · 22 = 164.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K1-31",
+    "subject": "Kimi",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Sa litra azot ka në 200 L ajër (merr 78%)?",
+    "answers": [
+      "156"
+    ],
+    "why": "0,78 · 200 = 156 L.",
+    "choices": [],
+    "unit": "L",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K1-32",
+    "subject": "Kimi",
+    "level": 1,
+    "kind": "select",
+    "prompt": "Zgjidh mënyrat e sigurta për të shuar vajin që ka marrë flakë në tigan.",
+    "answers": [
+      "Mbulo tiganin me kapak",
+      "Fik burimin e nxehtësisë"
+    ],
+    "why": "Kapaku heq oksigjenin dhe fikja heq nxehtësinë; uji e shpërndan vajin e djegur.",
+    "choices": [
+      "Hidh ujë mbi të",
+      "Mbulo tiganin me kapak",
+      "Fik burimin e nxehtësisë",
+      "Fryj fort mbi flakë"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K1-33",
+    "subject": "Kimi",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Një ujë ka 0,25 g/L kripëra. Sa gram kripëra ka në 6 L?",
+    "answers": [
+      "1.5"
+    ],
+    "why": "m = c · V = 0,25 · 6 = 1,5 g.",
+    "choices": [],
+    "unit": "g",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "K1-34",
+    "subject": "Kimi",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Shiu A ka pH 5, shiu B ka pH 3. Sa herë më shumë jone H⁺ ka shiu B?",
+    "answers": [
+      "100"
+    ],
+    "why": "10^(5 − 3) = 100.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K1-35",
+    "subject": "Kimi",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Sa kg CO₂ formohen nga djegia e plotë e 6 kg karbon? (C = 12, CO₂ = 44 g/mol)",
+    "answers": [
+      "22"
+    ],
+    "why": "m = 6 · 44/12 = 22 kg.",
+    "choices": [],
+    "unit": "kg",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K2-31",
+    "subject": "Kimi",
+    "level": 2,
+    "kind": "select",
+    "prompt": "Zgjidh substancat ku forcat kryesore ndërmolekulare janë vetëm forcat e dispersionit.",
+    "answers": [
+      "CH₄",
+      "Br₂",
+      "CO₂"
+    ],
+    "why": "CH₄, Br₂ dhe CO₂ janë jopolare; H₂O dhe NH₃ kanë lidhje hidrogjenore.",
+    "choices": [
+      "CH₄",
+      "H₂O",
+      "Br₂",
+      "CO₂",
+      "NH₃"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K2-32",
+    "subject": "Kimi",
+    "level": 2,
+    "kind": "select",
+    "prompt": "Cilat dukuri shpjegohen me lidhjet hidrogjenore të ujit?",
+    "answers": [
+      "Akulli pluskon mbi ujë",
+      "Uji ka pikë vlimi të lartë"
+    ],
+    "why": "Rrjeti i hapur i akullit dhe energjia për të thyer lidhjet H shpjegojnë dy të parat.",
+    "choices": [
+      "Akulli pluskon mbi ujë",
+      "Uji ka pikë vlimi të lartë",
+      "Uji përçon rrymën kur ka kripëra",
+      "Hekuri ndryshket në ujë"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K2-33",
+    "subject": "Kimi",
+    "level": 2,
+    "kind": "select",
+    "prompt": "Rendit sipas pikës së vlimit dhe zgjidh dy substancat me pikat më të larta: H₂, HF, NaCl, HCl.",
+    "answers": [
+      "NaCl",
+      "HF"
+    ],
+    "why": "NaCl (jonike) > HF (lidhje H) > HCl (dipol) > H₂ (dispersion).",
+    "choices": [
+      "H₂",
+      "HF",
+      "NaCl",
+      "HCl"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K2-34",
+    "subject": "Kimi",
+    "level": 2,
+    "kind": "select",
+    "prompt": "Zgjidh substancat që treten mirë në ujë.",
+    "answers": [
+      "NaCl",
+      "Etanoli",
+      "Sheqeri"
+    ],
+    "why": "Kripa është jonike; etanoli dhe sheqeri kanë grupe –OH. Vaji dhe heksani janë jopolarë.",
+    "choices": [
+      "NaCl",
+      "Vaji i ullirit",
+      "Etanoli",
+      "Heksani",
+      "Sheqeri"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K2-35",
+    "subject": "Kimi",
+    "level": 2,
+    "kind": "select",
+    "prompt": "Zgjidh të ngurtat që janë kristale molekulare.",
+    "answers": [
+      "Akulli",
+      "Jodi",
+      "Sheqeri"
+    ],
+    "why": "Akulli, jodi dhe sheqeri kanë molekula të mbajtura me forca ndërmolekulare; diamanti është rrjet kovalent, kripa jonike.",
+    "choices": [
+      "Akulli",
+      "Diamanti",
+      "Jodi",
+      "Kripa e gjellës",
+      "Sheqeri"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K3-31",
+    "subject": "Kimi",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Sa gram Mg duhen për të çliruar 0,5 mol H₂ nga HCl? (Mg = 24 g/mol)",
+    "answers": [
+      "12"
+    ],
+    "why": "Mg + 2HCl → MgCl₂ + H₂: 0,5 mol Mg · 24 = 12 g.",
+    "choices": [],
+    "unit": "g",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K3-32",
+    "subject": "Kimi",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Sa gram argjend depozitohen kur 0,05 mol Cu reagojnë me AgNO₃ të tepërt? (Ag = 108 g/mol)",
+    "answers": [
+      "10.8"
+    ],
+    "why": "Cu + 2Ag⁺ → Cu²⁺ + 2Ag: 0,1 mol Ag · 108 = 10,8 g.",
+    "choices": [],
+    "unit": "g",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "K3-33",
+    "subject": "Kimi",
+    "level": 3,
+    "kind": "select",
+    "prompt": "Cilat kushte janë të nevojshme që hekuri të ndryshket?",
+    "answers": [
+      "Uji",
+      "Oksigjeni"
+    ],
+    "why": "Korrozioni kërkon ujë (elektrolit) dhe oksigjen (pranues elektronesh).",
+    "choices": [
+      "Uji",
+      "Oksigjeni",
+      "Drita e Diellit",
+      "Azoti"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K3-34",
+    "subject": "Kimi",
+    "level": 3,
+    "kind": "select",
+    "prompt": "Cilat metale mund të mbrojnë hekurin si anodë flijuese?",
+    "answers": [
+      "Zinku",
+      "Magnezi"
+    ],
+    "why": "Vetëm metalet më aktive se hekuri: Zn dhe Mg.",
+    "choices": [
+      "Zinku",
+      "Bakri",
+      "Magnezi",
+      "Ari"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K3-35",
+    "subject": "Kimi",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Sa ton Fe merren nga 200 t mineral që përmban 80% Fe₂O₃? (Fe₂O₃ = 160 g/mol, ka 70% Fe)",
+    "answers": [
+      "112"
+    ],
+    "why": "Fe₂O₃: 0,8 · 200 = 160 t; Fe: 0,7 · 160 = 112 t.",
+    "choices": [],
+    "unit": "t",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K4-31",
+    "subject": "Kimi",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Sa përqind e dritës kalon nëpër një tretësirë me absorbancë A = 2?",
+    "answers": [
+      "1"
+    ],
+    "why": "I/I₀ = 10⁻² = 0,01, pra 1%.",
+    "choices": [],
+    "unit": "%",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K4-32",
+    "subject": "Kimi",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Fronti i tretësit është 12 cm. Një substancë me Rf = 0,65 ndodhet sa cm nga vija e nisjes?",
+    "answers": [
+      "7.8"
+    ],
+    "why": "d = 0,65 · 12 = 7,8 cm.",
+    "choices": [],
+    "unit": "cm",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "K4-33",
+    "subject": "Kimi",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Sa mL KMnO₄ 0,0100 mol/L duhen për të oksiduar 0,00150 mol Fe²⁺?",
+    "answers": [
+      "30"
+    ],
+    "why": "n(MnO₄⁻) = 0,0015/5 = 3,0 · 10⁻⁴ mol; V = 3,0 · 10⁻⁴/0,0100 = 0,030 L = 30 mL.",
+    "choices": [],
+    "unit": "mL",
+    "tolerance": 0.05,
+    "accuracy": "Rrumbullakos në 1 shifër pas presjes (gabimi absolut ≤ 0,05)."
+  },
+  {
+    "id": "K4-34",
+    "subject": "Kimi",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Galiumi ka ⁶⁹Ga dhe ⁷¹Ga, me Aᵣ = 69,8. Sa përqind është ⁶⁹Ga?",
+    "answers": [
+      "60"
+    ],
+    "why": "69x + 71(1 − x) = 69,8 → 71 − 2x = 69,8 → x = 0,60.",
+    "choices": [],
+    "unit": "%",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K4-35",
+    "subject": "Kimi",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Nga një mostër klorur u përftuan 2,87 g AgCl. Sa gram Cl⁻ kishte? (AgCl = 143,5, Cl = 35,5 g/mol)",
+    "answers": [
+      "0.71"
+    ],
+    "why": "n = 2,87/143,5 = 0,0200 mol; m = 0,0200 · 35,5 = 0,71 g.",
+    "choices": [],
+    "unit": "g",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "K5-31",
+    "subject": "Kimi",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Në 300 K, k = 2,0 · 10⁻³ s⁻¹ dhe Eₐ = 60 kJ/mol. Sa është k në 320 K? Jep vlerën në njësi 10⁻³ s⁻¹ (1 shifër pas presjes).",
+    "answers": [
+      "9.0"
+    ],
+    "why": "ln(k₂/k₁) = (60000/8,314)(1/300 − 1/320) ≈ 1,503; k₂ ≈ 2,0 · 4,50 ≈ 9,0 · 10⁻³ s⁻¹.",
+    "choices": [],
+    "unit": "·10⁻³ s⁻¹",
+    "tolerance": 0.05,
+    "accuracy": "Rrumbullakos në 1 shifër pas presjes (gabimi absolut ≤ 0,05)."
+  },
+  {
+    "id": "K5-32",
+    "subject": "Kimi",
+    "level": 5,
+    "kind": "number",
+    "prompt": "k trefishohet nga 290 K në 310 K. Sa është Eₐ në kJ/mol? (1 shifër pas presjes; R = 8,314)",
+    "answers": [
+      "41.0"
+    ],
+    "why": "Eₐ = 8,314 · ln 3 / (1/290 − 1/310) = 8,314 · 1,0986 / 2,2247 · 10⁻⁴ ≈ 41 050 J/mol ≈ 41,0 kJ/mol.",
+    "choices": [],
+    "unit": "kJ/mol",
+    "tolerance": 0.05,
+    "accuracy": "Rrumbullakos në 1 shifër pas presjes (gabimi absolut ≤ 0,05)."
+  },
+  {
+    "id": "K5-33",
+    "subject": "Kimi",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Ligji i shpejtësisë është v = k[NO]²[O₂]. Sa herë rritet shpejtësia nëse [NO] dyfishohet dhe [O₂] trefishohet?",
+    "answers": [
+      "12"
+    ],
+    "why": "2² · 3 = 12.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K5-34",
+    "subject": "Kimi",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Reaksion i rendit zero me [A]₀ = 0,80 mol/L dhe k = 0,025 mol·L⁻¹·s⁻¹. Për sa sekonda konsumohet plotësisht A?",
+    "answers": [
+      "32"
+    ],
+    "why": "t = [A]₀/k = 0,80/0,025 = 32 s.",
+    "choices": [],
+    "unit": "s",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "K5-35",
+    "subject": "Kimi",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Me të njëjtat konstante (k₁ = 2, k₋₁ = 100, k₂ = 50), [A] = 0,1 dhe [B] = 0,2 mol/L, sa është v? (mol·L⁻¹·s⁻¹, 2 shifra pas presjes)",
+    "answers": [
+      "0.02"
+    ],
+    "why": "v = 2 · 50 · 0,1 · 0,2/(100 + 10) = 2/110 ≈ 0,018 ≈ 0,02.",
+    "choices": [],
+    "unit": "mol·L⁻¹·s⁻¹",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "B1-31",
+    "subject": "Biologji",
+    "level": 1,
+    "kind": "select",
+    "prompt": "Zgjidh nyjet që lejojnë lëvizje në shumë drejtime.",
+    "answers": [
+      "Shpatulla",
+      "Kofsha"
+    ],
+    "why": "Shpatulla dhe kofsha janë nyje sferike; gjuri dhe bërryli janë me menteshë.",
+    "choices": [
+      "Shpatulla",
+      "Gjuri",
+      "Kofsha",
+      "Bërryli"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B1-32",
+    "subject": "Biologji",
+    "level": 1,
+    "kind": "select",
+    "prompt": "Zgjidh muskujt që punojnë pa vullnetin tonë.",
+    "answers": [
+      "Muskuli i zemrës",
+      "Muskujt e stomakut"
+    ],
+    "why": "Zemra dhe muskujt e lëmuar të organeve punojnë vetë; bicepsi dhe muskujt e këmbës janë skeletorë.",
+    "choices": [
+      "Muskuli i zemrës",
+      "Bicepsi",
+      "Muskujt e stomakut",
+      "Muskujt e këmbës"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B1-33",
+    "subject": "Biologji",
+    "level": 1,
+    "kind": "select",
+    "prompt": "Cilat pohime vlejnë për miopinë?",
+    "answers": [
+      "Shihet mirë afër dhe keq larg",
+      "Korrigjohet me thjerra shpërndarëse"
+    ],
+    "why": "Te miopia figura formohet para retinës.",
+    "choices": [
+      "Shihet mirë afër dhe keq larg",
+      "Korrigjohet me thjerra shpërndarëse",
+      "Figura formohet pas retinës",
+      "Korrigjohet me thjerra përmbledhëse"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B1-34",
+    "subject": "Biologji",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Një bakter ndahet çdo 30 minuta. Sa baktere bëhen nga 1 bakter pas 4 orësh?",
+    "answers": [
+      "256"
+    ],
+    "why": "4 orë = 8 ndarje; 2⁸ = 256.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B1-35",
+    "subject": "Biologji",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Për fruthin, imuniteti kolektiv kërkon rreth 95% të vaksinuar. Në një qytet me 20 000 fëmijë, sa duhet të jenë të vaksinuar minimalisht?",
+    "answers": [
+      "19000"
+    ],
+    "why": "0,95 · 20 000 = 19 000.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B2-31",
+    "subject": "Biologji",
+    "level": 2,
+    "kind": "select",
+    "prompt": "Zgjidh nivelet e klasifikimit që janë MË TË GJERË se familja.",
+    "answers": [
+      "Rendi",
+      "Klasa",
+      "Mbretëria"
+    ],
+    "why": "Rendi, klasa dhe mbretëria janë sipër familjes; gjinia dhe specia janë poshtë.",
+    "choices": [
+      "Rendi",
+      "Gjinia",
+      "Klasa",
+      "Specia",
+      "Mbretëria"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B2-32",
+    "subject": "Biologji",
+    "level": 2,
+    "kind": "select",
+    "prompt": "Zgjidh tiparet e përbashkëta të bimëve.",
+    "answers": [
+      "Bëjnë fotosintezë",
+      "Kanë mur qelizor me celulozë"
+    ],
+    "why": "Bimët janë eukariote autotrofe me mur celuloze.",
+    "choices": [
+      "Bëjnë fotosintezë",
+      "Kanë mur qelizor me celulozë",
+      "Janë prokariote",
+      "Kanë mur me kitinë"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B2-33",
+    "subject": "Biologji",
+    "level": 2,
+    "kind": "number",
+    "prompt": "Sa hapa me dy alternativa ka një çelës dikotomik për 20 lloje pemësh?",
+    "answers": [
+      "19"
+    ],
+    "why": "n − 1 = 20 − 1 = 19.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B2-34",
+    "subject": "Biologji",
+    "level": 2,
+    "kind": "select",
+    "prompt": "Zgjidh pohimet e sakta për kërpudhat.",
+    "answers": [
+      "Ushqehen duke thithur lëndë",
+      "Kanë mur qelizor me kitinë"
+    ],
+    "why": "Kërpudhat janë eukariote heterotrofe me mur kitine.",
+    "choices": [
+      "Bëjnë fotosintezë",
+      "Ushqehen duke thithur lëndë",
+      "Kanë mur qelizor me kitinë",
+      "Janë prokariote"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B2-35",
+    "subject": "Biologji",
+    "level": 2,
+    "kind": "select",
+    "prompt": "Zgjidh vertebrorët që mbajnë temperaturë trupore konstante.",
+    "answers": [
+      "Pinguini",
+      "Delfini"
+    ],
+    "why": "Vetëm zogjtë (pinguini) dhe gjitarët (delfini) janë endotermë.",
+    "choices": [
+      "Pinguini",
+      "Breshka",
+      "Delfini",
+      "Salamandra",
+      "Peshkaqeni"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B3-31",
+    "subject": "Biologji",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Një person me anemi ka 9 g hemoglobinë në 100 mL gjak. Sa mL O₂ mbart maksimalisht 100 mL gjak i tij? (1,34 mL/g, 1 shifër pas presjes)",
+    "answers": [
+      "12.1"
+    ],
+    "why": "9 · 1,34 = 12,06 ≈ 12,1 mL.",
+    "choices": [],
+    "unit": "mL",
+    "tolerance": 0.05,
+    "accuracy": "Rrumbullakos në 1 shifër pas presjes (gabimi absolut ≤ 0,05)."
+  },
+  {
+    "id": "B3-32",
+    "subject": "Biologji",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Sa është presioni arterial mesatar për 150/90 mmHg? (PAM ≈ D + (S − D)/3)",
+    "answers": [
+      "110"
+    ],
+    "why": "90 + 60/3 = 110 mmHg.",
+    "choices": [],
+    "unit": "mmHg",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B3-33",
+    "subject": "Biologji",
+    "level": 3,
+    "kind": "select",
+    "prompt": "Zgjidh grupet nga të cilat një marrës me grup A⁻ mund të marrë rruaza të kuqe.",
+    "answers": [
+      "A⁻",
+      "0⁻"
+    ],
+    "why": "Marrësi A⁻ ka anti-B dhe nuk duhet të marrë antigjen D: vetëm A⁻ dhe 0⁻.",
+    "choices": [
+      "A⁻",
+      "A⁺",
+      "0⁻",
+      "B⁻",
+      "AB⁻"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B3-34",
+    "subject": "Biologji",
+    "level": 3,
+    "kind": "select",
+    "prompt": "Zgjidh hapat e hemostazës sipas renditjes së saktë: zgjidh dy hapat e parë.",
+    "answers": [
+      "Ngushtimi i enës së gjakut",
+      "Formimi i tapës së trombociteve"
+    ],
+    "why": "Ngushtimi ndodh menjëherë, pastaj tapa e trombociteve; fibrina vjen më pas.",
+    "choices": [
+      "Ngushtimi i enës së gjakut",
+      "Formimi i tapës së trombociteve",
+      "Formimi i rrjetës së fibrinës",
+      "Tretja e mpiksjes"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B3-35",
+    "subject": "Biologji",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Nëse 10% e 20 L lëngut që del nga kapilarët nuk rithithet, sa litra limfë formohen në ditë?",
+    "answers": [
+      "2"
+    ],
+    "why": "0,10 · 20 = 2 L.",
+    "choices": [],
+    "unit": "L",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B4-31",
+    "subject": "Biologji",
+    "level": 4,
+    "kind": "select",
+    "prompt": "Zgjidh kushtet në të cilat operoni lac është plotësisht i shtypur (pothuajse aspak transkriptim).",
+    "answers": [
+      "Pa laktozë, me glukozë",
+      "Pa laktozë, pa glukozë"
+    ],
+    "why": "Pa laktozë represori mbetet i lidhur, pavarësisht glukozës.",
+    "choices": [
+      "Pa laktozë, me glukozë",
+      "Me laktozë, pa glukozë",
+      "Pa laktozë, pa glukozë",
+      "Me laktozë, me glukozë"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B4-32",
+    "subject": "Biologji",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Një qelizë ka 4 faktorë transkriptimi që mund të jenë ndezur ose fikur pavarësisht. Sa kombinime të ndryshme janë të mundshme?",
+    "answers": [
+      "16"
+    ],
+    "why": "2⁴ = 16 kombinime.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B4-33",
+    "subject": "Biologji",
+    "level": 4,
+    "kind": "select",
+    "prompt": "Zgjidh pohimet e sakta për ndryshimet epigjenetike.",
+    "answers": [
+      "Nuk ndryshojnë sekuencën e ADN-së",
+      "Mund të ndikohen nga mjedisi"
+    ],
+    "why": "Epigjenetika ndryshon shprehjen, jo sekuencën, dhe ndikohet nga mjedisi; shpesh është e kthyeshme.",
+    "choices": [
+      "Ndryshojnë sekuencën e bazave",
+      "Nuk ndryshojnë sekuencën e ADN-së",
+      "Mund të ndikohen nga mjedisi",
+      "Janë gjithmonë të pakthyeshme"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B4-34",
+    "subject": "Biologji",
+    "level": 4,
+    "kind": "select",
+    "prompt": "Zgjidh faktorët që e rrisin rrezikun e mutacioneve kancerogjene.",
+    "answers": [
+      "Duhanpirja",
+      "Rrezet UV të tepërta"
+    ],
+    "why": "Duhani dhe UV dëmtojnë drejtpërdrejt ADN-në.",
+    "choices": [
+      "Duhanpirja",
+      "Rrezet UV të tepërta",
+      "Gjumi i rregullt",
+      "Ushqimi me fruta e perime"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B4-35",
+    "subject": "Biologji",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Gjenomi i njeriut ka rreth 3 · 10⁹ baza. Sa herë pritet të shfaqet rastësisht një sekuencë e caktuar me 12 baza? (merr 4¹² ≈ 1,68 · 10⁷; rrumbullakos në numër të plotë)",
+    "answers": [
+      "179"
+    ],
+    "why": "3 · 10⁹ / 4¹² = 3 · 10⁹ / 16 777 216 ≈ 179 herë; prandaj ARN-të udhëzuese janë më të gjata.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 1,
+    "accuracy": "Rrumbullakos në numër të plotë."
+  },
+  {
+    "id": "B5-31",
+    "subject": "Biologji",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Me D ≈ 2 · 10⁻⁹ m²/s, sa sekonda i duhen O₂ të difuzojë 100 μm (10⁻⁴ m)? Përdor t ≈ x²/(2D).",
+    "answers": [
+      "2.5"
+    ],
+    "why": "t = (10⁻⁴)²/(2 · 2 · 10⁻⁹) = 10⁻⁸/(4 · 10⁻⁹) = 2,5 s.",
+    "choices": [],
+    "unit": "s",
+    "tolerance": 0.05,
+    "accuracy": "Rrumbullakos në 1 shifër pas presjes (gabimi absolut ≤ 0,05)."
+  },
+  {
+    "id": "B5-32",
+    "subject": "Biologji",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Sa duhet të rritet presioni (sa herë) për ta mbajtur prurjen të njëjtë kur rrezja bie 20%? (2 shifra pas presjes)",
+    "answers": [
+      "2.44"
+    ],
+    "why": "ΔP ∝ 1/r⁴: 1/0,8⁴ = 1/0,4096 ≈ 2,44 herë.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "B5-33",
+    "subject": "Biologji",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Sa është presioni osmotik (atm) i një tretësire glukoze 0,30 mol/L në 300 K? (R = 0,0821, 2 shifra pas presjes)",
+    "answers": [
+      "7.39"
+    ],
+    "why": "Π = 1 · 0,30 · 0,0821 · 300 = 7,389 ≈ 7,39 atm.",
+    "choices": [],
+    "unit": "atm",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "B5-34",
+    "subject": "Biologji",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Një gjitar 1 kg ka metabolizëm bazal 3 W. Sipas B ∝ M^(3/4), sa W ka një gjitar 10 000 kg?",
+    "answers": [
+      "3000"
+    ],
+    "why": "B = 3 · (10⁴)^(3/4) = 3 · 10³ = 3000 W.",
+    "choices": [],
+    "unit": "W",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "B5-35",
+    "subject": "Biologji",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Një qelizë kubike me brinjë 8 μm ndahet në 8 kube të barabarta me brinjë 4 μm. Sa herë rritet sipërfaqja totale?",
+    "answers": [
+      "2"
+    ],
+    "why": "Para: 6 · 64 = 384 μm²; pas: 8 · 6 · 16 = 768 μm²; raporti 2.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
   }
 ]
