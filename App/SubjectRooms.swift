@@ -76,7 +76,7 @@ struct Dashboard: View {
                         Image(systemName: drawer ? "xmark" : "sidebar.left").font(.title2).frame(width: 44, height: 44)
                     }.accessibilityLabel(drawer ? "Mbyll menunë" : "Hap menunë")
                 }
-                if expanded { Text("Science\nQuest").font(.system(size: 30, weight: .black, design: .rounded)).padding(.bottom, 16) }
+                if expanded { Text("Brain\nSpark").font(.system(size: 30, weight: .black, design: .rounded)).padding(.bottom, 16) }
                 tab(.home, "Krye", "Krye", "house.fill", expanded)
                 ForEach([Subject.math, .physics, .chemistry, .biology]) { subject in
                     tab(.subject(subject), subject.rawValue, subject.short, subject.icon, expanded)

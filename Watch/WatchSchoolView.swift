@@ -6,7 +6,7 @@ struct WatchSchoolView: View {
     var body: some View {
         List {
             if !inbox.summary.signedIn {
-                Text("Hap Science Quest në iPhone dhe hyr te «Shkolla ime». Afatet dhe komentet shfaqen këtu pas rifreskimit.")
+                Text("Hap BrainSpark në iPhone dhe hyr te «Shkolla ime». Afatet dhe komentet shfaqen këtu pas rifreskimit.")
                     .font(.footnote)
             } else {
                 let upcoming = inbox.summary.items.filter { $0.kind != .feedback }.sorted { ($0.date ?? 0) < ($1.date ?? 0) }

@@ -42,7 +42,12 @@ Në bisedat e Claude, GraphQL i GitHub nuk lejohet (`gh issue list`, `gh pr list
 ## 6. Ndershmëria
 - Mos thuaj "punon" pa e provuar. Dallo: implementuar · provuar realisht · në pritje konfigurimi · i papërfunduar.
 - Mos vendos sekrete, kodin e mësuesit ose çelësa `service_role`/`sb_secret_` në repo. Çelësi `sb_publishable_...` lejohet (është publik).
-- Mos ndrysho përmbajtjen e mësimeve/laboratorëve dhe Bundle ID-në pa kërkesë të qartë.
+- Mos ndrysho përmbajtjen e mësimeve/laboratorëve pa kërkesë të qartë.
+
+## 8. Emri, versioni dhe Bundle ID (përfundimtare)
+- Emri i app-it: **BrainSpark**. Bundle ID: `al.donbosko.connect` (Watch: `al.donbosko.connect.watchkitapp`). Mos e ndrysho më: pas publikimit nuk ndryshohet dot.
+- Versioni mbetet **1.0.0** (build 1) derisa app-i të dalë në App Store dhe Play Store, sado ndryshime të bëjmë. Pas publikimit: rregullime → 1.0.1, veçori të reja → 1.1.0; build-i rritet me +1 për çdo ngarkim.
+- Android (Play Store) del si version web i paketuar (TWA) me të njëjtin version 1.0.0 dhe të njëjtin Supabase (detyra #4).
 
 ## 7. Udhëzimi bazë
 Kërkesat e plota të produktit janë te `PROMPT-DON-BOSKO.md`. Raportet e versioneve: `RAPORTI-*.md`.
