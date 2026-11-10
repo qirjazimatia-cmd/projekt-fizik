@@ -10474,5 +10474,424 @@
     "unit": "",
     "tolerance": 0.0,
     "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F1-31",
+    "subject": "Fizikë",
+    "level": 1,
+    "kind": "select",
+    "prompt": "Zgjidh të gjitha rastet kur llamba në një qark të thjeshtë me një rrugë NUK ndizet.",
+    "answers": [
+      "Çelësi është i hapur",
+      "Filamenti i llambës është këputur",
+      "Një tel është shkëputur"
+    ],
+    "why": "Çdo ndërprerje e rrugës e hap qarkun dhe rryma ndalon.",
+    "choices": [
+      "Çelësi është i hapur",
+      "Filamenti i llambës është këputur",
+      "Çelësi është i mbyllur dhe bateria e re",
+      "Një tel është shkëputur"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F1-32",
+    "subject": "Fizikë",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Një elektrik dore punon me 2 bateri 1,5 V në seri dhe një bateri 9 V në seri me to. Sa është tensioni total?",
+    "answers": [
+      "12"
+    ],
+    "why": "Në seri tensionet mblidhen: 1,5 + 1,5 + 9 = 12 V.",
+    "choices": [],
+    "unit": "V",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F1-33",
+    "subject": "Fizikë",
+    "level": 1,
+    "kind": "select",
+    "prompt": "Zgjidh të gjithë përçuesit.",
+    "answers": [
+      "Teli i bakrit",
+      "Gozhda prej hekuri",
+      "Grafiti i lapsit"
+    ],
+    "why": "Metalet dhe grafiti kanë ngarkesa të lira; goma dhe qelqi janë izolues.",
+    "choices": [
+      "Teli i bakrit",
+      "Goma e fshirjes",
+      "Gozhda prej hekuri",
+      "Gota prej qelqi",
+      "Grafiti i lapsit"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F1-34",
+    "subject": "Fizikë",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Një hekur rrobash ka etiketën 230 V, 1150 W. Sa rrymë kalon kur punon?",
+    "answers": [
+      "5"
+    ],
+    "why": "I = P / U = 1150 / 230 = 5 A.",
+    "choices": [],
+    "unit": "A",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F1-35",
+    "subject": "Fizikë",
+    "level": 1,
+    "kind": "number",
+    "prompt": "Një frigorifer 150 W punon mesatarisht 8 orë në ditë. Sa kWh harxhon në 30 ditë?",
+    "answers": [
+      "36"
+    ],
+    "why": "0,15 kW · 8 h · 30 = 36 kWh.",
+    "choices": [],
+    "unit": "kWh",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F2-31",
+    "subject": "Fizikë",
+    "level": 2,
+    "kind": "number",
+    "prompt": "Një llambë 6 kg varet në mes të dy litarëve vertikalë simetrikë. Sa është tensioni në secilin litar? (g = 9,8 m/s²)",
+    "answers": [
+      "29.4"
+    ],
+    "why": "T = mg/2 = 6 · 9,8 / 2 = 29,4 N.",
+    "choices": [],
+    "unit": "N",
+    "tolerance": 0.05,
+    "accuracy": "Rrumbullakos në 1 shifër pas presjes (gabimi absolut ≤ 0,05)."
+  },
+  {
+    "id": "F2-32",
+    "subject": "Fizikë",
+    "level": 2,
+    "kind": "number",
+    "prompt": "Me një levë, një forcë 150 N vepron 1,2 m nga mbështetja. Sa është ngarkesa maksimale që mund të ngrihet 0,3 m nga mbështetja?",
+    "answers": [
+      "600"
+    ],
+    "why": "F₂ = F₁ d₁ / d₂ = 150 · 1,2 / 0,3 = 600 N.",
+    "choices": [],
+    "unit": "N",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F2-33",
+    "subject": "Fizikë",
+    "level": 2,
+    "kind": "number",
+    "prompt": "Në një shufër të lehtë: 4 kg në x = 0 dhe 1 kg në x = 2,5 m. Ku është qendra e rëndesës?",
+    "answers": [
+      "0.5"
+    ],
+    "why": "x = (4 · 0 + 1 · 2,5)/(4 + 1) = 0,5 m.",
+    "choices": [],
+    "unit": "m",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "F2-34",
+    "subject": "Fizikë",
+    "level": 2,
+    "kind": "number",
+    "prompt": "Një tra 5 m me peshë 1000 N mbështetet në skajet A dhe B. Një ngarkesë 500 N vendoset 4 m nga A. Sa është forca në mbështetjen B?",
+    "answers": [
+      "900"
+    ],
+    "why": "R_B · 5 = 1000 · 2,5 + 500 · 4 = 4500, pra R_B = 900 N.",
+    "choices": [],
+    "unit": "N",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F2-35",
+    "subject": "Fizikë",
+    "level": 2,
+    "kind": "select",
+    "prompt": "Zgjidh të gjitha ndryshimet që e bëjnë një trup MË TË QËNDRUESHËM ndaj përmbysjes.",
+    "answers": [
+      "Ulja e qendrës së rëndesës",
+      "Zgjerimi i bazës së mbështetjes"
+    ],
+    "why": "Stabiliteti rritet kur tan θ = (b/2)/h rritet: bazë më e gjerë ose qendër më e ulët.",
+    "choices": [
+      "Ulja e qendrës së rëndesës",
+      "Vendosja e sendeve të rënda lart",
+      "Zgjerimi i bazës së mbështetjes",
+      "Ngushtimi i bazës"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F3-31",
+    "subject": "Fizikë",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Në një krik hidraulik A₁ = 2 cm² dhe A₂ = 80 cm². Sa forcë duhet mbi pistonin e vogël për të ngritur 12 000 N?",
+    "answers": [
+      "300"
+    ],
+    "why": "F₁ = F₂ · A₁/A₂ = 12 000 · 2/80 = 300 N.",
+    "choices": [],
+    "unit": "N",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F3-32",
+    "subject": "Fizikë",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Një kub druri 0,001 m³ pluskon në ujë me 60% të vëllimit të zhytur. Sa është forca e Arkimedit? (g = 9,8 m/s²)",
+    "answers": [
+      "5.88"
+    ],
+    "why": "F_A = 1000 · 9,8 · 0,6 · 0,001 = 5,88 N (sa pesha e kubit).",
+    "choices": [],
+    "unit": "N",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "F3-33",
+    "subject": "Fizikë",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Një lumë 20 m i gjerë dhe 2 m i thellë rrjedh me 0,5 m/s. Sa m³ ujë kalojnë në sekondë?",
+    "answers": [
+      "20"
+    ],
+    "why": "Q = A · v = (20 · 2) · 0,5 = 20 m³/s.",
+    "choices": [],
+    "unit": "m³/s",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F3-34",
+    "subject": "Fizikë",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Në një tub horizontal me ujë, presioni bie me 6000 Pa nga pjesa e gjerë (v₁ = 2 m/s) te pjesa e ngushtë. Sa është v₂?",
+    "answers": [
+      "4"
+    ],
+    "why": "6000 = 0,5 · 1000 · (v₂² − 4), pra v₂² = 16 dhe v₂ = 4 m/s.",
+    "choices": [],
+    "unit": "m/s",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F3-35",
+    "subject": "Fizikë",
+    "level": 3,
+    "kind": "number",
+    "prompt": "Në çfarë thellësie nën sipërfaqe duhet të jetë një vrimë që uji të dalë me 7 m/s? (g = 9,8 m/s²)",
+    "answers": [
+      "2.5"
+    ],
+    "why": "h = v²/(2g) = 49/19,6 = 2,5 m.",
+    "choices": [],
+    "unit": "m",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "F4-31",
+    "subject": "Fizikë",
+    "level": 4,
+    "kind": "select",
+    "prompt": "Zgjidh pohimet që janë postulatet e relativitetit special.",
+    "answers": [
+      "Ligjet e fizikës janë të njëjta në të gjitha sistemet inerciale",
+      "Shpejtësia e dritës në boshllëk është e njëjtë për të gjithë vëzhguesit inercialë"
+    ],
+    "why": "Dy postulatet janë parimi i relativitetit dhe pandryshueshmëria e c-së; koha absolute dhe mbledhja klasike janë pikërisht ato që relativiteti i rrëzon.",
+    "choices": [
+      "Ligjet e fizikës janë të njëjta në të gjitha sistemet inerciale",
+      "Koha rrjedh njësoj për të gjithë vëzhguesit",
+      "Shpejtësia e dritës në boshllëk është e njëjtë për të gjithë vëzhguesit inercialë",
+      "Shpejtësitë mblidhen gjithmonë si u + v"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F4-32",
+    "subject": "Fizikë",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Një astronaut udhëton me 0,6c. Në orën e tij kalojnë 4 vjet. Sa vjet kalojnë në Tokë?",
+    "answers": [
+      "5"
+    ],
+    "why": "γ = 1/0,8 = 1,25; Δt = 1,25 · 4 = 5 vjet.",
+    "choices": [],
+    "unit": "vjet",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F4-33",
+    "subject": "Fizikë",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Sa duhet të jetë v/c që një shufër të duket me gjysmën e gjatësisë së saj të vetë?",
+    "answers": [
+      "0.866"
+    ],
+    "why": "L = L₀/2 do të thotë γ = 2: 1 − v²/c² = 1/4, pra v/c = √0,75 ≈ 0,866.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "F4-34",
+    "subject": "Fizikë",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Një proton (mc² = 938 MeV) ka γ = 1,5. Sa është energjia e tij kinetike?",
+    "answers": [
+      "469"
+    ],
+    "why": "E_k = (γ − 1)mc² = 0,5 · 938 = 469 MeV.",
+    "choices": [],
+    "unit": "MeV",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F4-35",
+    "subject": "Fizikë",
+    "level": 4,
+    "kind": "number",
+    "prompt": "Dy grimca afrohen me 0,8c secila në lidhje me laboratorin. Sa është shpejtësia e njërës në lidhje me tjetrën (në njësi c)?",
+    "answers": [
+      "0.976"
+    ],
+    "why": "u = (0,8 + 0,8)/(1 + 0,64) = 1,6/1,64 ≈ 0,976c.",
+    "choices": [],
+    "unit": "c",
+    "tolerance": 0.005,
+    "accuracy": "Rrumbullakos në 2 shifra pas presjes; pranohen edhe më shumë shifra ose thyesa e saktë (gabimi absolut ≤ 0,005)."
+  },
+  {
+    "id": "F5-31",
+    "subject": "Fizikë",
+    "level": 5,
+    "kind": "select",
+    "prompt": "Zgjidh të gjitha madhësitë që kanë dimensionet M L² T⁻².",
+    "answers": [
+      "Energjia kinetike",
+      "Puna",
+      "Momenti i forcës"
+    ],
+    "why": "Energjia, puna dhe momenti (F · d) kanë M L² T⁻²; fuqia ka M L² T⁻³ dhe impulsi M L T⁻¹.",
+    "choices": [
+      "Energjia kinetike",
+      "Fuqia",
+      "Puna",
+      "Momenti i forcës",
+      "Impulsi"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F5-32",
+    "subject": "Fizikë",
+    "level": 5,
+    "kind": "select",
+    "prompt": "Shpejtësia e valëve në ujë të thellë varet nga g dhe nga gjatësia valore λ. Cila formë është e mundshme dimensionalisht?",
+    "answers": [
+      "v ∝ √(gλ)"
+    ],
+    "why": "[gλ] = L T⁻² · L = L² T⁻², pra √(gλ) ka dimensionet e shpejtësisë.",
+    "choices": [
+      "v ∝ gλ",
+      "v ∝ √(gλ)",
+      "v ∝ √(g/λ)",
+      "v ∝ λ/g"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F5-33",
+    "subject": "Fizikë",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Vlerëso sa litra ujë pi një njeri gjatë 70 vjetëve, nëse pi 2 L në ditë. Jep përgjigjen në mijëra litra (rrumbullakos në numër të plotë).",
+    "answers": [
+      "51"
+    ],
+    "why": "2 · 365 · 70 = 51 100 L ≈ 51 mijë litra.",
+    "choices": [],
+    "unit": "mijë L",
+    "tolerance": 0.5,
+    "accuracy": "Rrumbullakos në numër të plotë."
+  },
+  {
+    "id": "F5-34",
+    "subject": "Fizikë",
+    "level": 5,
+    "kind": "number",
+    "prompt": "Një milingonë me gjatësi 5 mm zmadhohet në 1 m duke ruajtur përpjesëtimet. Sa herë rritet masa e saj?",
+    "answers": [
+      "8000000"
+    ],
+    "why": "k = 1000/5 = 200; masa ∝ k³ = 8 · 10⁶.",
+    "choices": [],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
+  },
+  {
+    "id": "F5-35",
+    "subject": "Fizikë",
+    "level": 5,
+    "kind": "select",
+    "prompt": "Për periodën e lavjerrësit me sustë propozohen tri formula. Cila kalon kontrollin e dimensioneve dhe atë që «susta më e fortë (k më e madhe) lëkundet më shpejt»?",
+    "answers": [
+      "T = 2π√(m/k)"
+    ],
+    "why": "√(m/k) ka dimensionet e kohës dhe T zvogëlohet kur k rritet; √(k/m) jep 1/kohë, ndërsa m/k ka dimensionin T².",
+    "choices": [
+      "T = 2π√(k/m)",
+      "T = 2π√(m/k)",
+      "T = 2π m/k"
+    ],
+    "unit": "",
+    "tolerance": 0.0,
+    "accuracy": "Përgjigje e saktë, pa rrumbullakosje."
   }
 ]

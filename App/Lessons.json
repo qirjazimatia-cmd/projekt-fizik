@@ -41301,5 +41301,1808 @@
         "Krahasojmë rezultatin me të dyja parashikimet."
       ]
     }
+  },
+  {
+    "id": "LF1-31",
+    "subject": "Fizikë",
+    "level": 1,
+    "order": 31,
+    "chapterID": "F1-C07",
+    "chapterTitle": "Elektriciteti në jetën e përditshme",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Çdo pajisje në shtëpi punon sepse ngarkesat elektrike lëvizin në një qark të mbyllur. Bateria ose priza japin tensionin që i shtyn ngarkesat; rryma tregon sa ngarkesë kalon çdo sekondë; fuqia tregon sa shpejt pajisja shndërron energjinë. Në këtë kapitull mësojmë si ndërtohet një qark, cilat materiale e përçojnë rrymën dhe si llogaritet energjia që paguajmë në faturë.",
+    "title": "Qarku elektrik i thjeshtë",
+    "introduction": "Një llambë ndizet vetëm kur rryma ka një rrugë të plotë: nga njëri pol i baterisë, përmes telave dhe llambës, deri te poli tjetër. Kjo rrugë e mbyllur quhet qark elektrik.",
+    "objectives": [
+      "Të përshkruash pjesët e një qarku: burimi, përçuesit, marrësi dhe çelësi.",
+      "Të dallosh qarkun e hapur nga qarku i mbyllur dhe të shpjegosh pse llamba fiket."
+    ],
+    "sections": [
+      {
+        "title": "Pjesët e qarkut",
+        "text": "Burimi (bateria ose priza) jep energjinë. Telat e metaltë janë përçuesit që lidhin pjesët. Marrësi (llamba, motori, zilja) e shndërron energjinë elektrike në dritë, lëvizje ose tingull. Çelësi hap ose mbyll rrugën e rrymës."
+      },
+      {
+        "title": "Qarku i hapur dhe i mbyllur",
+        "text": "Kur çelësi është i mbyllur, rruga është e plotë dhe rryma kalon. Kur çelësi hapet, mjafton një ndërprerje e vetme që rryma të ndalojë në të gjithë qarkun. Prandaj, kur digjet filamenti i një llambe në një qark me një rrugë të vetme, fiken edhe llambat e tjera të atij qarku."
+      },
+      {
+        "title": "Simbolet në skemë",
+        "text": "Në skemë nuk vizatojmë pajisjet si në realitet, por me simbole: bateria me dy vija paralele (më e gjata është poli pozitiv), llamba me një rreth me kryq, çelësi me një vijë të pjerrët. Skema e mirë tregon qartë rrugën që ndjek rryma."
+      }
+    ],
+    "example": {
+      "problem": "Në një qark me bateri, çelës dhe llambë, llamba nuk ndizet. Çelësi është i mbyllur. Ku mund të jetë problemi?",
+      "steps": [
+        "Kontrollo nëse rruga është e plotë: çdo tel duhet të lidhet mirë në të dy skajet.",
+        "Kontrollo llambën: nëse filamenti është këputur, qarku është i hapur brenda saj.",
+        "Kontrollo baterinë: një bateri e shkarkuar nuk shtyn rrymë.",
+        "Ndërro një nga një pjesët derisa llamba të ndizet."
+      ],
+      "conclusion": "Problemi është një ndërprerje e rrugës (tel i shkëputur ose llambë e djegur) ose bateri e shkarkuar."
+    },
+    "pitfall": "Rryma nuk «harxhohet» gjatë rrugës: e njëjta rrymë që del nga bateria kthehet në të. Llamba harxhon energji, jo ngarkesë.",
+    "recap": [
+      "Rryma kalon vetëm në një qark të mbyllur.",
+      "Një ndërprerje e vetme e ndal rrymën në gjithë qarkun me një rrugë.",
+      "Skemat përdorin simbole të njëjta në të gjithë botën."
+    ],
+    "check": {
+      "prompt": "Çfarë ndodh kur hapet çelësi në një qark me një bateri dhe dy llamba të lidhura njëra pas tjetrës?",
+      "options": [
+        "Fiket vetëm llamba afër çelësit",
+        "Fiken të dyja llambat",
+        "Llambat ndriçojnë më shumë"
+      ],
+      "correct": 1,
+      "why": "Qarku ka vetëm një rrugë. Kur çelësi hapet, rruga ndërpritet dhe rryma ndalon kudo, ndaj fiken të dyja."
+    },
+    "exerciseIDs": [
+      "F1-31"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Në një qark me bateri, çelës dhe llambë, llamba nuk ndizet. Çelësi është i mbyllur. Ku mund të jetë problemi?",
+      "nodes": [
+        "Kontrollo nëse rruga është e plotë: çdo tel duhet të lidhet mirë në të dy skajet.",
+        "Kontrollo llambën: nëse filamenti është këputur, qarku është i hapur brenda saj.",
+        "Kontrollo baterinë: një bateri e shkarkuar nuk shtyn rrymë.",
+        "Ndërro një nga një pjesët derisa llamba të ndizet."
+      ]
+    }
+  },
+  {
+    "id": "LF1-32",
+    "subject": "Fizikë",
+    "level": 1,
+    "order": 32,
+    "chapterID": "F1-C07",
+    "chapterTitle": "Elektriciteti në jetën e përditshme",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Çdo pajisje në shtëpi punon sepse ngarkesat elektrike lëvizin në një qark të mbyllur. Bateria ose priza japin tensionin që i shtyn ngarkesat; rryma tregon sa ngarkesë kalon çdo sekondë; fuqia tregon sa shpejt pajisja shndërron energjinë. Në këtë kapitull mësojmë si ndërtohet një qark, cilat materiale e përçojnë rrymën dhe si llogaritet energjia që paguajmë në faturë.",
+    "title": "Tensioni dhe bateritë",
+    "introduction": "Tensioni elektrik, që matet në volt (V), tregon sa fort i shtyn burimi ngarkesat nëpër qark. Kur bateritë lidhen njëra pas tjetrës (në seri), tensionet e tyre mblidhen.",
+    "objectives": [
+      "Të shpjegosh tensionin si «shtytje» e burimit dhe ta matësh me voltmetër.",
+      "Të llogaritësh tensionin e disa baterive të lidhura në seri."
+    ],
+    "sections": [
+      {
+        "title": "Çfarë është tensioni",
+        "text": "Tensioni është energjia që burimi i jep çdo njësie ngarkese. Një bateri e zakonshme ka 1,5 V, bateria e makinës 12 V, ndërsa priza në Shqipëri 230 V. Sa më i madh tensioni, aq më shumë energji merr çdo ngarkesë."
+      },
+      {
+        "title": "Lidhja në seri e baterive",
+        "text": "Kur poli pozitiv i një baterie lidhet me polin negativ të tjetrës, tensionet mblidhen: U = U₁ + U₂ + … Kështu katër bateri 1,5 V në një telekomandë japin 6 V. Nëse një bateri vendoset së prapthi, ajo e zbret tensionin e saj në vend që ta shtojë."
+      },
+      {
+        "title": "Matja me voltmetër",
+        "text": "Voltmetri lidhet në paralel, d.m.th. me dy telat e tij në dy skajet e pjesës që matim. Ai mat diferencën e tensionit mes dy pikave, prandaj nuk vendoset brenda rrugës së rrymës."
+      }
+    ],
+    "example": {
+      "problem": "Një lodër punon me 4 bateri 1,5 V të lidhura në seri. Sa është tensioni total?",
+      "steps": [
+        "Në seri, tensionet mblidhen: U = 1,5 V + 1,5 V + 1,5 V + 1,5 V.",
+        "4 · 1,5 = 6",
+        "Tensioni total është 6 V."
+      ],
+      "conclusion": "U = 6 V"
+    },
+    "pitfall": "Bateritë në seri rrisin tensionin, por jo kohën e punës. Bateritë në paralel e mbajnë tensionin të njëjtë dhe zgjatin kohën e punës.",
+    "recap": [
+      "Tensioni matet në volt dhe tregon shtytjen e burimit.",
+      "Në seri: U = U₁ + U₂ + …",
+      "Voltmetri lidhet në paralel me pjesën që matet."
+    ],
+    "check": {
+      "prompt": "Sa tension japin 3 bateri 1,5 V të lidhura në seri?",
+      "options": [
+        "1,5 V",
+        "3 V",
+        "4,5 V"
+      ],
+      "correct": 2,
+      "why": "Tensionet mblidhen: 3 · 1,5 V = 4,5 V."
+    },
+    "exerciseIDs": [
+      "F1-32"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një lodër punon me 4 bateri 1,5 V të lidhura në seri. Sa është tensioni total?",
+      "nodes": [
+        "Në seri, tensionet mblidhen: U = 1,5 V + 1,5 V + 1,5 V + 1,5 V.",
+        "4 · 1,5 = 6",
+        "Tensioni total është 6 V."
+      ]
+    },
+    "verification": {
+      "expression": "4*1.5",
+      "value": 6.0,
+      "check_expression": "3*1.5",
+      "check_value": 4.5
+    }
+  },
+  {
+    "id": "LF1-33",
+    "subject": "Fizikë",
+    "level": 1,
+    "order": 33,
+    "chapterID": "F1-C07",
+    "chapterTitle": "Elektriciteti në jetën e përditshme",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Çdo pajisje në shtëpi punon sepse ngarkesat elektrike lëvizin në një qark të mbyllur. Bateria ose priza japin tensionin që i shtyn ngarkesat; rryma tregon sa ngarkesë kalon çdo sekondë; fuqia tregon sa shpejt pajisja shndërron energjinë. Në këtë kapitull mësojmë si ndërtohet një qark, cilat materiale e përçojnë rrymën dhe si llogaritet energjia që paguajmë në faturë.",
+    "title": "Përçuesit dhe izoluesit",
+    "introduction": "Disa materiale e lënë rrymën të kalojë lehtë (përçuesit), të tjera pothuajse aspak (izoluesit). Telat elektrikë kanë bërthamë bakri dhe veshje plastike: bakri përçon, plastika na mbron.",
+    "objectives": [
+      "Të klasifikosh materialet e zakonshme si përçues ose izolues.",
+      "Të shpjegosh pse përdoren izoluesit për sigurinë."
+    ],
+    "sections": [
+      {
+        "title": "Pse përçojnë metalet",
+        "text": "Në metale disa elektrone janë të lira të lëvizin nëpër material. Kur vendoset një tension, këto elektrone lëvizin të gjitha në një drejtim dhe krijojnë rrymën. Bakri, alumini, hekuri dhe argjendi janë përçues të mirë; grafiti i lapsit gjithashtu përçon."
+      },
+      {
+        "title": "Izoluesit",
+        "text": "Plastika, goma, qelqi, druri i thatë dhe qeramika nuk kanë elektrone të lira, ndaj rryma pothuajse nuk kalon. Ato përdoren për veshjen e telave, për dorezat e veglave të elektricistëve dhe për mbështetëset në shtyllat e rrymës."
+      },
+      {
+        "title": "Uji dhe trupi i njeriut",
+        "text": "Uji i pastër përçon pak, por uji i rubinetit dhe i detit ka kripëra të tretura dhe përçon mirë. Edhe trupi ynë përçon. Prandaj nuk prekim kurrë pajisje elektrike me duar të lagura dhe nuk i afrojmë ato pranë vaskës."
+      }
+    ],
+    "example": {
+      "problem": "Në një qark testimi me bateri dhe llambë vendosim me radhë: një gozhdë, një gomë, një lugë çeliku dhe një vizore plastike. Në cilat raste ndizet llamba?",
+      "steps": [
+        "Gozhda është metal (hekur): ka elektrone të lira, llamba ndizet.",
+        "Goma është izoluese: llamba nuk ndizet.",
+        "Luga e çelikut është metal: llamba ndizet.",
+        "Vizorja plastike është izoluese: llamba nuk ndizet."
+      ],
+      "conclusion": "Llamba ndizet me gozhdën dhe lugën, jo me gomën dhe vizoren."
+    },
+    "pitfall": "Druri i thatë izolon, por druri i lagur mund të përçojë. Një material «izolues» mund të bëhet i rrezikshëm kur laget ose kur tensioni është shumë i lartë.",
+    "recap": [
+      "Përçuesit (metalet, grafiti) kanë ngarkesa të lira që lëvizin.",
+      "Izoluesit (plastika, goma, qelqi) e pengojnë rrymën.",
+      "Uji me kripëra dhe trupi i njeriut përçojnë: kujdes me pajisjet."
+    ],
+    "check": {
+      "prompt": "Pse telat elektrikë vishen me plastikë?",
+      "options": [
+        "Që rryma të kalojë më shpejt",
+        "Që rryma të mos kalojë te njerëzit ose te objektet përreth",
+        "Që teli të mos ftohet"
+      ],
+      "correct": 1,
+      "why": "Plastika është izoluese: ajo e mban rrymën brenda bakrit dhe na mbron nga goditja elektrike."
+    },
+    "exerciseIDs": [
+      "F1-33"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Në një qark testimi me bateri dhe llambë vendosim me radhë: një gozhdë, një gomë, një lugë çeliku dhe një vizore plastike. Në cilat raste ndizet llamba?",
+      "nodes": [
+        "Gozhda është metal (hekur): ka elektrone të lira, llamba ndizet.",
+        "Goma është izoluese: llamba nuk ndizet.",
+        "Luga e çelikut është metal: llamba ndizet.",
+        "Vizorja plastike është izoluese: llamba nuk ndizet."
+      ]
+    }
+  },
+  {
+    "id": "LF1-34",
+    "subject": "Fizikë",
+    "level": 1,
+    "order": 34,
+    "chapterID": "F1-C07",
+    "chapterTitle": "Elektriciteti në jetën e përditshme",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Çdo pajisje në shtëpi punon sepse ngarkesat elektrike lëvizin në një qark të mbyllur. Bateria ose priza japin tensionin që i shtyn ngarkesat; rryma tregon sa ngarkesë kalon çdo sekondë; fuqia tregon sa shpejt pajisja shndërron energjinë. Në këtë kapitull mësojmë si ndërtohet një qark, cilat materiale e përçojnë rrymën dhe si llogaritet energjia që paguajmë në faturë.",
+    "title": "Fuqia e pajisjeve elektrike",
+    "introduction": "Fuqia elektrike tregon sa energji shndërron një pajisje çdo sekondë. Ajo llogaritet me formulën P = U · I dhe matet në vat (W). Etiketa e çdo pajisjeje e shënon fuqinë e saj.",
+    "objectives": [
+      "Të llogaritësh fuqinë nga tensioni dhe rryma: P = U · I.",
+      "Të krahasosh pajisjet e shtëpisë sipas fuqisë."
+    ],
+    "sections": [
+      {
+        "title": "Formula e fuqisë",
+        "text": "Nëse tensioni është U (në volt) dhe rryma I (në amper), fuqia është P = U · I (në vat). 1 kW = 1000 W. Një llambë LED ka rreth 10 W, një televizor rreth 100 W, ndërsa kaldaja ose furra 2000 W e më shumë."
+      },
+      {
+        "title": "Leximi i etiketës",
+        "text": "Në etiketë shkruhet p.sh. «230 V ~ 1800 W». Kjo do të thotë se pajisja duhet lidhur në 230 V dhe shndërron 1800 J energji çdo sekondë. Nga këtu mund të gjejmë rrymën: I = P / U = 1800 / 230 ≈ 7,8 A."
+      },
+      {
+        "title": "Pse nuk ndezim gjithçka njëherësh",
+        "text": "Siguresa ose automati i shtëpisë lejon vetëm një rrymë maksimale (p.sh. 16 A). Kur ndezim shumë pajisje me fuqi të madhe në të njëjtën prizë, rryma totale e kalon kufirin dhe automati e ndërpret qarkun për të parandaluar mbinxehjen e telave."
+      }
+    ],
+    "example": {
+      "problem": "Një kaldajë lidhet në 230 V dhe kalon një rrymë 8 A. Sa është fuqia e saj?",
+      "steps": [
+        "Shkruaj formulën: P = U · I.",
+        "Zëvendëso: P = 230 V · 8 A.",
+        "230 · 8 = 1840",
+        "Fuqia është 1840 W, pra rreth 1,8 kW."
+      ],
+      "conclusion": "P = 1840 W"
+    },
+    "pitfall": "Fuqia e madhe nuk do të thotë domosdoshmërisht faturë e madhe: rëndësi ka edhe sa kohë punon pajisja.",
+    "recap": [
+      "P = U · I, në vat (W).",
+      "1 kW = 1000 W.",
+      "Rryma e një pajisjeje: I = P / U."
+    ],
+    "check": {
+      "prompt": "Një llambë në 230 V kalon 0,5 A. Sa është fuqia e saj?",
+      "options": [
+        "46 W",
+        "115 W",
+        "460 W"
+      ],
+      "correct": 1,
+      "why": "P = U · I = 230 · 0,5 = 115 W."
+    },
+    "exerciseIDs": [
+      "F1-34"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një kaldajë lidhet në 230 V dhe kalon një rrymë 8 A. Sa është fuqia e saj?",
+      "nodes": [
+        "Shkruaj formulën: P = U · I.",
+        "Zëvendëso: P = 230 V · 8 A.",
+        "230 · 8 = 1840",
+        "Fuqia është 1840 W, pra rreth 1,8 kW."
+      ]
+    },
+    "verification": {
+      "expression": "230*8",
+      "value": 1840.0,
+      "check_expression": "230*0.5",
+      "check_value": 115.0
+    }
+  },
+  {
+    "id": "LF1-35",
+    "subject": "Fizikë",
+    "level": 1,
+    "order": 35,
+    "chapterID": "F1-C07",
+    "chapterTitle": "Elektriciteti në jetën e përditshme",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Çdo pajisje në shtëpi punon sepse ngarkesat elektrike lëvizin në një qark të mbyllur. Bateria ose priza japin tensionin që i shtyn ngarkesat; rryma tregon sa ngarkesë kalon çdo sekondë; fuqia tregon sa shpejt pajisja shndërron energjinë. Në këtë kapitull mësojmë si ndërtohet një qark, cilat materiale e përçojnë rrymën dhe si llogaritet energjia që paguajmë në faturë.",
+    "title": "Energjia elektrike dhe fatura",
+    "introduction": "Kompania e energjisë nuk na faturon fuqinë, por energjinë e harxhuar. Energjia është fuqia herë kohën, E = P · t, dhe në faturë matet në kilovat-orë (kWh).",
+    "objectives": [
+      "Të llogaritësh energjinë e harxhuar në kWh nga fuqia dhe koha.",
+      "Të vlerësosh koston e përdorimit të një pajisjeje."
+    ],
+    "sections": [
+      {
+        "title": "Kilovat-ora",
+        "text": "1 kWh është energjia që harxhon një pajisje 1 kW kur punon 1 orë. Për ta llogaritur: shkruaj fuqinë në kW, kohën në orë dhe shumëzoji: E (kWh) = P (kW) · t (h)."
+      },
+      {
+        "title": "Nga energjia te kostoja",
+        "text": "Kostoja = energjia · çmimi për kWh. Çmimi ndryshon sipas vendit dhe tarifës; në ushtrime përdorim një çmim shembull. Kur e dimë sa harxhon secila pajisje, kuptojmë ku mund të kursejmë."
+      },
+      {
+        "title": "Si kursejmë",
+        "text": "Pajisjet që ngrohin (ngrohësi, kaldaja, furra) kanë fuqi të madhe dhe zënë pjesën më të madhe të faturës. Llambat LED harxhojnë rreth 8 herë më pak se llambat e vjetra me filament për të njëjtën dritë. Fikja e pajisjeve kur nuk përdoren dhe izolimi i shtëpisë e ulin faturën."
+      }
+    ],
+    "example": {
+      "problem": "Një ngrohës 2 kW punon 3 orë në ditë për 30 ditë. Sa kWh harxhon dhe sa kushton, nëse 1 kWh kushton 12 lekë (çmim shembull)?",
+      "steps": [
+        "Energjia në ditë: 2 kW · 3 h = 6 kWh.",
+        "Energjia në muaj: 6 kWh · 30 = 180 kWh.",
+        "Kostoja: 180 kWh · 12 lekë/kWh = 2160 lekë."
+      ],
+      "conclusion": "Harxhon 180 kWh dhe kushton 2160 lekë."
+    },
+    "pitfall": "Mos e shumëzo fuqinë në vat me kohën në orë pa e kthyer në kW: 2000 W · 3 h = 6000 Wh = 6 kWh.",
+    "recap": [
+      "E = P · t; në faturë: kWh.",
+      "Kthe W në kW (pjesëto me 1000) dhe minutat në orë.",
+      "Kostoja = kWh · çmimi."
+    ],
+    "check": {
+      "prompt": "Një llambë 100 W ndizet 10 orë. Sa energji harxhon?",
+      "options": [
+        "0,1 kWh",
+        "1 kWh",
+        "1000 kWh"
+      ],
+      "correct": 1,
+      "why": "100 W = 0,1 kW; E = 0,1 kW · 10 h = 1 kWh."
+    },
+    "exerciseIDs": [
+      "F1-35"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një ngrohës 2 kW punon 3 orë në ditë për 30 ditë. Sa kWh harxhon dhe sa kushton, nëse 1 kWh kushton 12 lekë (çmim shembull)?",
+      "nodes": [
+        "Energjia në ditë: 2 kW · 3 h = 6 kWh.",
+        "Energjia në muaj: 6 kWh · 30 = 180 kWh.",
+        "Kostoja: 180 kWh · 12 lekë/kWh = 2160 lekë."
+      ]
+    },
+    "verification": {
+      "expression": "2*3*30*12",
+      "value": 2160.0,
+      "check_expression": "0.1*10",
+      "check_value": 1.0
+    }
+  },
+  {
+    "id": "LF2-31",
+    "subject": "Fizikë",
+    "level": 2,
+    "order": 31,
+    "chapterID": "F2-C07",
+    "chapterTitle": "Statika dhe ekuilibri i trupit të ngurtë",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Një trup i ngurtë është në ekuilibër kur nuk fillon as të lëvizë, as të rrotullohet. Për këtë duhen dy kushte: shuma e forcave të jetë zero dhe shuma e momenteve rreth çdo pike të jetë zero. Me këto dy kushte llogarisim levat, urat, raftet dhe kuptojmë pse disa trupa përmbysen më lehtë se të tjerët.",
+    "title": "Dy kushtet e ekuilibrit",
+    "introduction": "Një trup i ngurtë është në ekuilibër statik kur shuma e forcave mbi të është zero dhe shuma e momenteve rreth çdo pike është zero. Kushti i parë ndalon zhvendosjen, i dyti rrotullimin.",
+    "objectives": [
+      "Të shkruash kushtet ΣF = 0 dhe ΣM = 0 për një trup të ngurtë.",
+      "Të gjesh forcat e panjohura në ekuilibër për raste simetrike."
+    ],
+    "sections": [
+      {
+        "title": "Pse nuk mjafton ΣF = 0",
+        "text": "Dy forca të barabarta dhe të kundërta që veprojnë në skaje të ndryshme të një vizoreje e bëjnë atë të rrotullohet, edhe pse shuma e tyre është zero. Prandaj për trupat e ngurtë duhet edhe kushti i momenteve: ΣM = 0."
+      },
+      {
+        "title": "Si zgjidhet një problem ekuilibri",
+        "text": "1) Zgjidh trupin dhe vizato të gjitha forcat që veprojnë mbi të. 2) Shkruaj ΣFₓ = 0 dhe ΣF_y = 0. 3) Zgjidh një pikë rrotullimi ku kalojnë forca të panjohura, që ato të mos hyjnë në ekuacionin e momenteve. 4) Zgjidh sistemin."
+      },
+      {
+        "title": "Simetria",
+        "text": "Kur trupi dhe forcat janë simetrike, forcat mbështetëse ndahen në mënyrë të barabartë. Kjo është një kontroll i shpejtë për çdo rezultat."
+      }
+    ],
+    "example": {
+      "problem": "Një tabelë 5 kg varet me dy litarë vertikalë të vendosur simetrikisht. Sa është tensioni në secilin litar? (g = 9,8 m/s²)",
+      "steps": [
+        "Pesha e tabelës: mg = 5 · 9,8 = 49 N, poshtë.",
+        "Kushti ΣF_y = 0: T₁ + T₂ = 49 N.",
+        "Nga simetria (ose ΣM = 0 rreth qendrës): T₁ = T₂.",
+        "T = 49 / 2 = 24,5 N."
+      ],
+      "conclusion": "Secili litar ka tension 24,5 N."
+    },
+    "pitfall": "Momenti varet nga largësia pingule nga pika deri te vija e veprimit të forcës, jo vetëm nga madhësia e forcës.",
+    "recap": [
+      "Ekuilibri statik: ΣF = 0 dhe ΣM = 0.",
+      "Zgjidh pikën e momenteve ku kalon një forcë e panjohur.",
+      "Simetria jep forca të barabarta."
+    ],
+    "check": {
+      "prompt": "Një trup 8 kg varet me dy litarë vertikalë simetrikë. Sa është tensioni në secilin? (g = 9,8 m/s²)",
+      "options": [
+        "39,2 N",
+        "78,4 N",
+        "19,6 N"
+      ],
+      "correct": 0,
+      "why": "T = mg / 2 = 8 · 9,8 / 2 = 39,2 N."
+    },
+    "exerciseIDs": [
+      "F2-31"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një tabelë 5 kg varet me dy litarë vertikalë të vendosur simetrikisht. Sa është tensioni në secilin litar? (g = 9,8 m/s²)",
+      "nodes": [
+        "Pesha e tabelës: mg = 5 · 9,8 = 49 N, poshtë.",
+        "Kushti ΣF_y = 0: T₁ + T₂ = 49 N.",
+        "Nga simetria (ose ΣM = 0 rreth qendrës): T₁ = T₂.",
+        "T = 49 / 2 = 24,5 N."
+      ]
+    },
+    "verification": {
+      "expression": "5*9.8/2",
+      "value": 24.5,
+      "check_expression": "8*9.8/2",
+      "check_value": 39.2
+    }
+  },
+  {
+    "id": "LF2-32",
+    "subject": "Fizikë",
+    "level": 2,
+    "order": 32,
+    "chapterID": "F2-C07",
+    "chapterTitle": "Statika dhe ekuilibri i trupit të ngurtë",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Një trup i ngurtë është në ekuilibër kur nuk fillon as të lëvizë, as të rrotullohet. Për këtë duhen dy kushte: shuma e forcave të jetë zero dhe shuma e momenteve rreth çdo pike të jetë zero. Me këto dy kushte llogarisim levat, urat, raftet dhe kuptojmë pse disa trupa përmbysen më lehtë se të tjerët.",
+    "title": "Leva dhe parimi i momenteve",
+    "introduction": "Leva është një shufër që rrotullohet rreth një pike mbështetjeje. Ajo është në ekuilibër kur momentet në të dy anët janë të barabarta: F₁ · d₁ = F₂ · d₂.",
+    "objectives": [
+      "Të zbatosh parimin e momenteve në levat dhe në lëkundësen e fëmijëve.",
+      "Të shpjegosh si një forcë e vogël ngre një peshë të madhe."
+    ],
+    "sections": [
+      {
+        "title": "Momenti i forcës",
+        "text": "Momenti është M = F · d, ku d është largësia pingule nga pika e mbështetjes deri te vija e forcës. Matet në N·m. Momenti që rrotullon në drejtim të akrepave të orës balancohet nga momenti në drejtimin e kundërt."
+      },
+      {
+        "title": "Fitimi në forcë",
+        "text": "Nëse e shtyjmë levën larg pikës së mbështetjes, d₁ është i madh dhe mjafton një forcë e vogël F₁ për të balancuar një forcë të madhe F₂ afër mbështetjes. Gërshërët, pinca, karroca e dorës dhe hapësja e shisheve funksionojnë kështu."
+      },
+      {
+        "title": "Çmimi i fitimit",
+        "text": "Leva nuk krijon energji: nëse forca zvogëlohet 5 herë, dora duhet të lëvizë 5 herë më shumë. Puna e bërë mbetet e njëjtë (pa fërkim)."
+      }
+    ],
+    "example": {
+      "problem": "Në një lëkundëse, një fëmijë 30 kg ulet 2 m larg mbështetjes. Sa masë duhet të ketë fëmija tjetër që ulet 1,5 m larg, që lëkundësja të jetë në ekuilibër?",
+      "steps": [
+        "Parimi i momenteve: m₁ g d₁ = m₂ g d₂ (g thjeshtohet).",
+        "30 · 2 = m₂ · 1,5",
+        "m₂ = 60 / 1,5 = 40 kg."
+      ],
+      "conclusion": "Fëmija i dytë duhet të ketë 40 kg."
+    },
+    "pitfall": "Largësia matet nga pika e mbështetjes, jo nga skaji i shufrës.",
+    "recap": [
+      "M = F · d, me d pingul me forcën.",
+      "Ekuilibri i levës: F₁ d₁ = F₂ d₂.",
+      "Leva fiton forcë, por humbet zhvendosje."
+    ],
+    "check": {
+      "prompt": "Një fëmijë 20 kg ulet 3 m nga mbështetja. Në çfarë mase duhet fëmija që ulet 2 m nga ana tjetër?",
+      "options": [
+        "13,3 kg",
+        "30 kg",
+        "60 kg"
+      ],
+      "correct": 1,
+      "why": "20 · 3 = m · 2, pra m = 30 kg."
+    },
+    "exerciseIDs": [
+      "F2-32"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Në një lëkundëse, një fëmijë 30 kg ulet 2 m larg mbështetjes. Sa masë duhet të ketë fëmija tjetër që ulet 1,5 m larg, që lëkundësja të jetë në ekuilibër?",
+      "nodes": [
+        "Parimi i momenteve: m₁ g d₁ = m₂ g d₂ (g thjeshtohet).",
+        "30 · 2 = m₂ · 1,5",
+        "m₂ = 60 / 1,5 = 40 kg."
+      ]
+    },
+    "verification": {
+      "expression": "30*2/1.5",
+      "value": 40.0,
+      "check_expression": "20*3/2",
+      "check_value": 30.0
+    }
+  },
+  {
+    "id": "LF2-33",
+    "subject": "Fizikë",
+    "level": 2,
+    "order": 33,
+    "chapterID": "F2-C07",
+    "chapterTitle": "Statika dhe ekuilibri i trupit të ngurtë",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Një trup i ngurtë është në ekuilibër kur nuk fillon as të lëvizë, as të rrotullohet. Për këtë duhen dy kushte: shuma e forcave të jetë zero dhe shuma e momenteve rreth çdo pike të jetë zero. Me këto dy kushte llogarisim levat, urat, raftet dhe kuptojmë pse disa trupa përmbysen më lehtë se të tjerët.",
+    "title": "Qendra e rëndesës",
+    "introduction": "Qendra e rëndesës është pika ku mund të mendojmë se vepron e gjithë pesha e trupit. Për disa masa në një vijë, ajo gjendet me mesataren e peshuar: x = (m₁x₁ + m₂x₂ + …)/(m₁ + m₂ + …).",
+    "objectives": [
+      "Të gjesh qendrën e rëndesës së disa masave në një bosht.",
+      "Të përdorësh qendrën e rëndesës për të zgjidhur probleme ekuilibri."
+    ],
+    "sections": [
+      {
+        "title": "Mesatarja e peshuar",
+        "text": "Çdo masë «tërheq» qendrën drejt vetes aq më shumë sa më e rëndë është. Nëse dy masat janë të barabarta, qendra është në mes; nëse njëra është tre herë më e rëndë, qendra është tre herë më afër saj."
+      },
+      {
+        "title": "Trupat homogjenë",
+        "text": "Për një shufër, pllakë ose sferë homogjene, qendra e rëndesës është në qendrën gjeometrike. Për trupa të përbërë, gjejmë qendrën e çdo pjese dhe pastaj bëjmë mesataren e peshuar."
+      },
+      {
+        "title": "Si gjendet në praktikë",
+        "text": "Varim trupin nga dy pika të ndryshme dhe vizatojmë vijën vertikale nën secilën. Qendra e rëndesës është në prerjen e vijave, sepse trupi i varur ndalon gjithmonë me qendrën nën pikën e varjes."
+      }
+    ],
+    "example": {
+      "problem": "Në një shufër të lehtë janë vendosur një masë 2 kg në x = 0 dhe një masë 3 kg në x = 1 m. Ku është qendra e rëndesës?",
+      "steps": [
+        "x = (m₁x₁ + m₂x₂)/(m₁ + m₂)",
+        "x = (2 · 0 + 3 · 1)/(2 + 3)",
+        "x = 3/5 = 0,6 m"
+      ],
+      "conclusion": "Qendra e rëndesës është 0,6 m nga masa 2 kg."
+    },
+    "pitfall": "Qendra e rëndesës mund të jetë edhe jashtë materialit, p.sh. në qendër të një unaze ose të një bumerangu.",
+    "recap": [
+      "x_QR = Σmᵢxᵢ / Σmᵢ.",
+      "Te trupat homogjenë: në qendrën gjeometrike.",
+      "Trupi i varur ndalon me QR nën pikën e varjes."
+    ],
+    "check": {
+      "prompt": "Masa 1 kg është në x = 0 dhe masa 3 kg në x = 2 m. Ku është qendra e rëndesës?",
+      "options": [
+        "0,5 m",
+        "1 m",
+        "1,5 m"
+      ],
+      "correct": 2,
+      "why": "x = (1 · 0 + 3 · 2)/(1 + 3) = 6/4 = 1,5 m."
+    },
+    "exerciseIDs": [
+      "F2-33"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Në një shufër të lehtë janë vendosur një masë 2 kg në x = 0 dhe një masë 3 kg në x = 1 m. Ku është qendra e rëndesës?",
+      "nodes": [
+        "x = (m₁x₁ + m₂x₂)/(m₁ + m₂)",
+        "x = (2 · 0 + 3 · 1)/(2 + 3)",
+        "x = 3/5 = 0,6 m"
+      ]
+    },
+    "verification": {
+      "expression": "(2*0+3*1)/(2+3)",
+      "value": 0.6,
+      "check_expression": "(1*0+3*2)/(1+3)",
+      "check_value": 1.5
+    }
+  },
+  {
+    "id": "LF2-34",
+    "subject": "Fizikë",
+    "level": 2,
+    "order": 34,
+    "chapterID": "F2-C07",
+    "chapterTitle": "Statika dhe ekuilibri i trupit të ngurtë",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Një trup i ngurtë është në ekuilibër kur nuk fillon as të lëvizë, as të rrotullohet. Për këtë duhen dy kushte: shuma e forcave të jetë zero dhe shuma e momenteve rreth çdo pike të jetë zero. Me këto dy kushte llogarisim levat, urat, raftet dhe kuptojmë pse disa trupa përmbysen më lehtë se të tjerët.",
+    "title": "Ura mbi dy mbështetje",
+    "introduction": "Kur një tra mbështetet në dy pika, forcat mbështetëse ndryshojnë sipas vendit ku ndodhet ngarkesa. I gjejmë duke shkruar momentet rreth njërës mbështetje.",
+    "objectives": [
+      "Të llogaritësh reaksionet e mbështetjeve për një tra me ngarkesa.",
+      "Të kontrollosh rezultatin me ΣF = 0."
+    ],
+    "sections": [
+      {
+        "title": "Strategjia",
+        "text": "Marrim momentet rreth mbështetjes A: kështu reaksioni R_A nuk hyn në ekuacion. Nga ΣM_A = 0 gjejmë R_B. Pastaj nga ΣF = 0 gjejmë R_A = (shuma e peshave) − R_B."
+      },
+      {
+        "title": "Pesha e vetë traut",
+        "text": "Pesha e një trau homogjen vepron në mesin e tij. Prandaj një tra 4 m e ka peshën në 2 m nga secili skaj."
+      },
+      {
+        "title": "Kuptimi fizik",
+        "text": "Mbështetja që është më afër ngarkesës mban më shumë. Ky është arsyeja pse shtyllat e urave afër rrugës ku kalojnë kamionët projektohen më të forta."
+      }
+    ],
+    "example": {
+      "problem": "Një tra 4 m me peshë 800 N mbështetet në skajet A dhe B. Një kuti 400 N vendoset 1 m nga A. Gjej forcat mbështetëse.",
+      "steps": [
+        "Momentet rreth A: R_B · 4 = 800 · 2 + 400 · 1.",
+        "R_B · 4 = 2000, pra R_B = 500 N.",
+        "ΣF = 0: R_A + R_B = 800 + 400 = 1200 N.",
+        "R_A = 1200 − 500 = 700 N."
+      ],
+      "conclusion": "R_A = 700 N dhe R_B = 500 N."
+    },
+    "pitfall": "Mos harro peshën e vetë traut; ajo vepron në mesin e tij, jo në skaje.",
+    "recap": [
+      "Momentet rreth njërës mbështetje japin reaksionin tjetër.",
+      "ΣF = 0 jep reaksionin e dytë.",
+      "Mbështetja më afër ngarkesës mban më shumë."
+    ],
+    "check": {
+      "prompt": "Një tra homogjen 6 m me peshë 600 N mbështetet në dy skajet, pa ngarkesë tjetër. Sa mban mbështetja B?",
+      "options": [
+        "200 N",
+        "300 N",
+        "600 N"
+      ],
+      "correct": 1,
+      "why": "R_B · 6 = 600 · 3, pra R_B = 300 N (nga simetria, secila mban gjysmën)."
+    },
+    "exerciseIDs": [
+      "F2-34"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një tra 4 m me peshë 800 N mbështetet në skajet A dhe B. Një kuti 400 N vendoset 1 m nga A. Gjej forcat mbështetëse.",
+      "nodes": [
+        "Momentet rreth A: R_B · 4 = 800 · 2 + 400 · 1.",
+        "R_B · 4 = 2000, pra R_B = 500 N.",
+        "ΣF = 0: R_A + R_B = 800 + 400 = 1200 N.",
+        "R_A = 1200 − 500 = 700 N."
+      ]
+    },
+    "verification": {
+      "expression": "(800*2+400*1)/4",
+      "value": 500.0,
+      "check_expression": "600*3/6",
+      "check_value": 300.0
+    }
+  },
+  {
+    "id": "LF2-35",
+    "subject": "Fizikë",
+    "level": 2,
+    "order": 35,
+    "chapterID": "F2-C07",
+    "chapterTitle": "Statika dhe ekuilibri i trupit të ngurtë",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Një trup i ngurtë është në ekuilibër kur nuk fillon as të lëvizë, as të rrotullohet. Për këtë duhen dy kushte: shuma e forcave të jetë zero dhe shuma e momenteve rreth çdo pike të jetë zero. Me këto dy kushte llogarisim levat, urat, raftet dhe kuptojmë pse disa trupa përmbysen më lehtë se të tjerët.",
+    "title": "Stabiliteti dhe përmbysja",
+    "introduction": "Një trup i mbështetur nuk përmbyset për sa kohë vija vertikale që kalon nga qendra e rëndesës bie brenda bazës së mbështetjes. Sa më e ulët qendra dhe sa më e gjerë baza, aq më i qëndrueshëm është trupi.",
+    "objectives": [
+      "Të shpjegosh kushtin e përmbysjes me qendrën e rëndesës dhe bazën.",
+      "Të llogaritësh pjerrësinë kufitare tan θ = (b/2)/h."
+    ],
+    "sections": [
+      {
+        "title": "Llojet e ekuilibrit",
+        "text": "Në ekuilibrin e qëndrueshëm, trupi kthehet vetë pas një shtytjeje të vogël (topi në fund të një gropë). Në ekuilibrin e paqëndrueshëm, largohet edhe më shumë (topi në majë të kodrës). Në ekuilibrin indiferent, mbetet aty ku e lëmë (topi në tavolinë)."
+      },
+      {
+        "title": "Këndi kufitar",
+        "text": "Kur një kuti me gjerësi b dhe qendër në lartësinë h anohet, ajo rrotullohet rreth një cepi. Përmbyset kur vertikalja nga qendra kalon mbi cep, d.m.th. kur tan θ = (b/2)/h. Kuti e ulët dhe e gjerë ka tan θ të madh dhe duron anime të mëdha."
+      },
+      {
+        "title": "Në jetë",
+        "text": "Makinat e garave janë të ulëta dhe të gjera; kamionët e lartë ngadalësojnë në kthesa; vazot e ngushta mbushen me rërë në fund për të ulur qendrën e rëndesës."
+      }
+    ],
+    "example": {
+      "problem": "Një dollap ka gjerësi 0,6 m dhe qendrën e rëndesës në lartësinë 0,9 m. Sa është tan θ e këndit kufitar të përmbysjes?",
+      "steps": [
+        "Gjysma e bazës: b/2 = 0,3 m.",
+        "tan θ = (b/2)/h = 0,3/0,9",
+        "tan θ ≈ 0,33, pra θ ≈ 18°."
+      ],
+      "conclusion": "tan θ ≈ 0,33 (θ ≈ 18°)."
+    },
+    "pitfall": "Nëse vendosim sende të rënda në raftet e sipërme, qendra ngrihet dhe dollapi përmbyset më lehtë.",
+    "recap": [
+      "Pa përmbysje: vertikalja nga QR brenda bazës.",
+      "tan θ_kufi = (b/2)/h.",
+      "QR e ulët dhe bazë e gjerë = stabilitet më i madh."
+    ],
+    "check": {
+      "prompt": "Një kuti me gjerësi 1 m ka qendrën e rëndesës 0,5 m lart. Sa është tan θ kufitare?",
+      "options": [
+        "0,5",
+        "1",
+        "2"
+      ],
+      "correct": 1,
+      "why": "tan θ = (1/2)/0,5 = 1, pra θ = 45°."
+    },
+    "exerciseIDs": [
+      "F2-35"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një dollap ka gjerësi 0,6 m dhe qendrën e rëndesës në lartësinë 0,9 m. Sa është tan θ e këndit kufitar të përmbysjes?",
+      "nodes": [
+        "Gjysma e bazës: b/2 = 0,3 m.",
+        "tan θ = (b/2)/h = 0,3/0,9",
+        "tan θ ≈ 0,33, pra θ ≈ 18°."
+      ]
+    },
+    "verification": {
+      "expression": "0.3/0.9",
+      "value": 0.3333333333333333,
+      "check_expression": "0.5/0.5",
+      "check_value": 1.0
+    }
+  },
+  {
+    "id": "LF3-31",
+    "subject": "Fizikë",
+    "level": 3,
+    "order": 31,
+    "chapterID": "F3-C07",
+    "chapterTitle": "Fluidet në qetësi dhe në lëvizje",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Lëngjet dhe gazet quhen fluide sepse rrjedhin dhe marrin formën e enës. Në qetësi, presioni në to përhapet në të gjitha drejtimet dhe krijon forcën shtytëse të Arkimedit. Në lëvizje, sasia e fluidit që kalon nëpër një tub ruhet, ndaj në pjesët e ngushta fluidi shpejtohet dhe presioni bie. Këto ide shpjegojnë frenat hidraulike, anijet, tubat e ujit dhe krahët e avionit.",
+    "title": "Ligji i Paskalit dhe shtypësi hidraulik",
+    "introduction": "Presioni që i shtohet një lëngu të mbyllur përhapet i pandryshuar në çdo pikë të tij (ligji i Paskalit). Kështu një forcë e vogël mbi një piston të vogël krijon një forcë të madhe mbi një piston të madh: F₂ = F₁ · A₂/A₁.",
+    "objectives": [
+      "Të zbatosh ligjin e Paskalit në shtypësin hidraulik.",
+      "Të shpjegosh lidhjen mes fitimit në forcë dhe zhvendosjes së pistonëve."
+    ],
+    "sections": [
+      {
+        "title": "Presioni përhapet",
+        "text": "Presioni është p = F/A. Në pistonin e vogël, p = F₁/A₁. I njëjti presion vepron mbi pistonin e madh, prandaj F₂ = p · A₂ = F₁ · A₂/A₁."
+      },
+      {
+        "title": "Ruajtja e energjisë",
+        "text": "Lëngu nuk ngjishet, ndaj vëllimi që zhvendos pistoni i vogël, A₁·d₁, është i njëjtë me vëllimin që ngre pistonin e madh, A₂·d₂. Nëse forca rritet 50 herë, pistoni i madh lëviz 50 herë më pak: puna mbetet e njëjtë."
+      },
+      {
+        "title": "Zbatime",
+        "text": "Frenat e makinave, krikët hidraulikë, ekskavatorët dhe karriget e berberit punojnë me këtë parim. Përdoren vajra të veçanta sepse nuk ngjishen dhe nuk e gërryejnë metalin."
+      }
+    ],
+    "example": {
+      "problem": "Në një shtypës hidraulik, pistoni i vogël ka sipërfaqe 0,01 m² dhe shtyhet me 200 N. Pistoni i madh ka sipërfaqe 0,5 m². Sa forcë ushtron pistoni i madh?",
+      "steps": [
+        "F₂ = F₁ · A₂/A₁",
+        "F₂ = 200 · 0,5/0,01",
+        "F₂ = 200 · 50 = 10 000 N"
+      ],
+      "conclusion": "Pistoni i madh ushtron 10 000 N (rreth pesha e 1 toni)."
+    },
+    "pitfall": "Shtypësi hidraulik shumëfishon forcën, jo energjinë. Ajo që fitohet në forcë humbet në zhvendosje.",
+    "recap": [
+      "Ligji i Paskalit: presioni përhapet i pandryshuar.",
+      "F₂/F₁ = A₂/A₁.",
+      "A₁d₁ = A₂d₂: puna ruhet."
+    ],
+    "check": {
+      "prompt": "Raporti i sipërfaqeve A₂/A₁ është 20. Pistoni i vogël shtyhet me 100 N. Sa është F₂?",
+      "options": [
+        "5 N",
+        "200 N",
+        "2000 N"
+      ],
+      "correct": 2,
+      "why": "F₂ = 100 · 20 = 2000 N."
+    },
+    "exerciseIDs": [
+      "F3-31"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Në një shtypës hidraulik, pistoni i vogël ka sipërfaqe 0,01 m² dhe shtyhet me 200 N. Pistoni i madh ka sipërfaqe 0,5 m². Sa forcë ushtron pistoni i madh?",
+      "nodes": [
+        "F₂ = F₁ · A₂/A₁",
+        "F₂ = 200 · 0,5/0,01",
+        "F₂ = 200 · 50 = 10 000 N"
+      ]
+    },
+    "verification": {
+      "expression": "200*0.5/0.01",
+      "value": 10000.0,
+      "check_expression": "100*20",
+      "check_value": 2000.0
+    }
+  },
+  {
+    "id": "LF3-32",
+    "subject": "Fizikë",
+    "level": 3,
+    "order": 32,
+    "chapterID": "F3-C07",
+    "chapterTitle": "Fluidet në qetësi dhe në lëvizje",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Lëngjet dhe gazet quhen fluide sepse rrjedhin dhe marrin formën e enës. Në qetësi, presioni në to përhapet në të gjitha drejtimet dhe krijon forcën shtytëse të Arkimedit. Në lëvizje, sasia e fluidit që kalon nëpër një tub ruhet, ndaj në pjesët e ngushta fluidi shpejtohet dhe presioni bie. Këto ide shpjegojnë frenat hidraulike, anijet, tubat e ujit dhe krahët e avionit.",
+    "title": "Forca e Arkimedit",
+    "introduction": "Një trup i zhytur në një fluid merr një forcë nga poshtë lart të barabartë me peshën e fluidit që zhvendos: F_A = ρ_fluid · g · V_zhytur. Kjo forcë shpjegon pse anijet pluskojnë dhe balonat ngrihen.",
+    "objectives": [
+      "Të llogaritësh forcën e Arkimedit për një trup të zhytur.",
+      "Të parashikosh nëse një trup pluskon, zhytet apo qëndron pezull."
+    ],
+    "sections": [
+      {
+        "title": "Nga vjen forca",
+        "text": "Presioni rritet me thellësinë. Pjesa e poshtme e trupit është më thellë se pjesa e sipërme, ndaj shtyhet më fort. Diferenca e këtyre forcave është forca e Arkimedit."
+      },
+      {
+        "title": "Pluskim apo zhytje",
+        "text": "Nëse dendësia mesatare e trupit është më e vogël se e fluidit, forca e Arkimedit e kapërcen peshën kur trupi është plotësisht i zhytur, ndaj ai ngjitet dhe pluskon pjesërisht jashtë. Nëse është më e madhe, zhytet. Anija prej çeliku pluskon sepse brenda saj ka shumë ajër, ndaj dendësia mesatare është e vogël."
+      },
+      {
+        "title": "Pesha e dukshme",
+        "text": "Kur peshojmë një gur brenda ujit, dinamometri tregon më pak: pesha e dukshme = mg − F_A. Kjo është mënyra e Arkimedit për të gjetur vëllimin e trupave me formë të çrregullt."
+      }
+    ],
+    "example": {
+      "problem": "Një gur me vëllim 0,002 m³ zhytet plotësisht në ujë (ρ = 1000 kg/m³, g = 9,8 m/s²). Sa është forca e Arkimedit?",
+      "steps": [
+        "F_A = ρ · g · V",
+        "F_A = 1000 · 9,8 · 0,002",
+        "F_A = 19,6 N"
+      ],
+      "conclusion": "F_A = 19,6 N, drejtuar lart."
+    },
+    "pitfall": "Në formulë futet dendësia e fluidit, jo e trupit, dhe vëllimi i pjesës së zhytur, jo i gjithë trupit kur ai pluskon.",
+    "recap": [
+      "F_A = ρ_fluid · g · V_zhytur.",
+      "Pluskon nëse ρ_trupit < ρ_fluidit.",
+      "Pesha e dukshme = mg − F_A."
+    ],
+    "check": {
+      "prompt": "Sa është forca e Arkimedit mbi një trup 0,005 m³ plotësisht të zhytur në ujë? (g = 9,8 m/s²)",
+      "options": [
+        "4,9 N",
+        "49 N",
+        "490 N"
+      ],
+      "correct": 1,
+      "why": "F_A = 1000 · 9,8 · 0,005 = 49 N."
+    },
+    "exerciseIDs": [
+      "F3-32"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një gur me vëllim 0,002 m³ zhytet plotësisht në ujë (ρ = 1000 kg/m³, g = 9,8 m/s²). Sa është forca e Arkimedit?",
+      "nodes": [
+        "F_A = ρ · g · V",
+        "F_A = 1000 · 9,8 · 0,002",
+        "F_A = 19,6 N"
+      ]
+    },
+    "verification": {
+      "expression": "1000*9.8*0.002",
+      "value": 19.6,
+      "check_expression": "1000*9.8*0.005",
+      "check_value": 49.0
+    }
+  },
+  {
+    "id": "LF3-33",
+    "subject": "Fizikë",
+    "level": 3,
+    "order": 33,
+    "chapterID": "F3-C07",
+    "chapterTitle": "Fluidet në qetësi dhe në lëvizje",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Lëngjet dhe gazet quhen fluide sepse rrjedhin dhe marrin formën e enës. Në qetësi, presioni në to përhapet në të gjitha drejtimet dhe krijon forcën shtytëse të Arkimedit. Në lëvizje, sasia e fluidit që kalon nëpër një tub ruhet, ndaj në pjesët e ngushta fluidi shpejtohet dhe presioni bie. Këto ide shpjegojnë frenat hidraulike, anijet, tubat e ujit dhe krahët e avionit.",
+    "title": "Prurja dhe ekuacioni i vazhdimësisë",
+    "introduction": "Për një lëng që rrjedh në një tub pa rrjedhje anësore, vëllimi që kalon çdo sekondë (prurja) është i njëjtë në çdo prerje: Q = A₁v₁ = A₂v₂. Prandaj ku tubi ngushtohet, lëngu shpejtohet.",
+    "objectives": [
+      "Të llogaritësh prurjen Q = A · v.",
+      "Të përdorësh ekuacionin e vazhdimësisë për shpejtësinë në pjesët e ngushta."
+    ],
+    "sections": [
+      {
+        "title": "Prurja",
+        "text": "Prurja Q tregon sa vëllim kalon për njësi kohe dhe matet në m³/s ose L/s. Nëse lëngu ka shpejtësi v dhe tubi ka prerje A, në një sekondë kalon një «cilindër» me vëllim A · v."
+      },
+      {
+        "title": "Pse ruhet",
+        "text": "Lëngjet pothuajse nuk ngjishen dhe tubi nuk humbet lëng. Prandaj sa hyn në njërin skaj duhet të dalë në tjetrin. Kur prerja zvogëlohet 4 herë, shpejtësia rritet 4 herë."
+      },
+      {
+        "title": "Në jetë",
+        "text": "Kur e shtrëngojmë majën e zorrës së ujitjes, uji del më shpejt dhe shkon më larg. Lumi rrjedh më shpejt aty ku shtrati është i ngushtë dhe më ngadalë aty ku zgjerohet."
+      }
+    ],
+    "example": {
+      "problem": "Uji rrjedh me 2 m/s në një tub me prerje 4 cm². Tubi ngushtohet në 1 cm². Sa është shpejtësia në pjesën e ngushtë?",
+      "steps": [
+        "A₁v₁ = A₂v₂",
+        "4 · 2 = 1 · v₂",
+        "v₂ = 8 m/s"
+      ],
+      "conclusion": "v₂ = 8 m/s."
+    },
+    "pitfall": "Njësitë e sipërfaqes thjeshtohen në raport, ndaj nuk duhen kthyer në m² kur kërkojmë vetëm shpejtësinë.",
+    "recap": [
+      "Q = A · v.",
+      "A₁v₁ = A₂v₂.",
+      "Tub më i ngushtë → shpejtësi më e madhe."
+    ],
+    "check": {
+      "prompt": "Uji rrjedh me 1,5 m/s në një tub 6 cm² që ngushtohet në 2 cm². Sa bëhet shpejtësia?",
+      "options": [
+        "0,5 m/s",
+        "3 m/s",
+        "4,5 m/s"
+      ],
+      "correct": 2,
+      "why": "v₂ = 6 · 1,5 / 2 = 4,5 m/s."
+    },
+    "exerciseIDs": [
+      "F3-33"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Uji rrjedh me 2 m/s në një tub me prerje 4 cm². Tubi ngushtohet në 1 cm². Sa është shpejtësia në pjesën e ngushtë?",
+      "nodes": [
+        "A₁v₁ = A₂v₂",
+        "4 · 2 = 1 · v₂",
+        "v₂ = 8 m/s"
+      ]
+    },
+    "verification": {
+      "expression": "4*2/1",
+      "value": 8.0,
+      "check_expression": "6*1.5/2",
+      "check_value": 4.5
+    }
+  },
+  {
+    "id": "LF3-34",
+    "subject": "Fizikë",
+    "level": 3,
+    "order": 34,
+    "chapterID": "F3-C07",
+    "chapterTitle": "Fluidet në qetësi dhe në lëvizje",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Lëngjet dhe gazet quhen fluide sepse rrjedhin dhe marrin formën e enës. Në qetësi, presioni në to përhapet në të gjitha drejtimet dhe krijon forcën shtytëse të Arkimedit. Në lëvizje, sasia e fluidit që kalon nëpër një tub ruhet, ndaj në pjesët e ngushta fluidi shpejtohet dhe presioni bie. Këto ide shpjegojnë frenat hidraulike, anijet, tubat e ujit dhe krahët e avionit.",
+    "title": "Ekuacioni i Bernulit",
+    "introduction": "Në një fluid që rrjedh pa fërkim, shuma p + ½ρv² + ρgh mbetet konstante gjatë një vije rrjedhjeje. Në një tub horizontal, aty ku shpejtësia rritet, presioni bie.",
+    "objectives": [
+      "Të shkruash ekuacionin e Bernulit dhe kuptimin e çdo termi.",
+      "Të llogaritësh diferencën e presionit në një tub horizontal me ngushtim."
+    ],
+    "sections": [
+      {
+        "title": "Ruajtja e energjisë për fluidet",
+        "text": "Ekuacioni i Bernulit është ruajtja e energjisë për njësi vëllimi: p është «energjia e presionit», ½ρv² energjia kinetike, ρgh energjia potenciale. Kur njëra rritet, të tjerat zvogëlohen."
+      },
+      {
+        "title": "Tubi horizontal",
+        "text": "Kur h nuk ndryshon: p₁ + ½ρv₁² = p₂ + ½ρv₂². Prandaj p₁ − p₂ = ½ρ(v₂² − v₁²). Në ngushtim shpejtësia rritet dhe presioni bie; kjo përdoret në matësin e Venturit për të matur shpejtësinë e rrjedhjes."
+      },
+      {
+        "title": "Shembuj",
+        "text": "Kur dy kamionë kalojnë pranë njëri-tjetrit me shpejtësi, ajri mes tyre shpejtohet dhe presioni bie, ndaj ndihen të tërhequr drejt njëri-tjetrit. E njëjta ide ndihmon, bashkë me këndin e krahut, në krijimin e forcës ngritëse të avionit."
+      }
+    ],
+    "example": {
+      "problem": "Uji (ρ = 1000 kg/m³) rrjedh në një tub horizontal me 2 m/s dhe në ngushtim arrin 8 m/s. Sa është diferenca e presionit p₁ − p₂?",
+      "steps": [
+        "p₁ − p₂ = ½ρ(v₂² − v₁²)",
+        "= 0,5 · 1000 · (8² − 2²)",
+        "= 500 · (64 − 4) = 500 · 60",
+        "= 30 000 Pa"
+      ],
+      "conclusion": "p₁ − p₂ = 30 000 Pa (30 kPa)."
+    },
+    "pitfall": "Presioni më i ulët në ngushtim nuk do të thotë që lëngu «thithet» aty; ai shpejtohet sepse presioni para ngushtimit është më i madh dhe e shtyn.",
+    "recap": [
+      "p + ½ρv² + ρgh = konstante.",
+      "Tub horizontal: p₁ − p₂ = ½ρ(v₂² − v₁²).",
+      "Më shumë shpejtësi → më pak presion."
+    ],
+    "check": {
+      "prompt": "Në një tub horizontal me ujë, shpejtësia rritet nga 1 m/s në 3 m/s. Sa bie presioni?",
+      "options": [
+        "2000 Pa",
+        "4000 Pa",
+        "8000 Pa"
+      ],
+      "correct": 1,
+      "why": "Δp = 0,5 · 1000 · (9 − 1) = 4000 Pa."
+    },
+    "exerciseIDs": [
+      "F3-34"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Uji (ρ = 1000 kg/m³) rrjedh në një tub horizontal me 2 m/s dhe në ngushtim arrin 8 m/s. Sa është diferenca e presionit p₁ − p₂?",
+      "nodes": [
+        "p₁ − p₂ = ½ρ(v₂² − v₁²)",
+        "= 0,5 · 1000 · (8² − 2²)",
+        "= 500 · (64 − 4) = 500 · 60",
+        "= 30 000 Pa"
+      ]
+    },
+    "verification": {
+      "expression": "0.5*1000*(8**2-2**2)",
+      "value": 30000.0,
+      "check_expression": "0.5*1000*(3**2-1**2)",
+      "check_value": 4000.0
+    }
+  },
+  {
+    "id": "LF3-35",
+    "subject": "Fizikë",
+    "level": 3,
+    "order": 35,
+    "chapterID": "F3-C07",
+    "chapterTitle": "Fluidet në qetësi dhe në lëvizje",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Lëngjet dhe gazet quhen fluide sepse rrjedhin dhe marrin formën e enës. Në qetësi, presioni në to përhapet në të gjitha drejtimet dhe krijon forcën shtytëse të Arkimedit. Në lëvizje, sasia e fluidit që kalon nëpër një tub ruhet, ndaj në pjesët e ngushta fluidi shpejtohet dhe presioni bie. Këto ide shpjegojnë frenat hidraulike, anijet, tubat e ujit dhe krahët e avionit.",
+    "title": "Rrjedhja nga një vrimë (Toriçeli)",
+    "introduction": "Uji që del nga një vrimë e vogël në thellësinë h nën sipërfaqen e lirë ka shpejtësinë v = √(2gh), njësoj si një trup që bie lirisht nga lartësia h.",
+    "objectives": [
+      "Të nxjerrësh formulën e Toriçelit nga ekuacioni i Bernulit.",
+      "Të llogaritësh shpejtësinë e daljes dhe të kuptosh varësinë nga thellësia."
+    ],
+    "sections": [
+      {
+        "title": "Nxjerrja",
+        "text": "Marrim një pikë në sipërfaqen e lirë (presion atmosferik, shpejtësi pothuajse zero, lartësi h) dhe një pikë te vrima (presion atmosferik, shpejtësi v, lartësi 0). Bernuli jep ρgh = ½ρv², pra v = √(2gh)."
+      },
+      {
+        "title": "Varësia nga thellësia",
+        "text": "Shpejtësia rritet me rrënjën katrore të thellësisë: për ta dyfishuar shpejtësinë, vrima duhet të jetë 4 herë më thellë. Ndërsa niveli i ujit ulet, rrjedhja ngadalësohet."
+      },
+      {
+        "title": "Prurja nga vrima",
+        "text": "Prurja është Q = A · v, ku A është sipërfaqja e vrimës. Në realitet rryma ngushtohet pak pas daljes, ndaj prurja e matur është rreth 60% e asaj teorike."
+      }
+    ],
+    "example": {
+      "problem": "Një vrimë ndodhet 1,25 m nën sipërfaqen e ujit në një fuçi. Sa është shpejtësia e daljes? (g = 9,8 m/s²)",
+      "steps": [
+        "v = √(2gh)",
+        "v = √(2 · 9,8 · 1,25) = √24,5",
+        "v ≈ 4,95 m/s"
+      ],
+      "conclusion": "v ≈ 4,95 m/s."
+    },
+    "pitfall": "h është thellësia e vrimës nën sipërfaqen e lirë, jo lartësia e vrimës nga toka.",
+    "recap": [
+      "Toriçeli: v = √(2gh).",
+      "Shpejtësia nuk varet nga dendësia e lëngut.",
+      "Thellësi 4 herë më e madhe → shpejtësi 2 herë më e madhe."
+    ],
+    "check": {
+      "prompt": "Sa është shpejtësia e daljes nga një vrimë 5 m nën sipërfaqe? (g = 9,8 m/s²)",
+      "options": [
+        "≈ 7 m/s",
+        "≈ 9,9 m/s",
+        "≈ 98 m/s"
+      ],
+      "correct": 1,
+      "why": "v = √(2 · 9,8 · 5) = √98 ≈ 9,9 m/s."
+    },
+    "exerciseIDs": [
+      "F3-35"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një vrimë ndodhet 1,25 m nën sipërfaqen e ujit në një fuçi. Sa është shpejtësia e daljes? (g = 9,8 m/s²)",
+      "nodes": [
+        "v = √(2gh)",
+        "v = √(2 · 9,8 · 1,25) = √24,5",
+        "v ≈ 4,95 m/s"
+      ]
+    },
+    "verification": {
+      "expression": "(2*9.8*1.25)**0.5",
+      "value": 4.949747468305833,
+      "check_expression": "(2*9.8*5)**0.5",
+      "check_value": 9.899494936611665
+    }
+  },
+  {
+    "id": "LF4-31",
+    "subject": "Fizikë",
+    "level": 4,
+    "order": 31,
+    "chapterID": "F4-C07",
+    "chapterTitle": "Relativiteti special",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Në fillim të shekullit XX, Ajnshtajni tregoi se shpejtësia e dritës në boshllëk është e njëjtë për të gjithë vëzhguesit inercialë. Nga ky fakt rrjedh se koha dhe gjatësia nuk janë absolute: ora që lëviz ecën më ngadalë dhe trupi që lëviz duket më i shkurtër në drejtimin e lëvizjes. Efektet bëhen të rëndësishme vetëm kur shpejtësia i afrohet shpejtësisë së dritës c ≈ 3·10⁸ m/s, ndaj faktori γ = 1/√(1 − v²/c²) është mjeti kryesor i këtij kapitulli.",
+    "title": "Postulatet e Ajnshtajnit",
+    "introduction": "Relativiteti special mbështetet në dy postulate: ligjet e fizikës janë të njëjta në të gjitha sistemet inerciale, dhe shpejtësia e dritës në boshllëk është c për çdo vëzhgues, pavarësisht lëvizjes së burimit ose të vëzhguesit.",
+    "objectives": [
+      "Të formulosh dy postulatet e relativitetit special.",
+      "Të shpjegosh pse postulati i dytë bie ndesh me mbledhjen e zakonshme të shpejtësive."
+    ],
+    "sections": [
+      {
+        "title": "Sistemet inerciale",
+        "text": "Sistem inercial është ai që nuk përshpejtohet: një tren që ecën drejt me shpejtësi konstante. Brenda tij, një eksperiment jep të njëjtin rezultat si në stacion; nuk ka asnjë eksperiment që tregon cili prej tyre «lëviz vërtet»."
+      },
+      {
+        "title": "Drita nuk mblidhet si topat",
+        "text": "Nëse nga një tren 50 m/s hedhim një top përpara me 10 m/s, në tokë ai ka 60 m/s. Por drita nga fenerët e trenit ka shpejtësinë c si për pasagjerin, ashtu edhe për njeriun në stacion. Eksperimenti i Majkelson–Morlit nuk gjeti asnjë ndryshim të c-së me lëvizjen e Tokës."
+      },
+      {
+        "title": "Pasojat",
+        "text": "Nëse c është e njëjtë për të gjithë, atëherë koha dhe largësia duhet të ndryshojnë nga një vëzhgues te tjetri. Prej këtej dalin zgjatja e kohës, shkurtimi i gjatësisë dhe relativiteti i njëkohësisë."
+      }
+    ],
+    "example": {
+      "problem": "Një anije kozmike lëviz me 0,5c drejt Tokës dhe ndez një fener përpara. Me çfarë shpejtësie e mat dritën një vëzhgues në Tokë?",
+      "steps": [
+        "Sipas fizikës klasike do të prisnim c + 0,5c = 1,5c.",
+        "Postulati i dytë thotë se drita ka shpejtësinë c për çdo vëzhgues inercial.",
+        "Vëzhguesi në Tokë mat c."
+      ],
+      "conclusion": "Vëzhguesi mat c ≈ 3 · 10⁸ m/s, jo 1,5c."
+    },
+    "pitfall": "Relativiteti nuk thotë që «gjithçka është relative»: c dhe ligjet e fizikës janë pikërisht ato që nuk ndryshojnë.",
+    "recap": [
+      "Postulati 1: ligjet e njëjta në të gjithë sistemet inerciale.",
+      "Postulati 2: c e njëjtë për të gjithë vëzhguesit.",
+      "Koha dhe gjatësia bëhen relative."
+    ],
+    "check": {
+      "prompt": "Një vëzhgues largohet me 0,9c nga një llambë. Me çfarë shpejtësie e mat dritën që e arrin?",
+      "options": [
+        "0,1c",
+        "c",
+        "1,9c"
+      ],
+      "correct": 1,
+      "why": "Sipas postulatit të dytë, shpejtësia e dritës matet gjithmonë c."
+    },
+    "exerciseIDs": [
+      "F4-31"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një anije kozmike lëviz me 0,5c drejt Tokës dhe ndez një fener përpara. Me çfarë shpejtësie e mat dritën një vëzhgues në Tokë?",
+      "nodes": [
+        "Sipas fizikës klasike do të prisnim c + 0,5c = 1,5c.",
+        "Postulati i dytë thotë se drita ka shpejtësinë c për çdo vëzhgues inercial.",
+        "Vëzhguesi në Tokë mat c."
+      ]
+    }
+  },
+  {
+    "id": "LF4-32",
+    "subject": "Fizikë",
+    "level": 4,
+    "order": 32,
+    "chapterID": "F4-C07",
+    "chapterTitle": "Relativiteti special",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Në fillim të shekullit XX, Ajnshtajni tregoi se shpejtësia e dritës në boshllëk është e njëjtë për të gjithë vëzhguesit inercialë. Nga ky fakt rrjedh se koha dhe gjatësia nuk janë absolute: ora që lëviz ecën më ngadalë dhe trupi që lëviz duket më i shkurtër në drejtimin e lëvizjes. Efektet bëhen të rëndësishme vetëm kur shpejtësia i afrohet shpejtësisë së dritës c ≈ 3·10⁸ m/s, ndaj faktori γ = 1/√(1 − v²/c²) është mjeti kryesor i këtij kapitulli.",
+    "title": "Zgjatja e kohës",
+    "introduction": "Një orë që lëviz në lidhje me ne ecën më ngadalë. Nëse Δt₀ është koha në sistemin ku ora është në qetësi (koha e vetë), ne masim Δt = γ · Δt₀, ku γ = 1/√(1 − v²/c²) ≥ 1.",
+    "objectives": [
+      "Të llogaritësh faktorin γ për një shpejtësi të dhënë.",
+      "Të zbatosh zgjatjen e kohës për grimcat dhe orët në lëvizje."
+    ],
+    "sections": [
+      {
+        "title": "Ora me dritë",
+        "text": "Mendo një orë ku një impuls drite lëviz lart e poshtë mes dy pasqyrave. Për dikë që e sheh orën të lëvizë, drita bën një rrugë të pjerrët, më të gjatë. Meqë c është e njëjtë, një «tik» zgjat më shumë. Nga Pitagora del faktori γ."
+      },
+      {
+        "title": "Koha e vetë",
+        "text": "Δt₀ matet nga ora që është në qetësi në lidhje me ngjarjen, d.m.th. ora që ndodhet në të njëjtin vend me të dyja ngjarjet. Çdo vëzhgues tjetër mat kohë më të gjatë."
+      },
+      {
+        "title": "Prova eksperimentale",
+        "text": "Muonet krijohen në atmosferë rreth 15 km lart dhe jetojnë mesatarisht 2,2 μs. Pa zgjatjen e kohës, shumica do zbërtheheshin para se të arrinin tokën, por ne i masim në numër të madh. Edhe satelitët GPS korrigjojnë orët për efektet e relativitetit."
+      }
+    ],
+    "example": {
+      "problem": "Një grimcë jeton 3 μs në sistemin e saj. Sa jeton sipas nesh, nëse lëviz me v = 0,8c?",
+      "steps": [
+        "γ = 1/√(1 − 0,8²) = 1/√0,36 = 1/0,6",
+        "γ = 5/3 ≈ 1,667",
+        "Δt = γ · Δt₀ = (5/3) · 3 μs = 5 μs"
+      ],
+      "conclusion": "Sipas nesh grimca jeton 5 μs."
+    },
+    "pitfall": "Mos e ngatërro cila kohë është Δt₀: është koha në sistemin ku ora/grimca është në qetësi, gjithmonë më e shkurtra.",
+    "recap": [
+      "γ = 1/√(1 − v²/c²).",
+      "Δt = γ Δt₀, me Δt₀ kohën e vetë.",
+      "Efekti matet te muonet dhe te GPS."
+    ],
+    "check": {
+      "prompt": "Një orë lëviz me 0,6c dhe në të kalojnë 8 s. Sa kohë kalon sipas nesh?",
+      "options": [
+        "6,4 s",
+        "10 s",
+        "13,3 s"
+      ],
+      "correct": 1,
+      "why": "γ = 1/√(1 − 0,36) = 1/0,8 = 1,25; Δt = 1,25 · 8 = 10 s."
+    },
+    "exerciseIDs": [
+      "F4-32"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një grimcë jeton 3 μs në sistemin e saj. Sa jeton sipas nesh, nëse lëviz me v = 0,8c?",
+      "nodes": [
+        "γ = 1/√(1 − 0,8²) = 1/√0,36 = 1/0,6",
+        "γ = 5/3 ≈ 1,667",
+        "Δt = γ · Δt₀ = (5/3) · 3 μs = 5 μs"
+      ]
+    },
+    "verification": {
+      "expression": "3/(1-0.8**2)**0.5",
+      "value": 5.0,
+      "check_expression": "8/(1-0.6**2)**0.5",
+      "check_value": 10.0
+    }
+  },
+  {
+    "id": "LF4-33",
+    "subject": "Fizikë",
+    "level": 4,
+    "order": 33,
+    "chapterID": "F4-C07",
+    "chapterTitle": "Relativiteti special",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Në fillim të shekullit XX, Ajnshtajni tregoi se shpejtësia e dritës në boshllëk është e njëjtë për të gjithë vëzhguesit inercialë. Nga ky fakt rrjedh se koha dhe gjatësia nuk janë absolute: ora që lëviz ecën më ngadalë dhe trupi që lëviz duket më i shkurtër në drejtimin e lëvizjes. Efektet bëhen të rëndësishme vetëm kur shpejtësia i afrohet shpejtësisë së dritës c ≈ 3·10⁸ m/s, ndaj faktori γ = 1/√(1 − v²/c²) është mjeti kryesor i këtij kapitulli.",
+    "title": "Shkurtimi i gjatësisë",
+    "introduction": "Një trup që lëviz në lidhje me ne duket më i shkurtër në drejtimin e lëvizjes: L = L₀/γ, ku L₀ është gjatësia e vetë (e matur në sistemin ku trupi është në qetësi).",
+    "objectives": [
+      "Të llogaritësh gjatësinë e matur të një trupi në lëvizje.",
+      "Të lidhësh shkurtimin e gjatësisë me zgjatjen e kohës."
+    ],
+    "sections": [
+      {
+        "title": "Vetëm në drejtimin e lëvizjes",
+        "text": "Shkurtohet vetëm përmasa paralele me shpejtësinë. Një tren që kalon me shpejtësi relativiste duket më i shkurtër, por jo më i ulët."
+      },
+      {
+        "title": "Dy pamje të së njëjtës ngjarje",
+        "text": "Për muonin, atmosfera lëviz drejt tij dhe shtresa 15 km shkurtohet aq sa ai e përshkon brenda 2,2 μs të jetës së tij. Për ne, muoni jeton më gjatë. Të dy vëzhguesit bien dakord që muoni arrin tokën; ndryshon vetëm shpjegimi."
+      },
+      {
+        "title": "Gjatësia e vetë",
+        "text": "L₀ është gjatësia më e madhe e mundshme e një trupi. Çdo vëzhgues që e sheh trupin në lëvizje mat L < L₀."
+      }
+    ],
+    "example": {
+      "problem": "Një anije ka gjatësi të vetë 100 m. Sa e gjatë e matim ne kur ajo lëviz me 0,6c?",
+      "steps": [
+        "γ = 1/√(1 − 0,6²) = 1/0,8 = 1,25",
+        "L = L₀/γ = 100/1,25",
+        "L = 80 m"
+      ],
+      "conclusion": "L = 80 m."
+    },
+    "pitfall": "Shkurtimi nuk është iluzion optik dhe as ngjeshje e materialit; është ndryshim i matjes së largësive mes sistemeve.",
+    "recap": [
+      "L = L₀/γ, vetëm në drejtimin e lëvizjes.",
+      "L₀ = gjatësia në qetësi (më e madhja).",
+      "Shkurtimi dhe zgjatja e kohës janë dy anë të së njëjtës gjë."
+    ],
+    "check": {
+      "prompt": "Një shufër me gjatësi të vetë 50 m lëviz me 0,8c. Sa e gjatë matet?",
+      "options": [
+        "30 m",
+        "40 m",
+        "83 m"
+      ],
+      "correct": 0,
+      "why": "γ = 1/0,6 = 5/3; L = 50 · 0,6 = 30 m."
+    },
+    "exerciseIDs": [
+      "F4-33"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një anije ka gjatësi të vetë 100 m. Sa e gjatë e matim ne kur ajo lëviz me 0,6c?",
+      "nodes": [
+        "γ = 1/√(1 − 0,6²) = 1/0,8 = 1,25",
+        "L = L₀/γ = 100/1,25",
+        "L = 80 m"
+      ]
+    },
+    "verification": {
+      "expression": "100*(1-0.6**2)**0.5",
+      "value": 80.0,
+      "check_expression": "50*(1-0.8**2)**0.5",
+      "check_value": 30.0
+    }
+  },
+  {
+    "id": "LF4-34",
+    "subject": "Fizikë",
+    "level": 4,
+    "order": 34,
+    "chapterID": "F4-C07",
+    "chapterTitle": "Relativiteti special",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Në fillim të shekullit XX, Ajnshtajni tregoi se shpejtësia e dritës në boshllëk është e njëjtë për të gjithë vëzhguesit inercialë. Nga ky fakt rrjedh se koha dhe gjatësia nuk janë absolute: ora që lëviz ecën më ngadalë dhe trupi që lëviz duket më i shkurtër në drejtimin e lëvizjes. Efektet bëhen të rëndësishme vetëm kur shpejtësia i afrohet shpejtësisë së dritës c ≈ 3·10⁸ m/s, ndaj faktori γ = 1/√(1 − v²/c²) është mjeti kryesor i këtij kapitulli.",
+    "title": "Energjia kinetike relativiste",
+    "introduction": "Në relativitet, energjia totale e një trupi është E = γmc² dhe energjia e qetësisë E₀ = mc². Energjia kinetike është diferenca: E_k = (γ − 1)mc². Për shpejtësi të vogla kjo jep ½mv².",
+    "objectives": [
+      "Të llogaritësh energjinë totale dhe kinetike relativiste.",
+      "Të shpjegosh pse asnjë trup me masë nuk arrin shpejtësinë e dritës."
+    ],
+    "sections": [
+      {
+        "title": "Tri energjitë",
+        "text": "Energjia e qetësisë mc² është energjia që trupi ka thjesht se ka masë. Energjia totale γmc² rritet me shpejtësinë. Energjia kinetike është pjesa që i shtohet nga lëvizja: (γ − 1)mc²."
+      },
+      {
+        "title": "Kufiri c",
+        "text": "Kur v i afrohet c, γ rritet pa kufi. Për të përshpejtuar një grimcë deri te c do duhej energji e pafundme. Prandaj në përshpejtuesit e grimcave, energjia rritet shumë, ndërsa shpejtësia afrohet vetëm pak e nga pak te c."
+      },
+      {
+        "title": "Njësitë e grimcave",
+        "text": "Në fizikën e grimcave energjia matet në elektron-volt (eV). Elektroni ka mc² = 0,511 MeV, protoni 938 MeV. Kështu llogaritjet bëhen pa numra shumë të vegjël."
+      }
+    ],
+    "example": {
+      "problem": "Një elektron (mc² = 0,511 MeV) lëviz me 0,8c. Sa është energjia e tij kinetike?",
+      "steps": [
+        "γ = 1/√(1 − 0,64) = 5/3",
+        "E_k = (γ − 1)mc² = (2/3) · 0,511 MeV",
+        "E_k ≈ 0,341 MeV"
+      ],
+      "conclusion": "E_k ≈ 0,341 MeV."
+    },
+    "pitfall": "½mv² vlen vetëm kur v ≪ c. Për 0,8c, formula klasike jep 0,164 MeV, gati gjysmën e vlerës së vërtetë.",
+    "recap": [
+      "E = γmc², E₀ = mc².",
+      "E_k = (γ − 1)mc².",
+      "Asnjë trup me masë nuk arrin c."
+    ],
+    "check": {
+      "prompt": "Një grimcë ka γ = 2. Sa është energjia e saj kinetike në krahasim me energjinë e qetësisë?",
+      "options": [
+        "E_k = E₀/2",
+        "E_k = E₀",
+        "E_k = 2E₀"
+      ],
+      "correct": 1,
+      "why": "E_k = (2 − 1)mc² = mc² = E₀."
+    },
+    "exerciseIDs": [
+      "F4-34"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një elektron (mc² = 0,511 MeV) lëviz me 0,8c. Sa është energjia e tij kinetike?",
+      "nodes": [
+        "γ = 1/√(1 − 0,64) = 5/3",
+        "E_k = (γ − 1)mc² = (2/3) · 0,511 MeV",
+        "E_k ≈ 0,341 MeV"
+      ]
+    },
+    "verification": {
+      "expression": "(1/(1-0.8**2)**0.5-1)*0.511",
+      "value": 0.3406666666666667,
+      "check_expression": "(2-1)*1",
+      "check_value": 1.0
+    }
+  },
+  {
+    "id": "LF4-35",
+    "subject": "Fizikë",
+    "level": 4,
+    "order": 35,
+    "chapterID": "F4-C07",
+    "chapterTitle": "Relativiteti special",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Në fillim të shekullit XX, Ajnshtajni tregoi se shpejtësia e dritës në boshllëk është e njëjtë për të gjithë vëzhguesit inercialë. Nga ky fakt rrjedh se koha dhe gjatësia nuk janë absolute: ora që lëviz ecën më ngadalë dhe trupi që lëviz duket më i shkurtër në drejtimin e lëvizjes. Efektet bëhen të rëndësishme vetëm kur shpejtësia i afrohet shpejtësisë së dritës c ≈ 3·10⁸ m/s, ndaj faktori γ = 1/√(1 − v²/c²) është mjeti kryesor i këtij kapitulli.",
+    "title": "Mbledhja relativiste e shpejtësive",
+    "introduction": "Shpejtësitë nuk mblidhen thjesht si u′ + v kur janë të krahasueshme me c. Formula e saktë është u = (u′ + v)/(1 + u′v/c²), dhe ajo nuk jep kurrë rezultat më të madh se c.",
+    "objectives": [
+      "Të zbatosh formulën relativiste të mbledhjes së shpejtësive.",
+      "Të tregosh që formula jep c kur njëra prej shpejtësive është c."
+    ],
+    "sections": [
+      {
+        "title": "Formula",
+        "text": "Nëse një anije lëviz me v në lidhje me Tokën dhe lëshon një sondë me u′ në lidhje me veten, sonda ka në lidhje me Tokën u = (u′ + v)/(1 + u′v/c²). Emëruesi është gjithmonë më i madh se 1 kur u′ dhe v kanë të njëjtin drejtim."
+      },
+      {
+        "title": "Kontrolli me dritën",
+        "text": "Nëse u′ = c, atëherë u = (c + v)/(1 + v/c) = c. Formula respekton postulatin e dytë: drita ka c për të gjithë."
+      },
+      {
+        "title": "Shpejtësi të vogla",
+        "text": "Kur u′ dhe v janë shumë më të vogla se c, termi u′v/c² është afër zeros dhe formula kthehet në mbledhjen e zakonshme u ≈ u′ + v. Fizika klasike është rast i veçantë i relativitetit."
+      }
+    ],
+    "example": {
+      "problem": "Një anije lëviz me 0,5c dhe lëshon përpara një sondë me 0,5c në lidhje me anijen. Sa është shpejtësia e sondës në lidhje me Tokën?",
+      "steps": [
+        "u = (u′ + v)/(1 + u′v/c²)",
+        "u = (0,5 + 0,5)/(1 + 0,25) c",
+        "u = 1/1,25 c = 0,8c"
+      ],
+      "conclusion": "u = 0,8c (jo c)."
+    },
+    "pitfall": "Formula vlen për shpejtësi në të njëjtën vijë. Nëse sonda lëshohet prapa, u′ merret negative.",
+    "recap": [
+      "u = (u′ + v)/(1 + u′v/c²).",
+      "Rezultati nuk e kalon kurrë c.",
+      "Për v ≪ c: u ≈ u′ + v."
+    ],
+    "check": {
+      "prompt": "Anija lëviz me 0,6c dhe lëshon përpara një sondë me 0,6c. Sa është shpejtësia e sondës?",
+      "options": [
+        "≈ 0,88c",
+        "1,2c",
+        "0,6c"
+      ],
+      "correct": 0,
+      "why": "u = 1,2/(1 + 0,36) c ≈ 0,882c."
+    },
+    "exerciseIDs": [
+      "F4-35"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një anije lëviz me 0,5c dhe lëshon përpara një sondë me 0,5c në lidhje me anijen. Sa është shpejtësia e sondës në lidhje me Tokën?",
+      "nodes": [
+        "u = (u′ + v)/(1 + u′v/c²)",
+        "u = (0,5 + 0,5)/(1 + 0,25) c",
+        "u = 1/1,25 c = 0,8c"
+      ]
+    },
+    "verification": {
+      "expression": "(0.5+0.5)/(1+0.5*0.5)",
+      "value": 0.8,
+      "check_expression": "(0.6+0.6)/(1+0.6*0.6)",
+      "check_value": 0.8823529411764706
+    }
+  },
+  {
+    "id": "LF5-31",
+    "subject": "Fizikë",
+    "level": 5,
+    "order": 31,
+    "chapterID": "F5-C07",
+    "chapterTitle": "Analiza dimensionale dhe vlerësimet",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Fizikanët e mirë kontrollojnë çdo rezultat para se ta besojnë. Analiza dimensionale tregon nëse një formulë ka kuptim dhe shpesh e gjen formën e saj pa zgjidhur ekuacione. Vlerësimet e shpejta (Fermi) japin rendin e madhësisë së një përgjigjeje, ndërsa ligjet e shkallëzimit dhe rastet kufitare zbulojnë gabime që llogaritjet e gjata i fshehin. Këto mjete janë thelbësore në olimpiada.",
+    "title": "Dimensionet e madhësive fizike",
+    "introduction": "Çdo madhësi fizike mund të shprehet me dimensionet bazë: masë [M], gjatësi [L], kohë [T] (dhe rrymë, temperaturë…). Dy anët e çdo ekuacioni të saktë duhet të kenë të njëjtat dimensione.",
+    "objectives": [
+      "Të shprehësh madhësitë mekanike me dimensionet M, L, T.",
+      "Të kontrollosh nëse një formulë është homogjene dimensionalisht."
+    ],
+    "sections": [
+      {
+        "title": "Ndërtimi i dimensioneve",
+        "text": "Nga përkufizimet: shpejtësia [v] = L T⁻¹, nxitimi L T⁻², forca (ma) M L T⁻², energjia (forcë · largësi) M L² T⁻², presioni (forcë/sipërfaqe) M L⁻¹ T⁻², fuqia (energji/kohë) M L² T⁻³."
+      },
+      {
+        "title": "Homogjeniteti",
+        "text": "Mund të mbledhim vetëm madhësi me të njëjtat dimensione: nuk ka kuptim të mbledhim metra me sekonda. Argumentet e funksioneve si sin, eˣ ose log duhet të jenë pa dimension; prandaj në eˣ⁻ᵗ/τ duhet që τ të jetë kohë."
+      },
+      {
+        "title": "Çfarë nuk tregon",
+        "text": "Analiza dimensionale nuk gjen konstantet pa dimension si ½ ose 2π. Formula E = mv² ka dimensione të sakta, por i mungon faktori ½."
+      }
+    ],
+    "example": {
+      "problem": "Gjej dimensionet e energjisë.",
+      "steps": [
+        "Energjia = forcë · largësi.",
+        "[F] = [m][a] = M · L T⁻²",
+        "[E] = M L T⁻² · L = M L² T⁻²"
+      ],
+      "conclusion": "[E] = M L² T⁻² (njësia J = kg·m²/s²)."
+    },
+    "pitfall": "Një formulë me dimensione të sakta mund të jetë përsëri e gabuar; një formulë me dimensione të gabuara është me siguri e gabuar.",
+    "recap": [
+      "Dimensionet bazë: M, L, T.",
+      "Dy anët e ekuacionit kanë të njëjtat dimensione.",
+      "Konstantet pa dimension nuk dalin nga analiza."
+    ],
+    "check": {
+      "prompt": "Cilat janë dimensionet e presionit?",
+      "options": [
+        "M L T⁻²",
+        "M L⁻¹ T⁻²",
+        "M L² T⁻²"
+      ],
+      "correct": 1,
+      "why": "p = F/A: M L T⁻² / L² = M L⁻¹ T⁻²."
+    },
+    "exerciseIDs": [
+      "F5-31"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Gjej dimensionet e energjisë.",
+      "nodes": [
+        "Energjia = forcë · largësi.",
+        "[F] = [m][a] = M · L T⁻²",
+        "[E] = M L T⁻² · L = M L² T⁻²"
+      ]
+    }
+  },
+  {
+    "id": "LF5-32",
+    "subject": "Fizikë",
+    "level": 5,
+    "order": 32,
+    "chapterID": "F5-C07",
+    "chapterTitle": "Analiza dimensionale dhe vlerësimet",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Fizikanët e mirë kontrollojnë çdo rezultat para se ta besojnë. Analiza dimensionale tregon nëse një formulë ka kuptim dhe shpesh e gjen formën e saj pa zgjidhur ekuacione. Vlerësimet e shpejta (Fermi) japin rendin e madhësisë së një përgjigjeje, ndërsa ligjet e shkallëzimit dhe rastet kufitare zbulojnë gabime që llogaritjet e gjata i fshehin. Këto mjete janë thelbësore në olimpiada.",
+    "title": "Gjetja e formulës me analizë dimensionale",
+    "introduction": "Kur dimë nga cilat madhësi varet një rezultat, mund të gjejmë formën e formulës duke kërkuar fuqitë që japin dimensionet e duhura. P.sh. perioda e lavjerrësit del T ∝ √(L/g).",
+    "objectives": [
+      "Të shkruash një formulë si produkt fuqish dhe të gjesh eksponentët.",
+      "Të njohësh kufizimet e metodës."
+    ],
+    "sections": [
+      {
+        "title": "Metoda",
+        "text": "Supozojmë T = k · mᵃ · Lᵇ · gᶜ, ku k është numër pa dimension. Shkruajmë dimensionet e të dyja anëve dhe barazojmë eksponentët e M, L dhe T. Kjo jep një sistem ekuacionesh për a, b, c."
+      },
+      {
+        "title": "Lavjerrësi",
+        "text": "T¹ = Mᵃ · Lᵇ · (L T⁻²)ᶜ. Për M: a = 0. Për T: 1 = −2c, pra c = −½. Për L: 0 = b + c, pra b = ½. Rezultati: T = k√(L/g). Teoria jep k = 2π; masa nuk ndikon."
+      },
+      {
+        "title": "Kufizimet",
+        "text": "Nëse ka dy madhësi me të njëjtat dimensione (p.sh. dy gjatësi), metoda nuk mund të gjejë si varet rezultati nga raporti i tyre. Gjithashtu nuk gjen kurrë konstanten k."
+      }
+    ],
+    "example": {
+      "problem": "Gjej me analizë dimensionale si varet perioda e lavjerrësit nga masa m, gjatësia L dhe g.",
+      "steps": [
+        "Supozo T = k mᵃ Lᵇ gᶜ.",
+        "M: 0 = a; T: 1 = −2c → c = −½; L: 0 = b + c → b = ½.",
+        "T = k · √(L/g)."
+      ],
+      "conclusion": "T = k√(L/g); perioda nuk varet nga masa."
+    },
+    "pitfall": "Nëse harron një madhësi të rëndësishme (p.sh. amplitudën për lëkundje të mëdha), analiza jep një formulë të paplotë.",
+    "recap": [
+      "Shkruaj rezultatin si produkt fuqish.",
+      "Barazo eksponentët e M, L, T.",
+      "Konstantja pa dimension mbetet e panjohur."
+    ],
+    "check": {
+      "prompt": "Shpejtësia e valës në një tel varet nga tensioni F (në N) dhe nga masa për njësi gjatësie μ (kg/m). Cila formë është e saktë dimensionalisht?",
+      "options": [
+        "v ∝ F/μ",
+        "v ∝ √(F/μ)",
+        "v ∝ √(μ/F)"
+      ],
+      "correct": 1,
+      "why": "[F/μ] = M L T⁻² / (M L⁻¹) = L² T⁻², pra √(F/μ) ka dimensionet L T⁻¹."
+    },
+    "exerciseIDs": [
+      "F5-32"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Gjej me analizë dimensionale si varet perioda e lavjerrësit nga masa m, gjatësia L dhe g.",
+      "nodes": [
+        "Supozo T = k mᵃ Lᵇ gᶜ.",
+        "M: 0 = a; T: 1 = −2c → c = −½; L: 0 = b + c → b = ½.",
+        "T = k · √(L/g)."
+      ]
+    }
+  },
+  {
+    "id": "LF5-33",
+    "subject": "Fizikë",
+    "level": 5,
+    "order": 33,
+    "chapterID": "F5-C07",
+    "chapterTitle": "Analiza dimensionale dhe vlerësimet",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Fizikanët e mirë kontrollojnë çdo rezultat para se ta besojnë. Analiza dimensionale tregon nëse një formulë ka kuptim dhe shpesh e gjen formën e saj pa zgjidhur ekuacione. Vlerësimet e shpejta (Fermi) japin rendin e madhësisë së një përgjigjeje, ndërsa ligjet e shkallëzimit dhe rastet kufitare zbulojnë gabime që llogaritjet e gjata i fshehin. Këto mjete janë thelbësore në olimpiada.",
+    "title": "Vlerësimet Fermi",
+    "introduction": "Një vlerësim Fermi gjen rendin e madhësisë së një përgjigjeje duke e ndarë problemin në hapa të thjeshtë dhe duke përdorur vlera të arsyeshme të përafërta. Qëllimi nuk është saktësia, por të mos gabosh me 10 herë.",
+    "objectives": [
+      "Të ndash një pyetje të vështirë në faktorë që mund t'i vlerësosh.",
+      "Të shprehësh rezultatin në rend madhësie me fuqi të 10-s."
+    ],
+    "sections": [
+      {
+        "title": "Hapat",
+        "text": "1) Shkruaj çfarë kërkohet dhe në cilat njësi. 2) Ndaje në faktorë që mund t'i vlerësosh (numër njerëzish, kohë, madhësi). 3) Zgjidh vlera të rrumbullakëta. 4) Shumëzo dhe rrumbullako në një fuqi të 10-s."
+      },
+      {
+        "title": "Pse funksionon",
+        "text": "Gabimet e faktorëve të ndryshëm shpesh anulohen pjesërisht: njëri vlerësim del pak i madh, tjetri pak i vogël. Prandaj rezultati përfundimtar shpesh bie brenda një faktori 2–3 nga e vërteta."
+      },
+      {
+        "title": "Numra që duhen ditur",
+        "text": "Një vit ka rreth 3 · 10⁷ s; Toka ka rreth 8 · 10⁹ njerëz; rrezja e Tokës është rreth 6400 km; një njeri ka rreth 70 kg dhe 1,7 m. Me këta numra mund të vlerësosh shumë gjëra."
+      }
+    ],
+    "example": {
+      "problem": "Rreth sa herë rreh zemra e një njeriu gjatë gjithë jetës?",
+      "steps": [
+        "Pulsi mesatar: rreth 70 rrahje në minutë.",
+        "Minuta në vit: 60 · 24 · 365 ≈ 525 600.",
+        "Jeta: rreth 75 vjet.",
+        "70 · 525 600 · 75 ≈ 2,8 · 10⁹ rrahje."
+      ],
+      "conclusion": "Rreth 3 miliardë rrahje (rendi 10⁹)."
+    },
+    "pitfall": "Mos jep shumë shifra: «2 759 400 000» krijon iluzionin e saktësisë. Shkruaj ≈ 3 · 10⁹.",
+    "recap": [
+      "Ndaje problemin në faktorë të thjeshtë.",
+      "Përdor vlera të rrumbullakëta.",
+      "Përgjigjja jepet në rend madhësie."
+    ],
+    "check": {
+      "prompt": "Rreth sa sekonda ka një vit?",
+      "options": [
+        "≈ 3 · 10⁵",
+        "≈ 3 · 10⁷",
+        "≈ 3 · 10⁹"
+      ],
+      "correct": 1,
+      "why": "60 · 60 · 24 · 365 = 31 536 000 ≈ 3 · 10⁷ s."
+    },
+    "exerciseIDs": [
+      "F5-33"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Rreth sa herë rreh zemra e një njeriu gjatë gjithë jetës?",
+      "nodes": [
+        "Pulsi mesatar: rreth 70 rrahje në minutë.",
+        "Minuta në vit: 60 · 24 · 365 ≈ 525 600.",
+        "Jeta: rreth 75 vjet.",
+        "70 · 525 600 · 75 ≈ 2,8 · 10⁹ rrahje."
+      ]
+    },
+    "verification": {
+      "expression": "70*60*24*365*75",
+      "value": 2759400000.0,
+      "check_expression": "60*60*24*365",
+      "check_value": 31536000.0
+    }
+  },
+  {
+    "id": "LF5-34",
+    "subject": "Fizikë",
+    "level": 5,
+    "order": 34,
+    "chapterID": "F5-C07",
+    "chapterTitle": "Analiza dimensionale dhe vlerësimet",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Fizikanët e mirë kontrollojnë çdo rezultat para se ta besojnë. Analiza dimensionale tregon nëse një formulë ka kuptim dhe shpesh e gjen formën e saj pa zgjidhur ekuacione. Vlerësimet e shpejta (Fermi) japin rendin e madhësisë së një përgjigjeje, ndërsa ligjet e shkallëzimit dhe rastet kufitare zbulojnë gabime që llogaritjet e gjata i fshehin. Këto mjete janë thelbësore në olimpiada.",
+    "title": "Ligjet e shkallëzimit",
+    "introduction": "Kur një trup zmadhohet k herë në çdo përmasë, sipërfaqet rriten k² herë dhe vëllimet (pra masa) k³ herë. Ky dallim shpjegon pse kafshët e mëdha kanë këmbë të trasha dhe pse insektet nuk vriten kur bien.",
+    "objectives": [
+      "Të zbatosh shkallëzimin k, k², k³ për gjatësitë, sipërfaqet dhe vëllimet.",
+      "Të shpjegosh pasojat fizike dhe biologjike të shkallëzimit."
+    ],
+    "sections": [
+      {
+        "title": "Rregulli bazë",
+        "text": "Gjatësitë ∝ k, sipërfaqet ∝ k², vëllimet dhe masat ∝ k³. Një kub me brinjë dy herë më të madhe ka 4 herë më shumë sipërfaqe dhe 8 herë më shumë vëllim."
+      },
+      {
+        "title": "Forca dhe pesha",
+        "text": "Forca e një kocke ose kablloje varet nga prerja e saj (∝ k²), ndërsa pesha që mban ∝ k³. Raporti forcë/peshë zvogëlohet si 1/k: një gjigant me përmasat e njeriut, por 10 herë më i madh, do t'i thyente këmbët."
+      },
+      {
+        "title": "Nxehtësia dhe sipërfaqja",
+        "text": "Humbja e nxehtësisë ∝ sipërfaqes (k²), ndërsa prodhimi i saj ∝ vëllimit (k³). Prandaj kafshët e vogla ftohen shpejt dhe hanë shumë në raport me masën, ndërsa elefantët kanë veshë të mëdhenj për t'u ftohur."
+      }
+    ],
+    "example": {
+      "problem": "Një skulpturë bëhet 3 herë më e madhe në çdo përmasë, nga i njëjti material. Sa herë rritet masa?",
+      "steps": [
+        "Masa ∝ vëllimit ∝ k³.",
+        "k = 3, pra k³ = 3³",
+        "Masa rritet 27 herë."
+      ],
+      "conclusion": "Masa rritet 27 herë."
+    },
+    "pitfall": "Mos e shumëzo masën me k vetëm sepse «u zmadhua 3 herë»: zmadhimi është në tri drejtime.",
+    "recap": [
+      "Gjatësi ∝ k, sipërfaqe ∝ k², vëllim ∝ k³.",
+      "Forca/peshë ∝ 1/k.",
+      "Humbja e nxehtësisë/prodhimi ∝ 1/k."
+    ],
+    "check": {
+      "prompt": "Një top bëhet 2 herë më i madh në rreze. Sa herë rritet sipërfaqja e tij?",
+      "options": [
+        "2",
+        "4",
+        "8"
+      ],
+      "correct": 1,
+      "why": "Sipërfaqja ∝ k² = 2² = 4."
+    },
+    "exerciseIDs": [
+      "F5-34"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Një skulpturë bëhet 3 herë më e madhe në çdo përmasë, nga i njëjti material. Sa herë rritet masa?",
+      "nodes": [
+        "Masa ∝ vëllimit ∝ k³.",
+        "k = 3, pra k³ = 3³",
+        "Masa rritet 27 herë."
+      ]
+    },
+    "verification": {
+      "expression": "3**3",
+      "value": 27.0,
+      "check_expression": "2**2",
+      "check_value": 4.0
+    }
+  },
+  {
+    "id": "LF5-35",
+    "subject": "Fizikë",
+    "level": 5,
+    "order": 35,
+    "chapterID": "F5-C07",
+    "chapterTitle": "Analiza dimensionale dhe vlerësimet",
+    "chapterOrder": 7,
+    "chapterIntroduction": "Fizikanët e mirë kontrollojnë çdo rezultat para se ta besojnë. Analiza dimensionale tregon nëse një formulë ka kuptim dhe shpesh e gjen formën e saj pa zgjidhur ekuacione. Vlerësimet e shpejta (Fermi) japin rendin e madhësisë së një përgjigjeje, ndërsa ligjet e shkallëzimit dhe rastet kufitare zbulojnë gabime që llogaritjet e gjata i fshehin. Këto mjete janë thelbësore në olimpiada.",
+    "title": "Kontrolli i rezultatit me raste kufitare",
+    "introduction": "Një formulë e saktë duhet të japë rezultate të arsyeshme në rastet ekstreme: kur një masë bëhet zero, kur një kënd bëhet 0° ose 90°, kur dy madhësi barazohen. Ky kontroll zbulon shumë gabime pa e përsëritur zgjidhjen.",
+    "objectives": [
+      "Të zgjedhësh raste kufitare të përshtatshme për një formulë.",
+      "Të përdorësh rastet kufitare për të zgjedhur mes formulave të mundshme."
+    ],
+    "sections": [
+      {
+        "title": "Si zgjidhen rastet",
+        "text": "Pyete veten: çfarë duhet të ndodhë fizikisht nëse një madhësi shkon në 0 ose në pafundësi? Nëse dy masa janë të barabarta? Nëse plani bëhet horizontal ose vertikal? Pastaj vendosi këto vlera në formulë."
+      },
+      {
+        "title": "Shembull: makina e Atwood-it",
+        "text": "Për dy masa në një rrotull, a = g(m₁ − m₂)/(m₁ + m₂). Kontrolle: nëse m₁ = m₂, a = 0 (ekuilibër, e saktë). Nëse m₂ = 0, a = g (rënie e lirë, e saktë). Nëse m₁ ≪ m₂, a ≈ −g (masa tjetër bie lirisht, e saktë)."
+      },
+      {
+        "title": "Kombinimi me dimensionet",
+        "text": "Para se ta dorëzosh zgjidhjen, kontrollo tri gjëra: dimensionet, shenjat (drejtimi) dhe të paktën dy raste kufitare. Në olimpiada kjo kursen shumë pikë."
+      }
+    ],
+    "example": {
+      "problem": "Makina e Atwood-it ka m₁ = 3 kg dhe m₂ = 1 kg. Gjej nxitimin dhe kontrolloje me raste kufitare. (g = 9,8 m/s²)",
+      "steps": [
+        "a = g(m₁ − m₂)/(m₁ + m₂)",
+        "a = 9,8 · (3 − 1)/(3 + 1) = 9,8 · 0,5 = 4,9 m/s²",
+        "Kontroll: 0 < a < g, siç duhet për m₁ > m₂ > 0."
+      ],
+      "conclusion": "a = 4,9 m/s², vlerë mes 0 dhe g, siç pritet."
+    },
+    "pitfall": "Një rast kufitar që del i saktë nuk e provon formulën; një rast që del i gabuar e rrëzon atë.",
+    "recap": [
+      "Provo vlera ekstreme: 0, ∞, të barabarta, 0°, 90°.",
+      "Rezultati duhet të përputhet me intuitën fizike.",
+      "Kombinoje me kontrollin e dimensioneve."
+    ],
+    "check": {
+      "prompt": "Një nxënës gjen për nxitimin në një plan të pjerrët pa fërkim a = g cos θ. Çfarë tregon rasti θ = 0° (plan horizontal)?",
+      "options": [
+        "Formula është e saktë",
+        "Formula është e gabuar, sepse në plan horizontal duhet a = 0",
+        "Nuk tregon asgjë"
+      ],
+      "correct": 1,
+      "why": "Në θ = 0° formula jep a = g, por trupi në plan horizontal nuk përshpejtohet. Formula e saktë është a = g sin θ."
+    },
+    "exerciseIDs": [
+      "F5-35"
+    ],
+    "diagram": {
+      "kind": "flow",
+      "caption": "Hapat e zgjidhjes: Makina e Atwood-it ka m₁ = 3 kg dhe m₂ = 1 kg. Gjej nxitimin dhe kontrolloje me raste kufitare. (g = 9,8 m/s²)",
+      "nodes": [
+        "a = g(m₁ − m₂)/(m₁ + m₂)",
+        "a = 9,8 · (3 − 1)/(3 + 1) = 9,8 · 0,5 = 4,9 m/s²",
+        "Kontroll: 0 < a < g, siç duhet për m₁ > m₂ > 0."
+      ]
+    }
   }
 ]

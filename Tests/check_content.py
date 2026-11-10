@@ -4,15 +4,16 @@ import ast,collections,json,math,plistlib,re
 from pathlib import Path
 root=Path(__file__).resolve().parents[1];app=root/'App'
 lessons=json.loads((app/'Lessons.json').read_text());exercises=json.loads((app/'Exercises.json').read_text())
-assert len(lessons)==len(exercises)==600
-index={x['id']:x for x in exercises};assert len(index)==600
-assert len({x['id'] for x in lessons})==600
-assert len({x['chapterID'] for x in lessons})==120
-assert len({tuple(x['objectives']) for x in lessons})==600
+N=len(lessons);assert N==len(exercises) and N>=600 and N%5==0
+index={x['id']:x for x in exercises};assert len(index)==N
+assert len({x['id'] for x in lessons})==N
+assert len({x['chapterID'] for x in lessons})==N//5
+assert len({tuple(x['objectives']) for x in lessons})==N
+assert all(sum(x['chapterID']==c for x in lessons)==5 for c in {x['chapterID'] for x in lessons})
 for subject in ('Matematikë','Fizikë','Kimi','Biologji'):
  for level in range(1,6):
-  assert sum(x['subject']==subject and x['level']==level for x in lessons)==30
-  assert sum(x['subject']==subject and x['level']==level for x in exercises)==30
+  n=sum(x['subject']==subject and x['level']==level for x in lessons)
+  assert n>=30 and n%5==0 and sum(x['subject']==subject and x['level']==level for x in exercises)==n
 ops={ast.Add:lambda a,b:a+b,ast.Sub:lambda a,b:a-b,ast.Mult:lambda a,b:a*b,ast.Div:lambda a,b:a/b,ast.Pow:lambda a,b:a**b,ast.Mod:lambda a,b:a%b}
 fns={k:getattr(math,k) for k in ('sqrt','sin','cos','log','log10','exp','comb','factorial')};fns.update(abs=abs,sum=sum,min=min,max=max)
 def evaluate(n):
@@ -44,5 +45,5 @@ for file in app.glob('*.plist'):plistlib.loads(file.read_bytes())
 plistlib.loads((app/'PrivacyInfo.xcprivacy').read_bytes())
 s=(root/'ScienceQuest.xcodeproj/project.pbxproj').read_text()
 for file in app.glob('*.swift'):assert 'path = '+file.name+';' in s,file.name
-print(f'PASS: 600 lessons, 600 exercises, 120 chapters; 600 distinct objective sets; {numeric} worked/check numeric pairs verified; links, grading metadata and project resources valid.')
+print(f'PASS: {N} lessons, {N} exercises, {N//5} chapters; {N} distinct objective sets; {numeric} worked/check numeric pairs verified; links, grading metadata and project resources valid.')
 print('Illustrations:',dict(collections.Counter(x['diagram']['kind'] for x in lessons)))
