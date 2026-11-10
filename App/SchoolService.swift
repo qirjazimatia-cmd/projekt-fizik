@@ -397,7 +397,7 @@ final class SupabaseAuth {
     }
     func mfaEnroll() async throws -> GoTrueEnroll {
         let name = "ScienceQuest-" + String(UUID().uuidString.prefix(6))
-        return try JSONDecoder().decode(GoTrueEnroll.self, from: try await send("POST", "/auth/v1/factors", body: ["factor_type": "totp", "friendly_name": name, "issuer": "ScienceQuest"], bearer: try await accessToken()))
+        return try JSONDecoder().decode(GoTrueEnroll.self, from: try await send("POST", "/auth/v1/factors", body: ["factor_type": "totp", "friendly_name": name, "issuer": "BrainSpark"], bearer: try await accessToken()))
     }
     func mfaChallengeVerify(factorID: String, code: String) async throws {
         let token = try await accessToken()

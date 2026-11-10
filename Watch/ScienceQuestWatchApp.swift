@@ -33,6 +33,6 @@ struct WatchHome: View {
                 }
             }
         }
-        .navigationTitle("Science Quest")
+        .navigationTitle("BrainSpark")
     }
 }

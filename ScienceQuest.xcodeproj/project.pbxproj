@@ -91,14 +91,14 @@ isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0;
 		};
 		81D9F2F626612FA28DA4DEB8 = {
 isa = XCBuildConfiguration; name = Debug; buildSettings = {
- CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; PRODUCT_BUNDLE_IDENTIFIER = org.example.ScienceQuestTests;
+ CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; PRODUCT_BUNDLE_IDENTIFIER = al.donbosko.connect.tests;
  PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = auto; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
  IPHONEOS_DEPLOYMENT_TARGET = 16.0; MACOSX_DEPLOYMENT_TARGET = 13.0; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";
  };
 		};
 		3D0FDE5C5552DF9D269A37FF = {
 isa = XCBuildConfiguration; name = Release; buildSettings = {
- CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; PRODUCT_BUNDLE_IDENTIFIER = org.example.ScienceQuestTests;
+ CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; PRODUCT_BUNDLE_IDENTIFIER = al.donbosko.connect.tests;
  PRODUCT_NAME = "$(TARGET_NAME)"; SDKROOT = auto; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
  IPHONEOS_DEPLOYMENT_TARGET = 16.0; MACOSX_DEPLOYMENT_TARGET = 13.0; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";
  };
@@ -345,13 +345,13 @@ isa = PBXNativeTarget; buildConfigurationList = 2D4B4987D85FBBA640B3A339; buildP
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 16;
+				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Science Quest";
+				INFOPLIST_KEY_CFBundleDisplayName = BrainSpark;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Bosko AI përdor kamerën vetëm kur fotografon një ushtrim për ta zgjidhur. Fotoja lexohet në pajisje dhe nuk dërgohet gjëkundi.";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -360,8 +360,8 @@ isa = PBXNativeTarget; buildConfigurationList = 2D4B4987D85FBBA640B3A339; buildP
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 7.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.example.ScienceQuest;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = al.donbosko.connect;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -375,13 +375,13 @@ isa = PBXNativeTarget; buildConfigurationList = 2D4B4987D85FBBA640B3A339; buildP
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 16;
+				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Science Quest";
+				INFOPLIST_KEY_CFBundleDisplayName = BrainSpark;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Bosko AI përdor kamerën vetëm kur fotografon një ushtrim për ta zgjidhur. Fotoja lexohet në pajisje dhe nuk dërgohet gjëkundi.";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -390,8 +390,8 @@ isa = PBXNativeTarget; buildConfigurationList = 2D4B4987D85FBBA640B3A339; buildP
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 7.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.example.ScienceQuest;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = al.donbosko.connect;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -514,14 +514,14 @@ isa = PBXNativeTarget; buildConfigurationList = 2D4B4987D85FBBA640B3A339; buildP
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 16;
+				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Science Quest";
+				INFOPLIST_KEY_CFBundleDisplayName = BrainSpark;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = org.example.ScienceQuest;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = al.donbosko.connect;
 				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
-				MARKETING_VERSION = 7.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.example.ScienceQuest.watchkitapp;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = al.donbosko.connect.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -537,14 +537,14 @@ isa = PBXNativeTarget; buildConfigurationList = 2D4B4987D85FBBA640B3A339; buildP
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 16;
+				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Science Quest";
+				INFOPLIST_KEY_CFBundleDisplayName = BrainSpark;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = org.example.ScienceQuest;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = al.donbosko.connect;
 				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
-				MARKETING_VERSION = 7.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.example.ScienceQuest.watchkitapp;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = al.donbosko.connect.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;

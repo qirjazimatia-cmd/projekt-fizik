@@ -94,7 +94,7 @@ struct QuestCover: View {
             }.frame(maxWidth: 110, maxHeight: 100).accessibilityHidden(true)
         }.padding(20).frame(maxWidth: .infinity, minHeight: 124)
         .background(LinearGradient(colors: [.midnight, Color(red: 0.26, green: 0.17, blue: 0.63)], startPoint: .leading, endPoint: .trailing), in: RoundedRectangle(cornerRadius: 14))
-        .accessibilityElement(children: .ignore).accessibilityLabel("Science Quest")
+        .accessibilityElement(children: .ignore).accessibilityLabel("BrainSpark")
     }
 }
 
@@ -107,7 +107,7 @@ struct HomePage: View {
     var body: some View {
         Page {
             QuestCover()
-            Text("Versioni i fundit · Klasa dhe vlerësim 7.0").font(.caption.bold()).foregroundStyle(Color.lagoon)
+            Text("BrainSpark · versioni " + (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")).font(.caption.bold()).foregroundStyle(Color.lagoon)
             Text("Zgjidh lëndën").font(.system(.title, design: .rounded).weight(.black))
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 160))], spacing: 12) {
                 ForEach([Subject.math, .physics, .chemistry, .biology]) { subject in

@@ -166,7 +166,7 @@ struct RoleDesk: View {
                 Text(count >= goal ? "E arrite synimin!" : "Edhe \(goal - count) ushtrime për të arritur synimin.")
                 NavigationLink("Mësimet dhe kapitujt e klasës sime") { StudySubjects() }
                 NavigationLink("Zgjidh një ushtrim ose kërko kodin e mësuesit") { PracticeMenu() }
-                ShareLink(item: "Science Quest · Raporti im\n" + report) { Label("Ndaje raportin me prindin ose mësuesin", systemImage: "square.and.arrow.up") }
+                ShareLink(item: "BrainSpark · Raporti im\n" + report) { Label("Ndaje raportin me prindin ose mësuesin", systemImage: "square.and.arrow.up") }
             } else {
                 SchoolHub()
                 FamilyReport()
