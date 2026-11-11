@@ -400,6 +400,7 @@ struct AccountControls: View {
                     PasswordInput(title: "Fjalëkalimi i llogarisë së vjetër", text: $password)
                     Button("Importo nga kjo pajisje") { Task { do { try await account.importLegacy(password:password); message = "Importimi përfundoi." } catch { message = error.localizedDescription }; password = "" } }
                 }
+                ReminderSettings()
                 NavigationLink("Konfliktet e shënimeve") { ProgressConflicts() }
                 if account.cloud { SecuritySettings() }
             }
