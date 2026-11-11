@@ -49,7 +49,8 @@ enum ScheduleReminders {
             let time = ScheduleWeek.reminderTime(slot, minutesBefore: before)
             let content = UNMutableNotificationContent()
             content.title = slot.mine ? "Mësim pas \(before) min" : "Ora e radhës pas \(before) min"
-            content.body = slot.subject + " · " + slot.className + (slot.room.isEmpty ? "" : " · salla " + slot.room) + " · " + slot.starts + "–" + slot.ends
+            let place = slot.room.isEmpty ? slot.className : "\(slot.className) · salla \(slot.room)"
+            content.body = "\(slot.subject) · \(place) · \(slot.starts)–\(slot.ends)"
             content.threadIdentifier = "brainspark.orari"
             content.relevanceScore = 0.9
             content.sound = .default
@@ -79,14 +80,7 @@ struct ClassScheduleView: View {
         Page {
             Text("Orari i klasës").font(.largeTitle.bold())
             TimelineView(.periodic(from: .now, by: 60)) { context in
-                let status = ScheduleWeek.now(model.slots, at: context.date)
-                if let current = status.current {
-                    Label("Tani: " + current.subject + " · " + current.className + " (deri " + current.ends + ")", systemImage: "dot.radiowaves.left.and.right")
-                        .font(.headline).foregroundStyle(Color.lagoon)
-                } else if let next = status.next {
-                    Label("Ora e radhës sot: " + next.subject + " · " + next.className + " në " + next.starts, systemImage: "clock")
-                        .font(.headline)
-                }
+                NowLine(slots: model.slots, date: context.date)
             }
             if model.slots.isEmpty {
                 Text(canEdit ? "Shto orët e klasave të tua më poshtë. Nxënësit dhe prindërit i shohin menjëherë." : "Mësuesi nuk ka vendosur ende orarin e klasës.")
@@ -99,10 +93,10 @@ struct ClassScheduleView: View {
                         Text(ScheduleWeek.dayNames[day - 1]).font(.headline)
                         ForEach(items) { slot in
                             HStack(alignment: .top) {
-                                Text(slot.starts + "\n" + slot.ends).font(.caption.monospacedDigit()).foregroundStyle(.secondary).frame(width: 46, alignment: .leading)
+                                Text("\(slot.starts)\n\(slot.ends)").font(.caption.monospacedDigit()).foregroundStyle(.secondary).frame(width: 46, alignment: .leading)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(slot.subject).font(.body.bold())
-                                    Text(slot.className + (slot.room.isEmpty ? "" : " · salla " + slot.room)).font(.caption).foregroundStyle(.secondary)
+                                    Text(slot.room.isEmpty ? slot.className : "\(slot.className) · salla \(slot.room)").font(.caption).foregroundStyle(.secondary)
                                 }
                                 Spacer()
                                 if canEdit && slot.mine {
@@ -170,5 +164,22 @@ struct ClassScheduleView: View {
     private func hhmm(_ date: Date) -> String {
         let c = Calendar.current.dateComponents([.hour, .minute], from: date)
         return String(format: "%02d:%02d", c.hour ?? 0, c.minute ?? 0)
+    }
+}
+
+/// Rreshti "Tani / Ora e radhës" (i ndarë që kompiluesi ta kontrollojë shpejt).
+private struct NowLine: View {
+    let slots: [ScheduleSlot]
+    let date: Date
+
+    var body: some View {
+        let status = ScheduleWeek.now(slots, at: date)
+        if let current = status.current {
+            Label("Tani: \(current.subject) · \(current.className) (deri \(current.ends))", systemImage: "dot.radiowaves.left.and.right")
+                .font(.headline).foregroundStyle(Color.lagoon)
+        } else if let next = status.next {
+            Label("Ora e radhës sot: \(next.subject) · \(next.className) në \(next.starts)", systemImage: "clock")
+                .font(.headline)
+        }
     }
 }
