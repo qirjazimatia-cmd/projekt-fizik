@@ -84,7 +84,7 @@ struct ExercisePlayer: View {
                             if let i = picks.firstIndex(of: option) {
                                 Text(item.kind == "order" ? "\(i + 1)" : "✓").bold()
                             }
-                        }.padding().background(picks.contains(option) ? Color.lagoon.opacity(0.15) : .white, in: RoundedRectangle(cornerRadius: 12))
+                        }.padding().background(picks.contains(option) ? Color.lagoon.opacity(0.15) : Color.card, in: RoundedRectangle(cornerRadius: 12))
                     }.buttonStyle(.plain).disabled(result != nil)
                 }
             }
