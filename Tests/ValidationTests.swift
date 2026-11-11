@@ -60,6 +60,25 @@ final class ValidationTests: XCTestCase {
         XCTAssertTrue(plan.allSatisfy{$0.fire > now})
         XCTAssertEqual(ReminderPlanner.plan(events,now:now,calendar:cal,limit:2).count,2)
     }
+    func testActivityLogAndStreak() {
+        var cal=Calendar(identifier:.gregorian); cal.timeZone=TimeZone(identifier:"Europe/Tirane")!
+        let today=cal.date(from:DateComponents(year:2026,month:11,day:11,hour:20))!
+        func day(_ d:Int) -> Date { cal.date(byAdding:.day,value:-d,to:today)! }
+        var raw=""
+        raw=ActivityLog.recordingAnswer(raw,correct:true,at:day(0),calendar:cal)
+        raw=ActivityLog.recordingAnswer(raw,correct:false,at:day(0),calendar:cal)
+        raw=ActivityLog.recordingLesson(raw,at:day(1),calendar:cal)
+        raw=ActivityLog.recordingAnswer(raw,correct:true,at:day(2),calendar:cal)
+        raw=ActivityLog.recordingAnswer(raw,correct:true,at:day(4),calendar:cal)
+        let days=ActivityLog.decode(raw)
+        XCTAssertEqual(days[ActivityLog.dayKey(today,calendar:cal)],ActivityDay(answers:2,correct:1,lessons:0))
+        XCTAssertEqual(ActivityLog.streak(days,today:today,calendar:cal),3)
+        XCTAssertEqual(ActivityLog.streak(days,today:cal.date(byAdding:.day,value:1,to:today)!,calendar:cal),3, "dje vlen ende")
+        XCTAssertEqual(ActivityLog.streak(days,today:cal.date(byAdding:.day,value:2,to:today)!,calendar:cal),0)
+        let week=ActivityLog.lastDays(7,days,today:today,calendar:cal)
+        XCTAssertEqual(week.count,7); XCTAssertEqual(week.last?.day.answers,2); XCTAssertEqual(week.map(\.day.total).reduce(0,+),5)
+        XCTAssertTrue(ActivityLog.decode("jo json").isEmpty)
+    }
     func testPasswordPolicy() {
         XCTAssertFalse(PasswordPolicy.isValid("shkurt"))
         XCTAssertEqual(Set(PasswordPolicy.missing("abcdefghij").map(\.id)),["upper","digit","symbol"])

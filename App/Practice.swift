@@ -61,6 +61,7 @@ struct ExercisePlayer: View {
     @State private var options: [String] = []
     @State private var result: Bool?
     @AppStorage("mastered") private var mastered = ""
+    @AppStorage(ActivityLog.storageKey) private var activity = ""
     var body: some View {
         Page {
             Text("\(item.subject) · \(item.format)").foregroundStyle(Color.lagoon)
@@ -119,6 +120,7 @@ struct ExercisePlayer: View {
         result = right
         recordAnswer?(right)
         if right && !mastered.components(separatedBy: "|").contains(item.id) { mastered += "|" + item.id }
+        activity = ActivityLog.recordingAnswer(activity, correct: right)
     }
 }
 
@@ -159,6 +161,7 @@ struct RoleDesk: View {
                     SchoolHub()
                     StudentToday(level: learnerLevel)
                 }
+                ProgressDashboard(level: learnerLevel)
                 SectionText(heading: "Përparimi im në këtë pajisje", text: report)
                 Stepper("Synimi im: \(goal) ushtrime", value: $goal, in: 1...max(1, Exercise.all.filter { $0.level == learnerLevel?.rawValue }.count))
                 let count = Exercise.all.filter { $0.level == learnerLevel?.rawValue && mastered.components(separatedBy: "|").contains($0.id) }.count
