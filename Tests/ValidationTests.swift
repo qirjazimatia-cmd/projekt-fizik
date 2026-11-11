@@ -79,6 +79,20 @@ final class ValidationTests: XCTestCase {
         XCTAssertEqual(week.count,7); XCTAssertEqual(week.last?.day.answers,2); XCTAssertEqual(week.map(\.day.total).reduce(0,+),5)
         XCTAssertTrue(ActivityLog.decode("jo json").isEmpty)
     }
+    func testScheduleWeek() {
+        var cal=Calendar(identifier:.gregorian); cal.timeZone=TimeZone(identifier:"Europe/Tirane")!
+        func slot(_ d:Int,_ s:String,_ e:String) -> ScheduleSlot { ScheduleSlot(id:s,classID:"c",className:"9A",weekday:d,starts:s,ends:e,subject:"Fizikë",room:"",mine:true) }
+        let monday=cal.date(from:DateComponents(year:2026,month:11,day:9,hour:8,minute:20))!
+        XCTAssertEqual(ScheduleWeek.isoWeekday(monday,calendar:cal),1)
+        let slots=[slot(1,"08:00","08:45"),slot(1,"09:00","09:45"),slot(2,"08:00","08:45")]
+        let status=ScheduleWeek.now(slots,at:monday,calendar:cal)
+        XCTAssertEqual(status.current?.starts,"08:00"); XCTAssertEqual(status.next?.starts,"09:00")
+        let t=ScheduleWeek.reminderTime(slot(1,"08:00","08:45"),minutesBefore:10)
+        XCTAssertEqual(t.weekday,2); XCTAssertEqual(t.hour,7); XCTAssertEqual(t.minute,50)
+        let early=ScheduleWeek.reminderTime(slot(1,"00:05","00:45"),minutesBefore:10)
+        XCTAssertEqual(early.weekday,1); XCTAssertEqual(early.hour,23); XCTAssertEqual(early.minute,55)
+        XCTAssertNil(ScheduleWeek.minutes("25:00")); XCTAssertEqual(ScheduleWeek.minutes("13:30"),810)
+    }
     func testPasswordPolicy() {
         XCTAssertFalse(PasswordPolicy.isValid("shkurt"))
         XCTAssertEqual(Set(PasswordPolicy.missing("abcdefghij").map(\.id)),["upper","digit","symbol"])

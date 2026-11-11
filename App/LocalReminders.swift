@@ -11,7 +11,7 @@ enum LocalReminders {
     /// Kërkon lejen (vetëm herën e parë) dhe rindërton njoftimet nga eventet e reja.
     static func sync(_ snapshot: SchoolSnapshot) async {
         let center = UNUserNotificationCenter.current()
-        let existing = await center.pendingNotificationRequests().map(\.identifier).filter { $0.hasPrefix("brainspark.") }
+        let existing = await center.pendingNotificationRequests().map(\.identifier).filter { $0.hasPrefix("brainspark.") && !$0.hasPrefix(ScheduleReminders.prefix) }
         center.removePendingNotificationRequests(withIdentifiers: existing)
         guard enabled else { return }
         let settings = await center.notificationSettings()
@@ -44,7 +44,7 @@ enum LocalReminders {
     static func disable() async {
         UserDefaults.standard.set(false, forKey: enabledKey)
         let center = UNUserNotificationCenter.current()
-        let ids = await center.pendingNotificationRequests().map(\.identifier).filter { $0.hasPrefix("brainspark.") }
+        let ids = await center.pendingNotificationRequests().map(\.identifier).filter { $0.hasPrefix("brainspark.") && !$0.hasPrefix(ScheduleReminders.prefix) }
         center.removePendingNotificationRequests(withIdentifiers: ids)
     }
 }
