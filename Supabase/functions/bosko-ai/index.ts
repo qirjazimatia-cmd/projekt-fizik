@@ -9,7 +9,7 @@ const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body)
 const clean = (v: string | undefined) => (v ?? "").trim().replace(/^["']+|["']+$/g, "").trim();
 
 type Line = { role: "user" | "model"; text: string };
-type Body = { messages?: Line[]; image?: { mime?: string; data?: string }; role?: string; lesson?: string };
+type Body = { messages?: Line[]; image?: { mime?: string; data?: string }; audio?: { mime?: string; data?: string }; role?: string; lesson?: string; mode?: string };
 
 const roles: Record<string, string> = {
   student: "Po flet me një nxënës. Shpjego si mësues i durueshëm: hap pas hapi, me shembuj të thjeshtë. Kur të kërkon zgjidhjen e një ushtrimi, jepe të plotë me hapa dhe në fund kontrolloje.",
@@ -17,11 +17,16 @@ const roles: Record<string, string> = {
   teacher: "Po flet me një mësues. Mund të ndihmosh me plane mësimi, pyetje për klasën, ushtrime dhe mënyra shpjegimi.",
 };
 
-function system(role: string, lesson: string): string {
+const HINTS = "MËNYRA «MOS MA THUAJ PËRGJIGJEN» është e ndezur: mos jep kurrë rezultatin përfundimtar dhe mos e zgjidh ushtrimin deri në fund. Jep vetëm sugjerimin e hapit të radhës (një hap në herë), bëj një pyetje udhëzuese dhe prit që nxënësi të provojë. Nëse nxënësi të jep një përgjigje, thuaj nëse është e saktë dhe ku ka gabuar, pa e zbuluar zgjidhjen.";
+const VOICE = "Pyetja e fundit është regjistrim zëri në shqip. Fillimisht shkruaj në një rresht «Dëgjova: …» me pyetjen që kuptove, pastaj përgjigju. Nëse zëri nuk kuptohet, kërko ta përsërisë.";
+
+function system(role: string, lesson: string, mode = "", voice = false): string {
   return [
     "Je Bosko AI, asistenti i mësimeve i aplikacionit Don Bosko Connect të shkollës Don Bosko.",
     "Përgjigju gjithmonë në shqip standard, të qartë dhe të saktë gramatikisht, përveç rastit kur përdoruesi të shkruan qartë në një gjuhë tjetër.",
     roles[role] ?? roles.student,
+    mode === "hints" ? HINTS : "",
+    voice ? VOICE : "",
     "Lëndët kryesore: matematikë, fizikë, kimi, biologji, por ndihmo edhe me lëndët e tjera të shkollës.",
     "Kur merr një foto: fillimisht shkruaj shkurt çfarë lexon (ushtrimin), pastaj zgjidhe hap pas hapi. Nëse fotoja nuk lexohet, thuaje dhe kërko një foto më të qartë.",
     "Shkruaj tekst të thjeshtë: pa LaTeX dhe pa tituj markdown. Përdor x², √, ·, numra hapash (1., 2., 3.) dhe **të theksuar** vetëm për rezultatin.",
@@ -62,9 +67,16 @@ Deno.serve(async (req) => {
     if (image.data.length > 7_000_000) return reply({ error: "Fotoja është shumë e madhe." }, 413);
     contents[contents.length - 1].parts.push({ inline_data: { mime_type: mime, data: image.data } });
   }
+  const audio = body.audio;
+  if (audio?.data) {
+    const mime = ["audio/mp4", "audio/m4a", "audio/aac", "audio/wav", "audio/mpeg", "audio/ogg", "audio/webm"].includes(audio.mime ?? "") ? audio.mime! : "audio/mp4";
+    if (audio.data.length > 7_000_000) return reply({ error: "Regjistrimi është shumë i gjatë." }, 413);
+    contents[contents.length - 1].parts.push({ inline_data: { mime_type: mime, data: audio.data } });
+  }
+  const mode = body.mode === "hints" ? "hints" : "";
 
   const payload = JSON.stringify({
-    systemInstruction: { parts: [{ text: system(body.role ?? "student", body.lesson ?? "") }] },
+    systemInstruction: { parts: [{ text: system(body.role ?? "student", body.lesson ?? "", mode, Boolean(audio?.data)) }] },
     contents,
     generationConfig: { temperature: 0.4, maxOutputTokens: 2048 },
   });
@@ -89,8 +101,8 @@ Deno.serve(async (req) => {
   // Rezerva opsionale: Groq (falas, shumë i shpejtë), vetëm për tekst. Aktivizohet me secret GROQ_API_KEY.
   async function groq(ms: number): Promise<string | null> {
     const groqKey = clean(Deno.env.get("GROQ_API_KEY"));
-    if (!groqKey || image?.data) return null;
-    const chat = [{ role: "system", content: system(body.role ?? "student", body.lesson ?? "") },
+    if (!groqKey || image?.data || audio?.data) return null;
+    const chat = [{ role: "system", content: system(body.role ?? "student", body.lesson ?? "", mode, Boolean(audio?.data)) },
       ...messages.map((m) => ({ role: m.role === "model" ? "assistant" : "user", content: m.text }))];
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -120,7 +132,7 @@ Deno.serve(async (req) => {
   // 2) Nëse Google është i ngarkuar: Groq (nëse ka çelës), pastaj modeli Flash.
   if (!text) { text = await groq(10_000); via = "groq"; }
   if (!text) { text = await gemini("gemini-flash-latest", 15_000); via = "gemini-flash"; }
-  console.log("bosko-ai:", text ? "ok" : "fail", { ms: Date.now() - started, via, image: Boolean(image?.data), chars: text?.length ?? 0 });
+  console.log("bosko-ai:", text ? "ok" : "fail", { ms: Date.now() - started, via, image: Boolean(image?.data), audio: Boolean(audio?.data), mode, chars: text?.length ?? 0 });
   if (!text) return reply({ error: "Bosko AI është shumë i zënë tani (shërbimi falas i Google është i ngarkuar). Provo përsëri pas pak." }, 503);
   return reply({ text });
 });
