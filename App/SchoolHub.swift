@@ -150,7 +150,7 @@ struct SchoolHub: View {
                             }
                         }
                     }
-                }.padding().background(.white,in:RoundedRectangle(cornerRadius:12))
+                }.padding().background(Color.card,in:RoundedRectangle(cornerRadius:12))
             }
         }
     }

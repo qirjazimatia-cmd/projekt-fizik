@@ -124,7 +124,7 @@ struct StudyLibrary: View {
                                 Text("\(completed)/\(topics.count) mësime të lexuara").font(.caption)
                             }.tint(subject.color)
                         }.padding(18).frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.white, in: RoundedRectangle(cornerRadius: 18))
+                        .background(Color.card, in: RoundedRectangle(cornerRadius: 18))
                         .overlay(alignment: .leading) { Capsule().fill(subject.color).frame(width: 4).padding(.vertical, 18) }
                     }
                 }
@@ -271,7 +271,7 @@ struct StudyReader: View {
             Text(section.title).font(.title2.bold()).foregroundStyle(lesson.schoolSubject.color)
             Text(section.text).font(.system(size: textSize)).lineSpacing(7).fixedSize(horizontal: false, vertical: true)
         }.padding(18).frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white, in: RoundedRectangle(cornerRadius: 16)).textSelection(.enabled)
+        .background(Color.card, in: RoundedRectangle(cornerRadius: 16)).textSelection(.enabled)
     }
     private var workedExample: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -327,7 +327,7 @@ struct StudyReader: View {
             Text("Shënimet e mia").font(.title2.bold())
             Text("Shpjegoje idenë me fjalët e tua ose shëno çfarë do të pyesësh në klasë.").font(.callout)
             TextEditor(text: $notes).frame(minHeight: 140).font(.system(size: textSize)).padding(6)
-                .background(.white, in: RoundedRectangle(cornerRadius: 12)).accessibilityLabel("Shënimet për " + lesson.title)
+                .background(Color.card, in: RoundedRectangle(cornerRadius: 12)).accessibilityLabel("Shënimet për " + lesson.title)
             Text("Ruhen automatikisht në këtë llogari.").font(.caption)
         }
     }

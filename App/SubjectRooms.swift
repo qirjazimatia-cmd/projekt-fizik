@@ -129,7 +129,7 @@ private struct SubjectRoom: View {
                         Text(tab.rawValue).font(.title3.bold())
                         Spacer()
                         Image(systemName: "arrow.up.right").foregroundStyle(subject.color)
-                    }.padding(14).background(.white, in: RoundedRectangle(cornerRadius: 10))
+                    }.padding(14).background(Color.card, in: RoundedRectangle(cornerRadius: 10))
                     .overlay(alignment: .leading) { Rectangle().fill(subject.color).frame(width: 4) }
                 }
             }
@@ -341,7 +341,7 @@ private struct PairGame: View {
             Text((solved.contains(id) ? "✓ " : "") + (isLeft ? pair.left : pair.right))
                 .frame(maxWidth: .infinity, minHeight: 60).padding(6)
                 .foregroundStyle(isLeft && chosen == id ? Color.white : Color.primary)
-                .background(isLeft && chosen == id ? subject.color : Color.white, in: RoundedRectangle(cornerRadius: 12))
+                .background(isLeft && chosen == id ? subject.color : Color.card, in: RoundedRectangle(cornerRadius: 12))
         }.buttonStyle(.plain).disabled(solved.contains(id) || (!isLeft && chosen == nil))
     }
     private func restart() {
@@ -415,7 +415,6 @@ struct StudioNavigation_Previews: PreviewProvider {
     static var previews: some View {
         Dashboard(role: .student)
             .environmentObject(Account())
-            .preferredColorScheme(.light)
     }
 }
 
@@ -584,8 +583,8 @@ private struct SchoolEventsView: View {
                                 Text("\(index - offset + 1)").font(.body.bold())
                                 Circle().fill(count > 0 ? Color.orange : Color.clear).frame(width: 6, height: 6)
                             }.frame(maxWidth: .infinity, minHeight: 46)
-                            .foregroundStyle(selected ? .white : Color.midnight)
-                            .background(selected ? Color.lagoon : .white, in: RoundedRectangle(cornerRadius: 9))
+                            .foregroundStyle(selected ? Color.white : Color.ink)
+                            .background(selected ? Color.lagoon : Color.card, in: RoundedRectangle(cornerRadius: 9))
                         }.buttonStyle(.plain)
                         .accessibilityLabel(date.formatted(date: .complete, time: .omitted) + ", \(count) evente")
                         .accessibilityAddTraits(selected ? .isSelected : [])
@@ -614,7 +613,7 @@ private struct SchoolEventsView: View {
                 }.buttonStyle(.bordered)
             }
         }.padding().frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white, in: RoundedRectangle(cornerRadius: 12))
+        .background(Color.card, in: RoundedRectangle(cornerRadius: 12))
     }
 }
 

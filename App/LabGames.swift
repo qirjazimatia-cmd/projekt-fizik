@@ -160,7 +160,7 @@ private struct PredictionGame: View {
                             Spacer()
                             if chosen != nil && option == question.correct { Image(systemName:"checkmark.circle.fill") }
                         }.padding().frame(maxWidth:.infinity,alignment:.leading)
-                        .background(chosen == option ? subject.color.opacity(0.2) : Color.white,in:RoundedRectangle(cornerRadius:14))
+                        .background(chosen == option ? subject.color.opacity(0.2) : Color.card,in:RoundedRectangle(cornerRadius:14))
                     }.buttonStyle(.plain).disabled(chosen != nil)
                 }
                 if let chosen {

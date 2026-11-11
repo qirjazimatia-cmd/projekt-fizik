@@ -223,7 +223,7 @@ struct ProjectDetail: View {
                 if account.role == .parent && p.teams.isEmpty { Text("Fëmija nuk ka nisur ende punë në këtë projekt.") }
                 ForEach(p.teams) { team in
                     TeamPanel(project: p, team: team, store: store)
-                        .padding().background(.white, in: RoundedRectangle(cornerRadius: 12))
+                        .padding().background(Color.card, in: RoundedRectangle(cornerRadius: 12))
                 }
             } else if store.loaded {
                 Text("Projekti nuk gjendet më.")
