@@ -38,6 +38,11 @@ struct SchoolHub: View {
                 if account.role == .parent { familyTools }
                 classList
                 if SupabaseConfig.enabled {
+                    NavigationLink { ClassScheduleView(classes: account.role == .teacher ? model.data.classes : [], canEdit: account.role == .teacher) } label: {
+                        Tile(icon: "calendar.day.timeline.left", title: "Orari i klasës", detail: account.role == .teacher ? "Krijo orarin; merr njoftim para çdo ore" : "Orët e javës, me lëndën dhe sallën")
+                    }
+                }
+                if SupabaseConfig.enabled {
                     NavigationLink { ProjectsScreen(ownedClasses: model.data.classes.filter { $0.owner == account.identity.replacingOccurrences(of:"school-",with:"") }) } label: {
                         Tile(icon:"folder",title:"Projektet",detail:"Individuale dhe në grup: role, ditar kontributesh, versione dorëzimi me skedarë")
                     }
