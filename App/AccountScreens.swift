@@ -93,6 +93,7 @@ struct AccountControls: View {
                 NavigationLink("Konfliktet e shënimeve") { ProgressConflicts() }
                 if account.cloud { SecuritySettings() }
             }
+            AppearanceSettings()
             Button("Dil nga llogaria") { Task { await account.synchronize(); account.logout() } }
             DisclosureGroup("Fshi llogarinë") {
                 PasswordInput(title: "Fjalëkalimi aktual", text: $password)

@@ -151,7 +151,7 @@ private struct AssistantAnswer: View {
                 Tile(icon: "book.fill", title: "Hap mësimin e plotë", detail: "Burimi: mësimi " + lesson.id + " · \(lesson.readingMinutes) min")
             }.buttonStyle(.plain)
         }
-        .padding(16).background(.white, in: RoundedRectangle(cornerRadius: 18))
+        .padding(16).background(Color.card, in: RoundedRectangle(cornerRadius: 18))
     }
 }
 
@@ -574,7 +574,7 @@ struct TutorChat: View {
                     .accessibilityLabel("Dërgo")
             }
         }
-        .padding(12).background(.white)
+        .padding(12).background(Color.card)
     }
 
     // MARK: Bisedat
@@ -824,8 +824,8 @@ private struct ChatBubble: View {
                 }
             }
             .padding(12)
-            .foregroundStyle(line.fromStudent ? Color.white : Color.black.opacity(0.86))
-            .background(line.fromStudent ? Color.lagoon : Color.white, in: RoundedRectangle(cornerRadius: 16))
+            .foregroundStyle(line.fromStudent ? Color.white : Color.ink)
+            .background(line.fromStudent ? Color.lagoon : Color.card, in: RoundedRectangle(cornerRadius: 16))
             if !line.fromStudent { Spacer(minLength: 40) }
         }
     }
