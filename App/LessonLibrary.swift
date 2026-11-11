@@ -192,6 +192,7 @@ struct StudySubjects: View {
 struct StudyReader: View {
     let lesson: StudyLesson
     @AppStorage("studyReadIDs.v1") private var readIDs = ""
+    @AppStorage(ActivityLog.storageKey) private var activity = ""
     @AppStorage("studyBookmarks.v1") private var bookmarks = ""
     @AppStorage("studyLastID.v1") private var lastID = ""
     @AppStorage("studyPassedIDs.v1") private var passedIDs = ""
@@ -332,7 +333,10 @@ struct StudyReader: View {
     }
     private var footer: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Button(read ? "Shënoje si të palexuar" : "E lexova këtë mësim") { readIDs = toggling(readIDs) }
+            Button(read ? "Shënoje si të palexuar" : "E lexova këtë mësim") {
+                if !read { activity = ActivityLog.recordingLesson(activity) }
+                readIDs = toggling(readIDs)
+            }
                 .buttonStyle(.borderedProminent)
             if let next {
                 NavigationLink { StudyReader(lesson: next) } label: {
