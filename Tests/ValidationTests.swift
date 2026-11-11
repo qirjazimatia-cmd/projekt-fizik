@@ -44,6 +44,22 @@ final class ValidationTests: XCTestCase {
                            recap:l["recap"] as? [String] ?? [])
         })
     }
+    func testReminderPlanner() {
+        var cal=Calendar(identifier:.gregorian); cal.timeZone=TimeZone(identifier:"Europe/Tirane")!
+        let now=cal.date(from:DateComponents(year:2026,month:11,day:10,hour:12))!
+        let exam=cal.date(from:DateComponents(year:2026,month:11,day:16,hour:9))!
+        let events=[ReminderEvent(id:"a",title:"Test Kimi",note:"",date:exam,isExam:true,subject:"Kimi"),
+                    ReminderEvent(id:"b",title:"Dorëzo projektin",note:"",date:exam,isExam:false,subject:nil),
+                    ReminderEvent(id:"c",title:"Ekskursion",note:"Sillni ujë",date:exam,isExam:false,subject:nil),
+                    ReminderEvent(id:"d",title:"Test i vjetër",note:"",date:cal.date(byAdding:.day,value:-1,to:now)!,isExam:true,subject:nil)]
+        XCTAssertEqual(events.map(\.kind),[.test,.task,.info,.test])
+        let plan=ReminderPlanner.plan(events,now:now,calendar:cal)
+        XCTAssertEqual(plan.filter{$0.kind == .test}.count,3); XCTAssertEqual(plan.filter{$0.kind == .task}.count,2)
+        XCTAssertEqual(plan.filter{$0.kind == .info}.count,1); XCTAssertFalse(plan.contains{$0.id.hasPrefix("d-")})
+        XCTAssertEqual(cal.component(.hour,from:plan.first{$0.id=="a-0d"}!.fire),7)
+        XCTAssertTrue(plan.allSatisfy{$0.fire > now})
+        XCTAssertEqual(ReminderPlanner.plan(events,now:now,calendar:cal,limit:2).count,2)
+    }
     func testPasswordPolicy() {
         XCTAssertFalse(PasswordPolicy.isValid("shkurt"))
         XCTAssertEqual(Set(PasswordPolicy.missing("abcdefghij").map(\.id)),["upper","digit","symbol"])

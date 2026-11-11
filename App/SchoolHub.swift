@@ -7,7 +7,7 @@ final class SchoolModel: ObservableObject {
     @Published var message = ""
     @Published var busy = false
     func refresh(_ token: String) async {
-        do { data = try await SchoolAPI.call("snapshot",token:token); message = "" }
+        do { data = try await SchoolAPI.call("snapshot",token:token); message = ""; await LocalReminders.sync(data) }
         catch { message = error.localizedDescription }
     }
     func change(_ action: String, _ body: [String:Any], token: String) async {
