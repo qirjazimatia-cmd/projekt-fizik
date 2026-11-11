@@ -27,7 +27,7 @@ private struct MonthGrid: View {
                 }
             }
         }
-        .padding().background(.white, in: RoundedRectangle(cornerRadius: 12))
+        .padding().background(Color.card, in: RoundedRectangle(cornerRadius: 12))
         .onAppear { month = selected }
         .onChange(of: selected) { value in if !cal.isDate(value, equalTo: month, toGranularity: .month) { month = value } }
     }
@@ -195,7 +195,7 @@ struct SharedSchoolCalendar: View {
                 }
                 Button("Anulo eventin", role: .destructive) { Task { await model.change("eventDelete", ["eventID": event.id], token: account.token) } }
             }
-        }.padding().frame(maxWidth: .infinity, alignment: .leading).background(.white, in: RoundedRectangle(cornerRadius: 12))
+        }.padding().frame(maxWidth: .infinity, alignment: .leading).background(Color.card, in: RoundedRectangle(cornerRadius: 12))
     }
 }
 

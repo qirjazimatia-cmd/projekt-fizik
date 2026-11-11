@@ -54,7 +54,7 @@ struct ProgressDashboard: View {
             Text(motivation).font(.footnote).foregroundStyle(.secondary)
         }
         .padding()
-        .background(.white, in: RoundedRectangle(cornerRadius: 14))
+        .background(Color.card, in: RoundedRectangle(cornerRadius: 14))
     }
 
     private var motivation: String {

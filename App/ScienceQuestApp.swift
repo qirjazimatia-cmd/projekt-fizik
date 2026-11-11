@@ -3,13 +3,17 @@ import SwiftUI
 @main
 struct ScienceQuestApp: App {
     @StateObject private var account = Account()
+    @AppStorage(AppAppearance.schemeKey) private var appearance = 0
+    @AppStorage(AppAppearance.textSizeKey) private var textSize = 2
     var body: some Scene {
         WindowGroup {
             Group {
                 if let role = account.role {
                     Dashboard(role: role).defaultAppStorage(account.storage).id(account.identity)
                 } else { AccessScreen() }
-            }.environmentObject(account).preferredColorScheme(.light)
+            }.environmentObject(account)
+            .preferredColorScheme(AppAppearance.scheme(appearance))
+            .dynamicTypeSize(AppAppearance.textSize(textSize))
             .task { await account.restore() }
             .task(id:account.identity) {
                 guard account.isOnline else { return }
@@ -34,8 +38,57 @@ struct ScienceQuestApp: App {
 extension Color {
     static let midnight = Color(red: 0.08, green: 0.07, blue: 0.19)
     static let sun = Color(red: 1.0, green: 0.84, blue: 0.27)
-    static let lagoon = Color(red: 0.32, green: 0.22, blue: 0.74)
-    static let paper = Color(red: 0.95, green: 0.94, blue: 0.99)
+    /// Ngjyra kryesore; në modalitetin e errët pak më e çelët, që të lexohet mbi sfond të errët.
+    static let lagoon = Color(light: Color(red: 0.32, green: 0.22, blue: 0.74), dark: Color(red: 0.62, green: 0.55, blue: 1.0))
+    /// Sfondi i faqeve.
+    static let paper = Color(light: Color(red: 0.95, green: 0.94, blue: 0.99), dark: Color(red: 0.07, green: 0.07, blue: 0.11))
+    /// Sfondi i kartave (ishte e bardhë).
+    static let card = Color(light: .white, dark: Color(red: 0.14, green: 0.13, blue: 0.20))
+    /// Teksti kryesor.
+    static let ink = Color(light: Color.black.opacity(0.86), dark: Color.white.opacity(0.92))
+
+    /// Ngjyrë që ndryshon vetë sipas modalitetit të çelët/të errët të sistemit.
+    init(light: Color, dark: Color) {
+        #if os(iOS)
+        self = Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(dark) : UIColor(light) })
+        #elseif os(macOS)
+        self = Color(NSColor(name: nil) { $0.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? NSColor(dark) : NSColor(light) })
+        #else
+        self = light
+        #endif
+    }
+}
+
+/// Pamja e app-it: modaliteti (sistemi/i çelët/i errët) dhe madhësia e tekstit, nga Profili.
+enum AppAppearance {
+    static let schemeKey = "appearance.scheme.v1"
+    static let textSizeKey = "appearance.textSize.v1"
+    static func scheme(_ value: Int) -> ColorScheme? { value == 1 ? .light : value == 2 ? .dark : nil }
+    static let sizes: [DynamicTypeSize] = [.xSmall, .medium, .large, .xLarge, .xxLarge, .xxxLarge, .accessibility1, .accessibility2]
+    static let sizeNames = ["Shumë i vogël", "I vogël", "Normal", "I madh", "Më i madh", "Shumë i madh", "Maksimal", "Maksimal+"]
+    static func textSize(_ index: Int) -> DynamicTypeSize { sizes[min(max(index, 0), sizes.count - 1)] }
+}
+
+/// Cilësimet e pamjes te Profili.
+struct AppearanceSettings: View {
+    @AppStorage(AppAppearance.schemeKey, store: .standard) private var appearance = 0
+    @AppStorage(AppAppearance.textSizeKey, store: .standard) private var textSize = 2
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Pamja").font(.headline)
+            Picker("Modaliteti", selection: $appearance) {
+                Text("Si sistemi").tag(0); Text("I çelët").tag(1); Text("I errët").tag(2)
+            }.pickerStyle(.segmented)
+            HStack {
+                Text("Madhësia e tekstit")
+                Spacer()
+                Text(AppAppearance.sizeNames[min(max(textSize, 0), AppAppearance.sizeNames.count - 1)]).foregroundStyle(.secondary)
+            }
+            Slider(value: Binding(get: { Double(textSize) }, set: { textSize = Int($0.rounded()) }), in: 0...Double(AppAppearance.sizes.count - 1), step: 1) {
+                Text("Madhësia e tekstit")
+            } minimumValueLabel: { Text("A").font(.caption) } maximumValueLabel: { Text("A").font(.title2) }
+        }
+    }
 }
 
 struct Page<Content: View>: View {
@@ -47,7 +100,7 @@ struct Page<Content: View>: View {
                 .frame(maxWidth: 720, alignment: .leading)
                 .padding(20).frame(maxWidth: .infinity)
         }
-        .background(Color.paper).foregroundStyle(Color.black.opacity(0.86))
+        .background(Color.paper).foregroundStyle(Color.ink)
     }
 }
 
@@ -66,7 +119,7 @@ struct Tile: View {
             Spacer()
             Image(systemName: "chevron.right").font(.caption.bold()).foregroundStyle(.secondary)
         }
-        .padding(15).background(.white, in: RoundedRectangle(cornerRadius: 18)).contentShape(Rectangle())
+        .padding(15).background(Color.card, in: RoundedRectangle(cornerRadius: 18)).contentShape(Rectangle())
     }
 }
 
@@ -170,7 +223,7 @@ struct Answers: View {
                         if selection == index {
                             Image(systemName: index == question.correct ? "checkmark.circle.fill" : "xmark.circle.fill")
                         }
-                    }.padding().background(.white, in: RoundedRectangle(cornerRadius: 12))
+                    }.padding().background(Color.card, in: RoundedRectangle(cornerRadius: 12))
                 }.buttonStyle(.plain).disabled(selection != nil)
             }
             if let selection {
@@ -215,7 +268,7 @@ struct Discover: View {
                         Label(item.0.rawValue, systemImage: item.0.icon).font(.caption.bold()).foregroundStyle(Color.lagoon)
                         Text(item.1).font(.headline)
                     }
-                }.padding().background(.white, in: RoundedRectangle(cornerRadius: 15))
+                }.padding().background(Color.card, in: RoundedRectangle(cornerRadius: 15))
             }
         }.navigationTitle("Zbulo")
     }
@@ -294,7 +347,7 @@ struct MotionLab: View {
                     }
                 }.frame(height: 170)
                 HStack { Text("0"); Spacer(); Text("5"); Spacer(); Text("10 s") }.font(.caption).padding(.leading, 26)
-            }.padding().background(.white, in: RoundedRectangle(cornerRadius: 16))
+            }.padding().background(Color.card, in: RoundedRectangle(cornerRadius: 16))
             SectionText(heading: "Sfida", text: "Gjej dy mënyra për të përshkuar 24 m. Cila vijë ka pjerrësi më të madhe?")
         }.navigationTitle("Simulimi")
     }

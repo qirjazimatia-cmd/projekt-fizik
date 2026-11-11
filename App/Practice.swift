@@ -186,7 +186,7 @@ struct RoleDesk: View {
                                 homeActivity = ids.sorted().joined(separator: "|")
                             }.buttonStyle(.bordered)
                         }.padding(.top, 10)
-                    }.padding().background(.white, in: RoundedRectangle(cornerRadius: 14))
+                    }.padding().background(Color.card, in: RoundedRectangle(cornerRadius: 14))
                 }
             }
         }.navigationTitle(role.rawValue)
@@ -288,8 +288,8 @@ struct StudentClassChooser: View {
                         Text(level.name).bold()
                         Spacer()
                         Image(systemName: chosen == level.rawValue ? "checkmark.circle.fill" : "chevron.right")
-                    }.padding().foregroundStyle(chosen == level.rawValue ? Color.white : Color.midnight)
-                    .background(chosen == level.rawValue ? Color.lagoon : Color.white, in: RoundedRectangle(cornerRadius: 12))
+                    }.padding().foregroundStyle(chosen == level.rawValue ? Color.white : Color.ink)
+                    .background(chosen == level.rawValue ? Color.lagoon : Color.card, in: RoundedRectangle(cornerRadius: 12))
                 }.buttonStyle(.plain)
             }
         }
