@@ -333,7 +333,7 @@ private enum BoskoOnline {
     private struct Answer: Decodable { let text: String?; let error: String? }
 
     @MainActor
-    static func ask(history: [ChatLine], image: Data?, role: TutorRole, lesson: String?) async throws -> String {
+    static func ask(history: [ChatLine], image: Data?, role: TutorRole, lesson: String?, audio: Data? = nil, mode: String? = nil) async throws -> String {
         SupabaseAuth.shared.loadStored()
         guard SupabaseConfig.enabled, SupabaseAuth.shared.session != nil else {
             throw Failure(message: "Për Bosko AI me internet duhet të jesh i kyçur në llogari.")
@@ -346,11 +346,14 @@ private enum BoskoOnline {
             var text = line.reply.text
             if let title = line.reply.title, !line.fromStudent { text = title + "\n" + text }
             if line.imageName != nil && line.fromStudent && text.isEmpty { text = "(foto)" }
+            if line.fromStudent && text == "🎤 Pyetje me zë" { text = "(pyetje me zë)" }
             return text.isEmpty ? nil : ["role": line.fromStudent ? "user" : "model", "text": text]
         }
         var body: [String: Any] = ["messages": messages, "role": "\(role)"]
         if let lesson { body["lesson"] = lesson }
         if let image { body["image"] = ["mime": "image/jpeg", "data": image.base64EncodedString()] }
+        if let audio { body["audio"] = ["mime": "audio/mp4", "data": audio.base64EncodedString()] }
+        if let mode { body["mode"] = mode }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"; request.timeoutInterval = 90
         request.setValue(SupabaseConfig.key, forHTTPHeaderField: "apikey")
@@ -388,6 +391,11 @@ struct TutorChat: View {
     @State private var showCamera = false
     /// Bisedat që po presin përgjigje nga Bosko AI online (secila bisedë e vetën).
     @State private var waitingIDs: Set<UUID> = []
+    /// "Mos ma thuaj përgjigjen": Bosko jep vetëm sugjerime hap pas hapi.
+    @AppStorage("bosko.hints.v1", store: .standard) private var hintMode = false
+    @StateObject private var reader = SpeechReader()
+    @StateObject private var recorder = VoiceRecorder()
+    @State private var showMockTest = false
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var sizeClass
     #endif
@@ -433,6 +441,15 @@ struct TutorChat: View {
                     if compact { showListSheet = true } else { withAnimation { showList.toggle() } }
                 } label: { Label("Bisedat", systemImage: "sidebar.left") }
                 Button { newConversation() } label: { Label("Bisedë e re", systemImage: "square.and.pencil") }
+                Toggle(isOn: $hintMode) { Label("Vetëm sugjerime", systemImage: hintMode ? "lightbulb.fill" : "lightbulb") }
+                    .help("Mos ma thuaj përgjigjen: vetëm sugjerime hap pas hapi")
+                Menu {
+                    Button { showMockTest = true } label: { Label("Test prove nga kapitujt", systemImage: "checklist") }
+                    if role == .teacher {
+                        Button { draft = "Krijo 10 pyetje testi (me alternativa dhe përgjigjet e sakta në fund) për temën: " } label: { Label("Pyetje testi për një temë", systemImage: "list.number") }
+                        Button { draft = "Bëj një plan mësimi 45-minutësh (objektivat, hyrja, aktivitetet, kontrolli, detyra) për temën: " } label: { Label("Plan mësimi për një temë", systemImage: "doc.text") }
+                    }
+                } label: { Label("Më shumë", systemImage: "ellipsis.circle") }
             }
         }
         .sheet(isPresented: $showListSheet) {
@@ -472,6 +489,15 @@ struct TutorChat: View {
         }
         #endif
         .onAppear { load() }
+        .environmentObject(reader)
+        .onDisappear { reader.stop() }
+        .sheet(isPresented: $showMockTest) {
+            NavigationStack {
+                MockTestView()
+                    .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Mbyll") { showMockTest = false } } }
+            }
+            .frame(minWidth: 420, minHeight: 520)
+        }
     }
 
     private var chatColumn: some View {
@@ -496,6 +522,8 @@ struct TutorChat: View {
                 }
             }
             ChatSuggestions(items: lines.last(where: { !$0.fromStudent })?.reply.suggestions ?? LessonAssistantIndex.examples.prefix(3).map { $0 }) { send($0) }
+            if !recorder.message.isEmpty { Text(recorder.message).font(.footnote).foregroundStyle(.orange).padding(.horizontal, 12) }
+            if hintMode { Label("Mënyra «vetëm sugjerime»: Bosko nuk e jep përgjigjen, të çon hap pas hapi.", systemImage: "lightbulb.fill").font(.caption).foregroundStyle(.secondary).padding(.horizontal, 12) }
             composer
         }
     }
@@ -527,7 +555,16 @@ struct TutorChat: View {
                 }
                 .fixedSize()
                 .accessibilityLabel("Shto një foto")
-                TextField(pendingImage == nil ? "Shkruaj këtu…" : "Shto një pyetje për foton (s'është e detyrueshme)…", text: $draft, axis: .vertical)
+                Button {
+                    if recorder.recording { if let audio = recorder.stop() { sendVoice(audio) } }
+                    else { Task { await recorder.start() } }
+                } label: {
+                    Image(systemName: recorder.recording ? "stop.circle.fill" : "mic.fill").font(.title3)
+                        .foregroundStyle(recorder.recording ? Color.red : Color.lagoon)
+                }
+                .buttonStyle(.plain).disabled(thinking)
+                .accessibilityLabel(recorder.recording ? "Ndalo dhe dërgo pyetjen me zë" : "Pyet me zë")
+                TextField(recorder.recording ? "Po dëgjoj… shtyp ⏹ kur të mbarosh" : (pendingImage == nil ? "Shkruaj këtu…" : "Shto një pyetje për foton (s'është e detyrueshme)…"), text: $draft, axis: .vertical)
                     .textFieldStyle(.roundedBorder).lineLimit(1...5)
                     .onSubmit { if canSend { send(draft) } }
                 Button { send(draft) } label: { Image(systemName: "arrow.up.circle.fill").font(.title) }
@@ -616,6 +653,25 @@ struct TutorChat: View {
         return parts.isEmpty ? nil : parts.joined(separator: "\n\n")
     }
 
+    /// Pyetja me zë: dërgohet te Bosko AI online, që e kupton shqipen e folur.
+    private func sendVoice(_ audio: Data) {
+        guard !thinking, let id = currentID else { return }
+        append([ChatLine(fromStudent: true, reply: TutorReply(text: "🎤 Pyetje me zë"))], to: id)
+        let history = conversations.first(where: { $0.id == id })?.lines ?? []
+        waitingIDs.insert(id)
+        Task { @MainActor in
+            do {
+                let answer = try await BoskoOnline.ask(history: history, image: nil, role: role, lesson: lessonContext(conversations.first(where: { $0.id == id }), question: ""),
+                                                       audio: audio, mode: hintMode ? "hints" : nil)
+                append([ChatLine(fromStudent: false, reply: TutorReply(text: answer, suggestions: ["Shpjegoje më thjesht", "Më jep një shembull"]), online: true)], to: id)
+            } catch {
+                let reason = (error as? LocalizedError)?.errorDescription ?? "Nuk ka lidhje me internetin."
+                append([ChatLine(fromStudent: false, reply: TutorReply(title: "Pyetja me zë nuk u dërgua", text: reason + "\n\nPyetjet me zë i kupton vetëm Bosko AI me internet. Provo përsëri ose shkruaje pyetjen."))], to: id)
+            }
+            waitingIDs.remove(id)
+        }
+    }
+
     private func send(_ text: String) {
         let clean = text.trimmingCharacters(in: .whitespacesAndNewlines)
         let image = pendingImage
@@ -625,7 +681,7 @@ struct TutorChat: View {
         append([ChatLine(fromStudent: true, reply: TutorReply(text: clean), imageName: imageName)], to: id)
 
         // Ushtrimet e aplikacionit (dhe kontrolli i përgjigjeve) mbeten te asistenti lokal.
-        if image == nil && tutor.prefersLocal(clean) {
+        if image == nil && !hintMode && tutor.prefersLocal(clean) {
             append([ChatLine(fromStudent: false, reply: tutor.reply(to: clean))], to: id)
             return
         }
@@ -634,7 +690,7 @@ struct TutorChat: View {
         waitingIDs.insert(id)
         Task { @MainActor in
             do {
-                let answer = try await BoskoOnline.ask(history: history, image: image, role: role, lesson: context)
+                let answer = try await BoskoOnline.ask(history: history, image: image, role: role, lesson: context, mode: hintMode ? "hints" : nil)
                 append([ChatLine(fromStudent: false, reply: TutorReply(text: answer, suggestions: ["Shpjegoje më thjesht", "Më jep një shembull", "Më jep një ushtrim"]), online: true)], to: id)
             } catch {
                 let reason = (error as? LocalizedError)?.errorDescription ?? "Nuk ka lidhje me internetin."
@@ -736,6 +792,7 @@ private struct ChatIntro: View {
 
 private struct ChatBubble: View {
     let line: ChatLine
+    @EnvironmentObject private var reader: SpeechReader
     private var formatted: AttributedString {
         (try? AttributedString(markdown: line.reply.text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
             ?? AttributedString(line.reply.text)
@@ -754,6 +811,12 @@ private struct ChatBubble: View {
                 if !line.fromStudent, let id = line.reply.lessonID, let lesson = LessonAssistantIndex.byID[id] {
                     NavigationLink { StudyReader(lesson: lesson) } label: {
                         Label("Burimi: " + lesson.title, systemImage: "book").font(.caption.bold())
+                    }.buttonStyle(.plain).foregroundStyle(Color.lagoon)
+                }
+                if !line.fromStudent && !line.reply.text.isEmpty {
+                    Button { reader.toggle(line.reply.text, id: line.id) } label: {
+                        Label(reader.speakingID == line.id ? "Ndalo leximin" : "Lexoje me zë", systemImage: reader.speakingID == line.id ? "stop.fill" : "speaker.wave.2")
+                            .font(.caption)
                     }.buttonStyle(.plain).foregroundStyle(Color.lagoon)
                 }
                 if line.online == true {
