@@ -340,7 +340,7 @@ struct AccessScreen: View {
                 #if os(iOS)
                 .keyboardType(.emailAddress).textInputAutocapitalization(.never)
                 #endif
-            SecureField("Fjalëkalimi",text:$password)
+            PasswordInput(title: "Fjalëkalimi", text: $password, isNew: signup)
             if signup {
                 Picker("Roli",selection:$role) { ForEach(SchoolRole.allCases) { Text($0.rawValue).tag($0) } }.pickerStyle(.segmented)
                 if role == .teacher {
@@ -363,7 +363,7 @@ struct AccessScreen: View {
             DisclosureGroup("Harrove fjalëkalimin?") {
                 Text("Përdor emailin më sipër dhe kodin personal që ruajte gjatë regjistrimit. Nuk kërkohet kod me email në çdo hyrje.")
                 SecureField("Kodi i rikuperimit",text:$recovery)
-                SecureField("Fjalëkalimi i ri",text:$newPassword)
+                PasswordInput(title: "Fjalëkalimi i ri", text: $newPassword, isNew: true)
                 Button("Ndrysho fjalëkalimin") {
                     perform {
                         let reply: OKReply = try await SchoolAPI.call("recover",body:["email":email,"recovery":recovery,"password":newPassword])
@@ -397,7 +397,7 @@ struct AccountControls: View {
                 Text(account.syncMessage).font(.caption)
                 Button("Sinkronizo progresin tani") { Task { await account.synchronize() } }
                 DisclosureGroup("Importo progresin nga llogaria e vjetër") {
-                    SecureField("Fjalëkalimi i llogarisë së vjetër",text:$password)
+                    PasswordInput(title: "Fjalëkalimi i llogarisë së vjetër", text: $password)
                     Button("Importo nga kjo pajisje") { Task { do { try await account.importLegacy(password:password); message = "Importimi përfundoi." } catch { message = error.localizedDescription }; password = "" } }
                 }
                 NavigationLink("Konfliktet e shënimeve") { ProgressConflicts() }
@@ -405,7 +405,7 @@ struct AccountControls: View {
             }
             Button("Dil nga llogaria") { Task { await account.synchronize(); account.logout() } }
             DisclosureGroup("Fshi llogarinë") {
-                SecureField("Fjalëkalimi aktual",text:$password)
+                PasswordInput(title: "Fjalëkalimi aktual", text: $password)
                 Button("Fshi llogarinë",role:.destructive) { confirm = true }
             }
             if !message.isEmpty { Text(message) }
@@ -477,7 +477,8 @@ struct CloudAccessScreen: View {
             #if os(iOS)
             .keyboardType(.emailAddress).textInputAutocapitalization(.never)
             #endif
-        SecureField("Fjalëkalimi", text: $password)
+        PasswordInput(title: "Fjalëkalimi", text: $password, isNew: signup)
+        if signup { PasswordChecklist(password: password) }
         if signup {
             if entry == .studentParent {
                 Picker("Roli", selection: $role) { Text("Nxënës").tag(SchoolRole.student); Text("Prind").tag(SchoolRole.parent) }.pickerStyle(.segmented)
@@ -489,7 +490,7 @@ struct CloudAccessScreen: View {
                     #endif
                 Text("Kodi kontrollohet vetëm në server dhe është i përbashkët, prandaj nuk provon vetë që je mësues. Administratori mund të kërkojë edhe miratim.").font(.footnote)
             }
-            Text("Fjalëkalimi: të paktën 10 karaktere. Pas regjistrimit të dërgojmë një kod konfirmimi me email, pastaj çdo hyrje kërkon një kod të ri me email. Një email është një llogari.").font(.footnote)
+            Text("Pas regjistrimit të dërgojmë një kod konfirmimi me email, pastaj çdo hyrje kërkon një kod të ri me email. Një email është një llogari.").font(.footnote)
         }
         Button(signup ? "Regjistrohu" : "Hyr") { submit() }.buttonStyle(.borderedProminent)
         DisclosureGroup("Harrove fjalëkalimin?") {
@@ -504,7 +505,7 @@ struct CloudAccessScreen: View {
     private func submit() {
         UserDefaults.standard.set(entry.rawValue, forKey: "lastEntry.v8")
         perform {
-            guard password.count >= 10 || !signup else { throw AuthFailure(message: "Fjalëkalimi duhet të ketë të paktën 10 karaktere.") }
+            if signup, let problem = PasswordPolicy.problem(password, email: mail) { throw AuthFailure(message: problem) }
             if signup {
                 if entry == .teacher {
                     guard teacherCode.count == 5, teacherCode.allSatisfy({ $0.isNumber }) else { throw AuthFailure(message: "Kodi i mësuesit ka 5 shifra.") }
@@ -520,7 +521,7 @@ struct CloudAccessScreen: View {
         Text("Ke tashmë një llogari").font(.title.bold())
         Text("Ke tashmë një llogari. Hyr për të vazhduar.").font(.headline)
         Text("Adresa: " + address + ". Pas hyrjes do të hapet këndi i rolit tënd ekzistues. Një email është një llogari me një rol të vetëm.").font(.footnote)
-        SecureField("Fjalëkalimi", text: $password)
+        PasswordInput(title: "Fjalëkalimi", text: $password)
         Button("Hyr") { signup = false; perform { try await account.cloudSignIn(email: address, password: password) } }
             .buttonStyle(.borderedProminent).disabled(password.isEmpty)
         Button("Harrova fjalëkalimin") { perform { try await account.cloudRecover(email: address) } }
@@ -590,13 +591,16 @@ struct CloudAccessScreen: View {
     @ViewBuilder private func recoveryView(_ address: String) -> some View {
         Text("Fjalëkalim i ri").font(.title.bold())
         if account.recoveryVerified {
-            Text("Kodi u pranua. Zgjidh një fjalëkalim të ri (të paktën 10 karaktere, jo një fjalëkalim i zakonshëm).").font(.footnote)
+            Text("Kodi u pranua. Zgjidh një fjalëkalim të ri që plotëson kërkesat më poshtë (jo një fjalëkalim i zakonshëm).").font(.footnote)
         } else {
-            Text("Shkruaj kodin që të erdhi te " + address + " dhe fjalëkalimin e ri (të paktën 10 karaktere). Nëse ke 2FA, do të kërkohet edhe kodi i aplikacionit.").font(.footnote)
+            Text("Shkruaj kodin që të erdhi te " + address + " dhe fjalëkalimin e ri. Nëse ke 2FA, do të kërkohet edhe kodi i aplikacionit.").font(.footnote)
             TextField("Kodi nga emaili", text: $code).autocorrectionDisabled()
         }
-        SecureField("Fjalëkalimi i ri", text: $newPassword)
-        Button("Ndrysho fjalëkalimin") { perform { try await account.cloudCompleteRecovery(email: address, code: code, newPassword: newPassword); code = ""; newPassword = "" } }
+        PasswordInput(title: "Fjalëkalimi i ri", text: $newPassword, isNew: true)
+        PasswordChecklist(password: newPassword)
+        Button("Ndrysho fjalëkalimin") { perform {
+            if let problem = PasswordPolicy.problem(newPassword, email: address) { throw AuthFailure(message: problem) }
+            try await account.cloudCompleteRecovery(email: address, code: code, newPassword: newPassword); code = ""; newPassword = "" } }
             .buttonStyle(.borderedProminent).disabled((code.isEmpty && !account.recoveryVerified) || newPassword.isEmpty)
         if !account.recoveryVerified {
             Button("Ridërgo kodin") { perform { try await account.cloudRecover(email: address); account.cloudMessage = "Kodi i ri u dërgua. Mund të duhet rreth 1 minutë para se të kërkosh përsëri." } }
@@ -728,5 +732,52 @@ struct SecuritySettings: View {
             password = ""; code = ""; message = "2FA u çaktivizua."
             await load()
         } catch { message = error.localizedDescription }
+    }
+}
+
+// MARK: - Fusha e fjalëkalimit me «shfaq/fshih» dhe lista e kërkesave
+
+/// Fushë fjalëkalimi me butonin 👁 për ta parë atë që shkruan. `isNew` i tregon sistemit që është fjalëkalim i ri
+/// (që iCloud Keychain të sugjerojë një të fortë).
+struct PasswordInput: View {
+    let title: String
+    @Binding var text: String
+    var isNew = false
+    @State private var visible = false
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Group {
+                if visible { TextField(title, text: $text) } else { SecureField(title, text: $text) }
+            }
+            .autocorrectionDisabled()
+            #if os(iOS)
+            .textInputAutocapitalization(.never)
+            .textContentType(isNew ? .newPassword : .password)
+            #endif
+            Button { visible.toggle() } label: {
+                Image(systemName: visible ? "eye.slash" : "eye").foregroundStyle(.secondary).frame(width: 28, height: 28)
+            }
+            .buttonStyle(.plain)
+            .help(visible ? "Fshih fjalëkalimin" : "Shfaq fjalëkalimin")
+            .accessibilityLabel(visible ? "Fshih fjalëkalimin" : "Shfaq fjalëkalimin")
+        }
+    }
+}
+
+/// Kërkesat e fjalëkalimit, që plotësohen një nga një ndërsa shkruan.
+struct PasswordChecklist: View {
+    let password: String
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            ForEach(PasswordPolicy.rules) { rule in
+                let ok = !password.isEmpty && rule.passes(password)
+                Label(rule.text, systemImage: ok ? "checkmark.circle.fill" : "circle")
+                    .font(.footnote)
+                    .foregroundStyle(ok ? Color.green : Color.secondary)
+                    .accessibilityLabel(rule.text + (ok ? ", plotësuar" : ", mungon"))
+            }
+        }
+        .animation(.easeOut(duration: 0.15), value: password)
     }
 }

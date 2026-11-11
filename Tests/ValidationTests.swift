@@ -44,6 +44,15 @@ final class ValidationTests: XCTestCase {
                            recap:l["recap"] as? [String] ?? [])
         })
     }
+    func testPasswordPolicy() {
+        XCTAssertFalse(PasswordPolicy.isValid("shkurt"))
+        XCTAssertEqual(Set(PasswordPolicy.missing("abcdefghij").map(\.id)),["upper","digit","symbol"])
+        XCTAssertTrue(PasswordPolicy.isValid("Mesimi2026!"))
+        XCTAssertFalse(PasswordPolicy.isValid(" Mesimi2026!"))
+        XCTAssertNil(PasswordPolicy.problem("Mesimi2026!", email:"ana@x.al"))
+        XCTAssertNotNil(PasswordPolicy.problem("Matia2026!!", email:"matia@gmail.com"))
+        XCTAssertTrue(PasswordPolicy.isValid("Shqipëri-2026"))
+    }
     func testAssistantNormalizesAlbanianText() {
         XCTAssertEqual(LessonSearch.tokens("Çfarë është Fotosinteza? Shpejtësia, ë ç!"),["fotos","shpej"])
     }
