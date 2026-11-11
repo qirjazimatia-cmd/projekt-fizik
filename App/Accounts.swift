@@ -183,15 +183,30 @@ final class Account: ObservableObject {
         try await finishSignIn()
     }
     func cancelCloudSignIn() { logout() }
+    /// Rihap seancën e ruajtur me Face ID / Touch ID (pas një anulimi).
+    func unlockSavedSession() async {
+        guard lockedSession, SupabaseAuth.shared.session != nil, await BiometricGate.unlock() else { return }
+        lockedSession = false
+        do { _ = try await SupabaseAuth.shared.accessToken(); try await finishSignIn() }
+        catch { cloudMessage = "Seanca nuk u rikthye (" + error.localizedDescription + "). Hyr përsëri." }
+    }
+    /// Ka një seancë të ruajtur që pret Face ID / Touch ID.
+    @Published private(set) var lockedSession = false
     func restore() async {
         guard cloud, role == nil, SupabaseAuth.shared.session == nil else { return }
         SupabaseAuth.shared.loadStored()
         guard SupabaseAuth.shared.session != nil else { return }
+        if BiometricGate.enabled {
+            lockedSession = true
+            guard await BiometricGate.unlock() else { return }
+            lockedSession = false
+        }
         do { _ = try await SupabaseAuth.shared.accessToken(); try await finishSignIn() }
         catch { cloudMessage = "Seanca nuk u rikthye (" + error.localizedDescription + "). Hyr përsëri ose shfleto mësimet pa llogari." }
     }
     /// Pas çdo hyrje/verifikimi: kontrollon faktorin e dytë, pastaj pyet SERVERIN për rolin. Roli nuk vjen kurrë nga klienti.
     private func finishSignIn() async throws {
+        lockedSession = false
         guard let current = SupabaseAuth.shared.session else { throw AuthFailure(message: "Seanca ka mbaruar. Hyr përsëri.") }
         let user = try await SupabaseAuth.shared.currentUser()
         if current.aal != "aal2", let factor = user.factors?.first(where: { $0.status == "verified" && ($0.factor_type ?? "totp") == "totp" }) {
@@ -250,7 +265,7 @@ final class Account: ObservableObject {
         let old = token
         if cloud { Task { await SupabaseAuth.shared.logout() } }
         else if !old.isEmpty { Task { let _: OKReply? = try? await SchoolAPI.call("logout",token:old) } }
-        pendingRole = nil; attemptedRole = nil; pendingTeacherCode = ""; pendingNewPassword = nil; recoveryVerified = false; recoveryEmail = ""; stage = .entry; cloudMessage = ""
+        pendingRole = nil; attemptedRole = nil; pendingTeacherCode = ""; pendingNewPassword = nil; recoveryVerified = false; recoveryEmail = ""; stage = .entry; cloudMessage = ""; lockedSession = false
         SessionVault.clear(); role = nil; identity = ""; email = ""; token = ""; isOnline = false; baseline = [:]; recoveryNotice = ""; syncMessage = ""
     }
     func remove(password: String) async throws {
