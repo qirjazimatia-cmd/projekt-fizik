@@ -88,6 +88,7 @@ struct AccountControls: View {
                     PasswordInput(title: "Fjalëkalimi i llogarisë së vjetër", text: $password)
                     Button("Importo nga kjo pajisje") { Task { do { try await account.importLegacy(password:password); message = "Importimi përfundoi." } catch { message = error.localizedDescription }; password = "" } }
                 }
+                BiometricSettings()
                 ReminderSettings()
                 NavigationLink("Konfliktet e shënimeve") { ProgressConflicts() }
                 if account.cloud { SecuritySettings() }
@@ -158,6 +159,13 @@ struct CloudAccessScreen: View {
     }
     private var mail: String { email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
     @ViewBuilder private var entryView: some View {
+        if account.lockedSession {
+            Button { Task { await account.unlockSavedSession() } } label: {
+                Label("Hyr me " + (BiometricGate.kindName ?? "kodin e pajisjes"), systemImage: BiometricGate.kindName == "Touch ID" ? "touchid" : "faceid")
+                    .frame(maxWidth: .infinity)
+            }.buttonStyle(.borderedProminent).controlSize(.large)
+            Text("ose hyr me email dhe fjalëkalim më poshtë").font(.footnote).foregroundStyle(.secondary)
+        }
         Text("Hyrja në shkollë").font(.title.bold())
         Picker("Hyrja", selection: $entry) { Text("Nxënës / Prind").tag(AccessEntry.studentParent); Text("Mësues").tag(AccessEntry.teacher) }.pickerStyle(.segmented)
         Text(entry == .teacher ? "Hyrje për mësuesit. Roli kontrollohet nga serveri në çdo kërkesë, jo nga ky ekran." : "Hyrje për nxënës dhe prindër. Një email është një llogari me një rol të vetëm; nëse je edhe prind edhe mësues, përdor dy emaile.").font(.footnote)
@@ -468,5 +476,17 @@ struct PasswordChecklist: View {
             }
         }
         .animation(.easeOut(duration: 0.15), value: password)
+    }
+}
+
+/// Çelësi "Hap app-in me Face ID" te Profili.
+struct BiometricSettings: View {
+    @AppStorage(BiometricGate.enabledKey, store: .standard) private var enabled = true
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Toggle("Hap app-in me " + (BiometricGate.kindName ?? "kodin e pajisjes"), isOn: $enabled)
+            Text("Pas hyrjes së parë, app-i hapet me " + (BiometricGate.kindName ?? "kodin e pajisjes") + " pa fjalëkalim. Kur del nga llogaria, herën tjetër duhet email dhe fjalëkalim.")
+                .font(.footnote).foregroundStyle(.secondary)
+        }
     }
 }
