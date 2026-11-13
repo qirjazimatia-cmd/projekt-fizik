@@ -221,4 +221,37 @@ final class ValidationTests: XCTestCase {
         let parent=try tutor(role:.parent).reply(to:"Si ta ndihmoj fëmijën me përqindjet?")
         XCTAssertEqual(parent.title?.hasSuffix("për prindin"),true)
     }
+
+    // Plani i përgatitjes (#3): rregullat e shpërndarjes.
+    func testStudyPlanSpreadsLessonsAndKeepsLastDayForReview() throws {
+        var calendar = Calendar(identifier: .gregorian); calendar.timeZone = TimeZone(identifier: "UTC")!
+        let now = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 11, day: 16, hour: 17)))
+        let exam = try XCTUnwrap(calendar.date(byAdding: .day, value: 5, to: now))
+        let lessons = (1...9).map { PlanLesson(id: "L\($0)", title: "Mësimi \($0)", read: $0 == 1) }
+        let plan = StudyPlanner.plan(exam: exam, now: now, lessons: lessons, subjectName: "Fizikë", calendar: calendar)
+        XCTAssertEqual(plan.count, 5)
+        XCTAssertEqual(plan.first?.date, calendar.startOfDay(for: now))
+        XCTAssertEqual(plan.dropLast().map(\.tasks.count), [2, 2, 2, 3])
+        XCTAssertTrue(plan.dropLast().allSatisfy { $0.tasks.count <= StudyPlanner.maxLessonsPerDay })
+        XCTAssertEqual(plan.last?.tasks.map(\.kind), [.review, .mockTest])
+        // Të palexuarat para: mësimi i lexuar (L1) del i fundit, si përsëritje.
+        XCTAssertEqual(plan.first?.tasks.first?.kind, .lesson("L2"))
+        XCTAssertEqual(plan[3].tasks.last?.kind, .lesson("L1"))
+        XCTAssertTrue(plan[3].tasks.last?.title.hasPrefix("Përsërit") ?? false)
+    }
+    func testStudyPlanTomorrowTodayAndNoLessons() throws {
+        var calendar = Calendar(identifier: .gregorian); calendar.timeZone = TimeZone(identifier: "UTC")!
+        let now = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 11, day: 16, hour: 9)))
+        let lessons = (1...4).map { PlanLesson(id: "L\($0)", title: "M\($0)", read: false) }
+        let tomorrow = StudyPlanner.plan(exam: now.addingTimeInterval(86_400), now: now, lessons: lessons, subjectName: "Kimi", calendar: calendar)
+        XCTAssertEqual(tomorrow.count, 1)
+        XCTAssertEqual(tomorrow[0].tasks.map(\.kind), [.lesson("L1"), .lesson("L2"), .mockTest])
+        let today = StudyPlanner.plan(exam: now.addingTimeInterval(3_600), now: now, lessons: lessons, subjectName: "Kimi", calendar: calendar)
+        XCTAssertEqual(today.map { $0.tasks.map(\.kind) }, [[.review]])
+        let empty = StudyPlanner.plan(exam: now.addingTimeInterval(3 * 86_400), now: now, lessons: [], subjectName: "", calendar: calendar)
+        XCTAssertEqual(empty.map { $0.tasks.map(\.kind) }, [[.practice], [.practice], [.review, .mockTest]])
+        XCTAssertTrue(StudyPlanner.looksLikeExam("Test i fizikës"))
+        XCTAssertTrue(StudyPlanner.looksLikeExam("PROVIMI i kimisë"))
+        XCTAssertFalse(StudyPlanner.looksLikeExam("Ekskursion në muze"))
+    }
 }

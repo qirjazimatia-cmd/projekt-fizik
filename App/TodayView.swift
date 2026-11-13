@@ -28,7 +28,7 @@ final class TodayModel: ObservableObject {
 
 /// Një kartë e «Sot».
 struct TodayItem: Identifiable {
-    enum Target { case school, schedule, projects, calendar }
+    enum Target { case school, schedule, projects, calendar, plan(PlanTarget) }
     let id: String
     let icon: String
     let tint: Color
@@ -45,6 +45,7 @@ struct TodaySection: View {
     @EnvironmentObject private var account: Account
     @StateObject private var model = TodayModel()
     @AppStorage("today.seenResults.v1") private var seenResults = ""
+    @AppStorage("studyReadIDs.v1") private var readIDs = ""
 
     var body: some View {
         if account.isOnline {
@@ -102,6 +103,8 @@ struct TodaySection: View {
                 ProjectsScreen(ownedClasses: (model.snapshot?.classes ?? []).filter { $0.owner == account.identity.replacingOccurrences(of: "school-", with: "") })
             case .calendar:
                 SharedSchoolCalendar()
+            case .plan(let target):
+                StudyPlanView(target: target)
             }
         }
         .onAppear { markSeen(item.seen) }
@@ -160,6 +163,17 @@ struct TodaySection: View {
                 list.append(TodayItem(id: "tests-more", icon: "tray.full.fill", tint: .lagoon, title: "Edhe \(open.count - 3) teste të hapura", detail: "Shiko të gjitha te Shkolla", target: .school))
             }
             list += newResults(snap, seen: seen)
+            // Plani i përgatitjes (#3): për testet e 14 ditëve të ardhshme, detyrat e sotme.
+            let read = Set(readIDs.split(separator: "|").map(String.init))
+            for target in PlanTarget.upcoming(snap, now: now).prefix(2) {
+                let todayTasks = target.plan(readIDs: read, now: now).first { Calendar.current.isDateInToday($0.date) }?.tasks ?? []
+                let left = StudyPlanner.daysLeft(until: target.date, now: now)
+                let when = left == 0 ? "sot" : left == 1 ? "nesër" : "pas \(left) ditësh"
+                list.append(TodayItem(id: "plan-" + target.id, icon: "list.bullet.clipboard.fill", tint: target.subject?.color ?? .lagoon,
+                                      title: "Përgatitu: " + target.title + " (" + when + ")",
+                                      detail: todayTasks.isEmpty ? "Shiko planin ditë pas dite" : "Sot: " + todayTasks.prefix(2).map(\.title).joined(separator: " · "),
+                                      urgent: left <= 1, target: .plan(target)))
+            }
             for project in model.projects where project.isOpen && !project.mine {
                 guard let due = project.due else { continue }
                 let left = due - now.timeIntervalSince1970
@@ -303,6 +317,139 @@ private struct TodayPlaceholder: View {
         .onAppear {
             guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) { pulse = true }
+        }
+    }
+}
+
+// MARK: - Plani i përgatitjes (#3)
+
+/// Një test i ardhshëm (14 ditët e ardhshme) për të cilin ndërtohet plani.
+struct PlanTarget: Identifiable, Equatable {
+    let id: String
+    let title: String
+    let date: Date
+    let subject: Subject?
+    let level: Int?
+
+    /// Testet e ardhshme nga kalendari i klasës: eventet e lidhura me një test, ose që duken si test («Test», «Provim», «Kontroll»…).
+    static func upcoming(_ snap: SchoolSnapshot, now: Date, calendar: Calendar = .current) -> [PlanTarget] {
+        let today = calendar.startOfDay(for: now)
+        let limit = calendar.date(byAdding: .day, value: 15, to: today) ?? now
+        return snap.events.sorted { $0.date < $1.date }.compactMap { event in
+            let date = Date(timeIntervalSince1970: event.date)
+            guard date >= today, date < limit, event.examID != nil || StudyPlanner.looksLikeExam(event.title) else { return nil }
+            let examSubject = snap.tests.first { $0.id == event.examID }?.subject
+            let subject = [event.subject, examSubject, event.title].compactMap { $0 }.lazy.compactMap(Self.subject).first
+            return PlanTarget(id: event.id, title: event.title, date: date, subject: subject,
+                              level: snap.classes.first { $0.id == event.classID }?.level)
+        }
+    }
+
+    static func subject(_ text: String) -> Subject? {
+        let s = text.lowercased()
+        if s.contains("fiz") { return .physics }
+        if s.contains("mat") || s.contains("algjeb") || s.contains("gjeometri") { return .math }
+        if s.contains("kim") { return .chemistry }
+        if s.contains("bio") { return .biology }
+        return nil
+    }
+
+    /// Mësimet e temës: kërkimi te mësimet e app-it me titullin e testit, lëndën dhe nivelin e klasës.
+    func lessons(readIDs: Set<String>) -> [PlanLesson] {
+        let query = [title, subject?.rawValue ?? ""].joined(separator: " ")
+        var hits = LessonAssistantIndex.shared.search(query, subject: subject?.rawValue, level: level, limit: 9)
+        if hits.isEmpty { hits = LessonAssistantIndex.shared.search(query, subject: subject?.rawValue, limit: 9) }
+        return hits.compactMap { LessonAssistantIndex.byID[$0.id] }.map { PlanLesson(id: $0.id, title: $0.title, read: readIDs.contains($0.id)) }
+    }
+
+    func plan(readIDs: Set<String>, now: Date = Date()) -> [PlanDay] {
+        StudyPlanner.plan(exam: date, now: now, lessons: lessons(readIDs: readIDs), subjectName: subject?.rawValue ?? "")
+    }
+}
+
+/// Plani ditë pas dite, me shenja ✓ (mësimet shënohen vetë kur lexohen).
+struct StudyPlanView: View {
+    let target: PlanTarget
+    @AppStorage("studyReadIDs.v1") private var readIDs = ""
+    @AppStorage("plan.done.v1") private var doneIDs = ""
+
+    private var read: Set<String> { Set(readIDs.split(separator: "|").map(String.init)) }
+    private var done: Set<String> { Set(doneIDs.split(separator: "|").map(String.init)) }
+
+    var body: some View {
+        let days = target.plan(readIDs: read)
+        let left = StudyPlanner.daysLeft(until: target.date, now: Date())
+        Page {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(target.title).font(.system(.largeTitle, design: .rounded).weight(.black))
+                Label(TodaySection.dateText(target.date) + " · " + (left == 0 ? "sot" : left == 1 ? "nesër" : "pas \(left) ditësh"),
+                      systemImage: "calendar").font(.headline).foregroundStyle(target.subject?.color ?? .lagoon)
+            }
+            .accessibilityElement(children: .combine)
+            ProgressView(value: Double(completed(days)), total: Double(max(days.flatMap(\.tasks).count, 1))) {
+                Text("Kryer \(completed(days)) nga \(days.flatMap(\.tasks).count)").font(.subheadline.bold())
+            }
+            ForEach(days) { day in
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(dayTitle(day.date)).font(.title3.bold()).accessibilityAddTraits(.isHeader)
+                    ForEach(day.tasks) { task in row(task) }
+                }
+                .padding(16).glass(cornerRadius: 20, tint: Calendar.current.isDateInToday(day.date) ? (target.subject?.color ?? .lagoon) : nil, strength: 0.10)
+            }
+            Label("Si u ndërtua: mësimet e temës ndahen 2–3 në ditë deri një ditë para testit; dita e fundit është për përsëritje dhe test prove. Ndrysho ritmin si të duash; ky është vetëm një sugjerim.",
+                  systemImage: "info.circle").font(.footnote).foregroundStyle(.secondary)
+        }
+        .navigationTitle("Plani i përgatitjes")
+    }
+
+    private func key(_ task: PlanTask) -> String { target.id + ":" + task.id }
+    private func isDone(_ task: PlanTask) -> Bool {
+        if case .lesson(let id) = task.kind, read.contains(id) { return true }
+        return done.contains(key(task))
+    }
+    private func completed(_ days: [PlanDay]) -> Int { days.flatMap(\.tasks).filter(isDone).count }
+    private func toggle(_ task: PlanTask) {
+        var set = done
+        if set.contains(key(task)) { set.remove(key(task)) } else { set.insert(key(task)); Haptics.success() }
+        doneIDs = set.sorted().suffix(400).joined(separator: "|")
+    }
+    private func dayTitle(_ date: Date) -> String {
+        if Calendar.current.isDateInToday(date) { return "Sot" }
+        if Calendar.current.isDateInTomorrow(date) { return "Nesër" }
+        return TodaySection.dateText(date).capitalized
+    }
+
+    @ViewBuilder private func row(_ task: PlanTask) -> some View {
+        let finished = isDone(task)
+        HStack(spacing: 12) {
+            Button { toggle(task) } label: {
+                Image(systemName: finished ? "checkmark.circle.fill" : "circle").font(.title2)
+                    .foregroundStyle(finished ? Color.green : Color.secondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(task.title)
+            .accessibilityValue(finished ? "Kryer" : "Pa kryer")
+            .accessibilityHint("Prek dy herë për ta shënuar.")
+            NavigationLink { destination(task) } label: {
+                HStack {
+                    Text(task.title).strikethrough(finished).foregroundStyle(finished ? .secondary : .primary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right").font(.footnote.bold()).foregroundStyle(.tertiary).accessibilityHidden(true)
+                }
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint("Hap detyrën.")
+        }
+    }
+
+    @ViewBuilder private func destination(_ task: PlanTask) -> some View {
+        switch task.kind {
+        case .lesson(let id):
+            if let lesson = LessonAssistantIndex.byID[id] { StudyReader(lesson: lesson) } else { StudySubjects() }
+        case .mockTest: MockTestView()
+        case .practice: PracticeMenu()
+        case .review: StudySubjects()
         }
     }
 }
