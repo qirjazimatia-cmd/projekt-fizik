@@ -19,6 +19,11 @@ struct ChemistryMixer: View {
     @State private var prediction = ""
     @State private var notice = ""
     @AppStorage("chemMixHistory") private var history = Data()
+    // Tërhiq shtesën në gotë dhe tunde gotën.
+    @State private var jarOffset: CGSize = .zero
+    @State private var pouring = false
+    @State private var tilt: Double = 0
+    @State private var glassFrame: CGRect = .zero
     private var fizz: Bool { liquid == .vinegar && addition == .soda }
     private var layers: Bool { liquid != .oil && addition == .oil }
     private var residue: Bool { liquid == .oil && addition != .oil }
@@ -45,7 +50,29 @@ struct ChemistryMixer: View {
                 }
                 TextField("Çfarë mendon se do të ndodhë?", text: $prediction, axis: .vertical).textFieldStyle(.roundedBorder)
             }
-            TimelineView(.animation(minimumInterval: 0.05, paused: !mixed)) { context in
+            HStack(spacing: 12) {
+                Text(emoji(addition)).font(.system(size: 44))
+                    .padding(10).glassCapsule(tint: .orange, interactive: true)
+                    .scaleEffect(jarOffset == .zero ? 1 : 1.15)
+                    .rotationEffect(.degrees(jarOffset == .zero ? 0 : -30))
+                    .offset(jarOffset)
+                    .zIndex(2)
+                    .gesture(DragGesture(coordinateSpace: .named("mixer"))
+                        .onChanged { value in jarOffset = value.translation }
+                        .onEnded { value in
+                            if glassFrame.insetBy(dx: -30, dy: -30).contains(value.location) { pour() }
+                            withAnimation(.spring(response: 0.45, dampingFraction: 0.7)) { jarOffset = .zero }
+                        })
+                    .accessibilityLabel("Hidh " + addition.rawValue.lowercased() + " në gotë")
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityAction { pour() }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(mixed ? "Tunde gotën majtas–djathtas" : "Tërhiq " + addition.rawValue.lowercased() + " në gotë").font(.headline)
+                    Text(mixed ? "Shiko si ndryshojnë fazat" : "Lëshoje sipër gotës për ta hedhur").font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            .zIndex(2)
+            TimelineView(.animation(minimumInterval: 0.03, paused: !(mixed || pouring))) { context in
                 let elapsed = max(0, context.date.timeIntervalSince(began))
                 Canvas { drawing, size in
                     let glass = CGRect(x: size.width * 0.25, y: 25, width: size.width * 0.5, height: 175)
@@ -77,16 +104,53 @@ struct ChemistryMixer: View {
                             drawing.fill(Path(ellipseIn: CGRect(x:x,y:y,width:4,height:4)),with:.color(.white.opacity(opacity)))
                         }
                     }
-                    drawing.draw(Text(mixed ? (fizz ? "CO₂ ↑" : "Vëzhgo fazat") : "Gati për provën").font(.headline).foregroundColor(.white),
+                    // Kokrrat/pikat që bien nga lart kur hedh shtesën.
+                    if pouring {
+                        for i in 0..<26 {
+                            let phase = (Double(i) / 26 + elapsed * 1.6).truncatingRemainder(dividingBy: 1)
+                            let x = size.width / 2 + sin(Double(i) * 2.1) * 14
+                            let y = 6 + phase * 70
+                            let dot = CGRect(x: x, y: y, width: addition == .oil ? 7 : 5, height: addition == .oil ? 9 : 5)
+                            drawing.fill(Path(ellipseIn: dot), with: .color(addition == .oil ? .yellow : .white))
+                        }
+                    }
+                    // Valëzimi i lëngut kur tundet gota.
+                    if mixed && elapsed < 3 {
+                        var wave = Path()
+                        wave.move(to: CGPoint(x: fluid.minX, y: fluid.minY))
+                        for step in 0...20 {
+                            let x = fluid.minX + Double(step) / 20 * fluid.width
+                            wave.addLine(to: CGPoint(x: x, y: fluid.minY + sin(Double(step) * 0.9 + elapsed * 9) * 6 * (1 - elapsed / 3)))
+                        }
+                        drawing.stroke(wave, with: .color(.white.opacity(0.7)), lineWidth: 2)
+                    }
+                    drawing.draw(Text(pouring ? "Po hidhet…" : mixed ? (fizz ? "CO₂ ↑" : "Vëzhgo fazat") : "Gati për provën").font(.headline).foregroundColor(.white),
                                  at:CGPoint(x:size.width/2,y:220))
                 }
-            }.frame(height: 240).background(Color.midnight,in:RoundedRectangle(cornerRadius:24))
+            }
+            .frame(height: 240)
+            .background {
+                ZStack {
+                    LinearGradient(colors: [Color.midnight, Subject.chemistry.deep], startPoint: .top, endPoint: .bottom)
+                    RadialGradient(colors: [Subject.chemistry.color.opacity(fizz && mixed ? 0.6 : 0.3), .clear], center: .center, startRadius: 5, endRadius: 200)
+                }.clipShape(RoundedRectangle(cornerRadius: 24))
+            }
+            .rotationEffect(.degrees(tilt), anchor: .bottom)
+            .background(GeometryReader { geo in Color.clear.onAppear { glassFrame = geo.frame(in: .named("mixer")) }
+                .onChange(of: geo.frame(in: .named("mixer"))) { glassFrame = $0 } })
+            .gesture(DragGesture(minimumDistance: 8).onChanged { value in
+                guard mixed else { return }
+                let newTilt = max(-12, min(12, value.translation.width / 8))
+                if abs(newTilt - tilt) > 3 { Haptics.selection(); began = Date() }
+                tilt = newTilt
+            }.onEnded { _ in withAnimation(.spring(response: 0.4, dampingFraction: 0.35)) { tilt = 0 } })
+            .shadow(color: Subject.chemistry.color.opacity(0.35), radius: 14, y: 8)
             HStack {
-                Button("Përzieji") { mixed = true; began = Date(); notice = "" }.buttonStyle(.borderedProminent)
-                Button("Zbraz gotën") { reset() }
+                Button("Përzieji pa tërhequr") { pour() }.buttonStyle(.bordered).disabled(mixed || pouring)
+                Button("Zbraz gotën") { withAnimation { reset() } }
             }
             if mixed {
-                SectionText(heading: "Vëzhgimi", text: result)
+                AnswerBanner(correct: true, heading: fizz ? "Reaksion kimik! 🫧" : "Vëzhgimi", text: result)
                 if !prediction.isEmpty { Text("Parashikimi yt · " + prediction) }
                 Button("Ruaj provën") {
                     guard var all = NotebookCodec.load(MixingRecord.self, from: history) else { notice = NotebookCodec.blockedMessage; return }
@@ -103,8 +167,29 @@ struct ChemistryMixer: View {
             }
             if !notice.isEmpty { Text(notice) }
         }.navigationTitle("Përzierje të lira")
+        .coordinateSpace(name: "mixer")
+        .subjectStyle(.chemistry)
         .onChange(of: liquid) { _ in reset() }
         .onChange(of: addition) { _ in reset() }
     }
-    private func reset() { mixed = false; prediction = ""; notice = "" }
+    private func reset() { mixed = false; pouring = false; prediction = ""; notice = ""; tilt = 0 }
+    private func pour() {
+        guard !mixed, !pouring else { return }
+        Haptics.tap()
+        began = Date(); pouring = true; notice = ""
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
+            pouring = false
+            began = Date()
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.7)) { mixed = true }
+            if fizz { Haptics.celebrate() } else { Haptics.success() }
+        }
+    }
+    private func emoji(_ item: MixingAddition) -> String {
+        switch item {
+        case .salt: return "🧂"
+        case .sugar: return "🍬"
+        case .soda: return "🥄"
+        case .oil: return "🫒"
+        }
+    }
 }

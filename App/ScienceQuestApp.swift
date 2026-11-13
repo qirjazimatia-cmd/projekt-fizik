@@ -141,7 +141,8 @@ struct Tile: View {
             Spacer()
             Image(systemName: "chevron.right").font(.caption.bold()).foregroundStyle(.secondary)
         }
-        .padding(15).background(Color.card, in: RoundedRectangle(cornerRadius: 18)).contentShape(Rectangle())
+        .padding(15).glass(cornerRadius: 22, tint: subject?.color, interactive: true).contentShape(Rectangle())
+        .modifier(ScrollFade())
     }
 }
 
@@ -268,7 +269,7 @@ struct Answers: View {
                         if selection == index {
                             Image(systemName: index == question.correct ? "checkmark.circle.fill" : "xmark.circle.fill")
                         }
-                    }.padding().background(Color.card, in: RoundedRectangle(cornerRadius: 12))
+                    }.padding().glass(cornerRadius: 12)
                 }.buttonStyle(.plain).disabled(selection != nil)
             }
             if let selection {
@@ -313,7 +314,7 @@ struct Discover: View {
                         Label(item.0.rawValue, systemImage: item.0.icon).font(.caption.bold()).foregroundStyle(Color.lagoon)
                         Text(item.1).font(.headline)
                     }
-                }.padding().background(Color.card, in: RoundedRectangle(cornerRadius: 15))
+                }.padding().glass(cornerRadius: 15)
             }
         }.navigationTitle("Zbulo")
     }
@@ -392,7 +393,7 @@ struct MotionLab: View {
                     }
                 }.frame(height: 170)
                 HStack { Text("0"); Spacer(); Text("5"); Spacer(); Text("10 s") }.font(.caption).padding(.leading, 26)
-            }.padding().background(Color.card, in: RoundedRectangle(cornerRadius: 16))
+            }.padding().glass(cornerRadius: 16)
             SectionText(heading: "Sfida", text: "Gjej dy mënyra për të përshkuar 24 m. Cila vijë ka pjerrësi më të madhe?")
         }.navigationTitle("Simulimi")
     }

@@ -24,9 +24,11 @@ struct Dashboard: View {
     @State private var destination: Destination
     init(role: SchoolRole) {
         self.role = role
-        _destination = State(initialValue: role == .parent ? .home : .desk)
+        // Hapja e app-it fillon gjithmonë te «Krye».
+        _destination = State(initialValue: .home)
     }
     @State private var drawer = false
+    @Namespace private var railSelection
     var body: some View {
         GeometryReader { geometry in
             let wide = geometry.size.width >= 760
@@ -92,7 +94,15 @@ struct Dashboard: View {
                 tab(.desk, role.title, "Profili", "person.fill", expanded)
             }.padding(.horizontal, expanded ? 12 : 4).padding(.vertical, 12)
         }.frame(width: expanded ? 198 : 58).frame(maxHeight: .infinity)
-        .foregroundStyle(.white).background(Color.midnight).buttonStyle(.plain)
+        .foregroundStyle(.white)
+        .background {
+            ZStack {
+                Color.midnight
+                LinearGradient(colors: [(currentSubject?.color ?? .lagoon).opacity(0.45), .clear], startPoint: .top, endPoint: .bottom)
+                    .animation(.easeInOut(duration: 0.5), value: currentSubject)
+            }.ignoresSafeArea()
+        }
+        .buttonStyle(.plain)
     }
     private func tab(_ value: Destination, _ label: String, _ short: String, _ symbol: String, _ expanded: Bool, highlight: Color? = nil) -> some View {
         Button { select(value) } label: {
@@ -101,7 +111,15 @@ struct Dashboard: View {
                 else { VStack(spacing: 4) { Image(systemName: symbol); Text(short).font(.caption2.bold()) } }
             }.frame(maxWidth: .infinity, minHeight: expanded ? 43 : 49)
             .foregroundStyle(destination == value ? (highlight == nil ? Color.midnight : .white) : .white)
-            .background(destination == value ? (highlight ?? Color.sun) : Color.clear, in: RoundedRectangle(cornerRadius: 9))
+            .background {
+                // Treguesi i zgjedhjes rrëshqet butë nga një skedë te tjetra.
+                if destination == value {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous).fill(highlight ?? Color.sun)
+                        .shadow(color: (highlight ?? Color.sun).opacity(0.5), radius: 8)
+                        .matchedGeometryEffect(id: "rail", in: railSelection)
+                }
+            }
+            .scaleEffect(destination == value ? 1.02 : 1)
         }.accessibilityLabel(label).accessibilityAddTraits(destination == value ? .isSelected : [])
     }
 }
@@ -134,7 +152,7 @@ private struct SubjectRoom: View {
                         Text(tab.rawValue).font(.title3.bold())
                         Spacer()
                         Image(systemName: "chevron.right").font(.headline).foregroundStyle(subject.color)
-                    }.padding(12).background(Color.card, in: RoundedRectangle(cornerRadius: 16))
+                    }.padding(12).glass(cornerRadius: 16)
                     .overlay(RoundedRectangle(cornerRadius: 16).stroke(subject.color.opacity(0.25), lineWidth: 1))
                     .shadow(color: subject.color.opacity(0.12), radius: 8, y: 4)
                 }
@@ -646,7 +664,7 @@ private struct SchoolEventsView: View {
                 }.buttonStyle(.bordered)
             }
         }.padding().frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.card, in: RoundedRectangle(cornerRadius: 12))
+        .glass(cornerRadius: 12)
     }
 }
 

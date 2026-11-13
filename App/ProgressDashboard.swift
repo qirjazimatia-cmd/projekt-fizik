@@ -56,7 +56,7 @@ struct ProgressDashboard: View {
             Text(motivation).font(.footnote).foregroundStyle(.secondary)
         }
         .padding()
-        .background(Color.card, in: RoundedRectangle(cornerRadius: 14))
+        .glass(cornerRadius: 14)
         .onAppear { withAnimation(.spring(response: 0.9, dampingFraction: 0.85).delay(0.15)) { appeared = true } }
     }
 

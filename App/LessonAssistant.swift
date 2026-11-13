@@ -151,7 +151,7 @@ private struct AssistantAnswer: View {
                 Tile(icon: "book.fill", title: "Hap mësimin e plotë", detail: "Burimi: mësimi " + lesson.id + " · \(lesson.readingMinutes) min")
             }.buttonStyle(.plain)
         }
-        .padding(16).background(Color.card, in: RoundedRectangle(cornerRadius: 18))
+        .padding(16).glass(cornerRadius: 18)
     }
 }
 
@@ -518,7 +518,7 @@ struct TutorChat: View {
                                 Text("Bosko po mendon…").font(.callout).foregroundStyle(.secondary)
                             }
                             .padding(.horizontal, 14).padding(.vertical, 10)
-                            .background(Color.card, in: Capsule())
+                            .glassCapsule()
                             .id("thinking")
                             .transition(.scale(scale: 0.8, anchor: .leading).combined(with: .opacity))
                         }
@@ -811,6 +811,14 @@ private struct ChatIntro: View {
     }
 }
 
+/// Flluska e Bosko AI: xham; flluska e nxënësit mbetet me ngjyrë.
+private struct BubbleGlass: ViewModifier {
+    let enabled: Bool
+    func body(content: Content) -> some View {
+        if enabled { content.glass(cornerRadius: 20) } else { content }
+    }
+}
+
 private struct ChatBubble: View {
     let line: ChatLine
     @EnvironmentObject private var reader: SpeechReader
@@ -846,7 +854,13 @@ private struct ChatBubble: View {
             }
             .padding(12)
             .foregroundStyle(line.fromStudent ? Color.white : Color.ink)
-            .background(line.fromStudent ? Color.lagoon : Color.card, in: RoundedRectangle(cornerRadius: 16))
+            .background {
+                if line.fromStudent {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(LinearGradient(colors: [Color.lagoon, Color.lagoon.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                }
+            }
+            .modifier(BubbleGlass(enabled: !line.fromStudent))
             if !line.fromStudent { Spacer(minLength: 40) }
         }
     }
