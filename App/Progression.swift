@@ -146,10 +146,10 @@ enum AppIconChoice: String, CaseIterable, Identifiable {
     }
     var colors: [Color] {
         switch self {
-        case .standard: return [Color(red: 0.13, green: 0.09, blue: 0.26), Color(red: 0.73, green: 0.62, blue: 1.0)]
-        case .ocean: return [Color(red: 0.03, green: 0.12, blue: 0.38), Color(red: 0.35, green: 0.85, blue: 1.0)]
-        case .sunset: return [Color(red: 0.98, green: 0.45, blue: 0.20), Color(red: 0.75, green: 0.15, blue: 0.50)]
-        case .forest: return [Color(red: 0.04, green: 0.25, blue: 0.15), Color(red: 0.55, green: 0.92, blue: 0.55)]
+        case .standard: return [Color(red: 0.55, green: 0.30, blue: 0.95), .white]
+        case .ocean: return [Color(red: 0.10, green: 0.55, blue: 1.0), .white]
+        case .sunset: return [Color(red: 1.0, green: 0.42, blue: 0.30), .white]
+        case .forest: return [Color(red: 0.12, green: 0.78, blue: 0.50), .white]
         case .light: return [Color(red: 0.96, green: 0.95, blue: 1.0), Color(red: 0.42, green: 0.30, blue: 0.85)]
         }
     }
