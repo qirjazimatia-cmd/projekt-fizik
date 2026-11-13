@@ -14,7 +14,7 @@ extension Subject {
 }
 
 private enum Destination: Hashable {
-    case home, lab, events, assistant, desk, subject(Subject)
+    case home, lab, events, assistant, desk, friends, settings, subject(Subject)
 }
 
 struct Dashboard: View {
@@ -29,6 +29,7 @@ struct Dashboard: View {
     }
     @State private var drawer = false
     @Namespace private var railSelection
+    @StateObject private var social = SocialModel()
     var body: some View {
         GeometryReader { geometry in
             let wide = geometry.size.width >= 760
@@ -63,6 +64,20 @@ struct Dashboard: View {
                     AmbientBlobs(colors: currentSubject.map { [$0.color, $0.deep, .sun, $0.color] } ?? [.lagoon, .pink, .cyan, .sun])
                 }.ignoresSafeArea()
             }
+            // Pas regjistrimit: krijo username-in unik dhe emrin e shfaqur.
+            .overlay {
+                if social.needsUsername {
+                    NavigationStack { ProfileSetup(social: social) }
+                        .background(Color.paper.ignoresSafeArea())
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            .animation(.spring(response: 0.5, dampingFraction: 0.85), value: social.needsUsername)
+            .task(id: account.isOnline) {
+                guard account.isOnline else { return }
+                await social.loadProfile()
+                await social.loadFriends()
+            }
             }
         }.tint(.lagoon)
     }
@@ -75,6 +90,8 @@ struct Dashboard: View {
             case .events: if account.isOnline { SharedSchoolCalendar() } else { SchoolEventsView() }
             case .assistant: TutorChat(role: role)
             case .lab: Lab()
+            case .friends: FriendsView(social: social)
+            case .settings: SettingsView(social: social)
             case .subject(let subject): SubjectRoom(subject: subject)
             }
         }.environment(\.learnerLevel, role == .student ? SchoolLevel(rawValue: selectedLevel) : nil)
@@ -99,8 +116,17 @@ struct Dashboard: View {
             }
             barItem(.lab, "Lab", "flask.fill")
             barItem(.assistant, "Bosko", "sparkles")
-            barItem(.events, "Eventet", "calendar")
+            barItem(.friends, "Shokët", "person.2.fill")
+                .overlay(alignment: .topTrailing) { inviteBadge.offset(x: -6, y: 2) }
             barItem(.desk, "Profili", "person.fill")
+            Menu {
+                Button { select(.settings) } label: { Label("Cilësimet", systemImage: "gearshape.fill") }
+                Button { select(.events) } label: { Label("Eventet", systemImage: "calendar") }
+            } label: {
+                barLabel(destination == .settings ? "Cilësimet" : destination == .events ? "Eventet" : "Më shumë",
+                         destination == .settings ? "gearshape.fill" : destination == .events ? "calendar" : "ellipsis.circle.fill",
+                         selected: destination == .settings || destination == .events, color: nil)
+            }
         }
         .buttonStyle(.plain)
         .padding(6)
@@ -130,6 +156,16 @@ struct Dashboard: View {
         }
         .contentShape(Capsule())
     }
+    /// Numri i ftesave të reja për shoqëri (rreth i kuq).
+    @ViewBuilder private var inviteBadge: some View {
+        if !social.incoming.isEmpty {
+            Text("\(social.incoming.count)").font(.caption2.bold()).foregroundStyle(.white)
+                .padding(.horizontal, 5).frame(minWidth: 18, minHeight: 18)
+                .background(Capsule().fill(.red))
+                .transition(.scale.combined(with: .opacity))
+                .allowsHitTesting(false)
+        }
+    }
     private var currentSubject: Subject? {
         if case .subject(let subject) = destination { return subject }
         return nil
@@ -156,6 +192,10 @@ struct Dashboard: View {
                 tab(.events, "Eventet", "Eventet", "calendar", expanded)
                 tab(.assistant, LessonTutor.name + " · asistenti", LessonTutor.name, "sparkles", expanded)
                 tab(.desk, role.title, "Profili", "person.fill", expanded)
+                Divider().background(.white.opacity(0.6)).padding(.vertical, 6)
+                tab(.friends, social.incoming.isEmpty ? "Shokët" : "Shokët · \(social.incoming.count) ftesa", "Shokët", "person.2.fill", expanded)
+                    .overlay(alignment: .topTrailing) { inviteBadge.offset(x: expanded ? -6 : -2, y: 2) }
+                tab(.settings, "Cilësimet", "Cilësimet", "gearshape.fill", expanded)
             }.padding(.horizontal, expanded ? 12 : 4).padding(.vertical, 12)
         }.frame(width: expanded ? 198 : 58).frame(maxHeight: .infinity)
         .foregroundStyle(.white)
