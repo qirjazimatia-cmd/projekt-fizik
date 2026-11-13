@@ -56,6 +56,10 @@ struct SchoolHub: View {
                 Text("Të dhënat e vjetra lokale ruhen në pajisje; nuk publikohen automatikisht si teste të reja.").font(.footnote)
             }
         }.disabled(model.busy).textFieldStyle(.roundedBorder)
+        .onReceive(NotificationCenter.default.publisher(for: .brainSparkRefresh)) { _ in
+            guard account.isOnline else { return }
+            Task { await model.refresh(account.token); await WatchPublisher.publish(model.data) }
+        }
         .task(id: account.isOnline) {
             // Apple Watch (#17): përmbledhja shkon në orë pas çdo rifreskimi; pa llogari, ora pastrohet.
             if account.isOnline { await model.refresh(account.token); await WatchPublisher.publish(model.data) } else { WatchPublisher.clear() }

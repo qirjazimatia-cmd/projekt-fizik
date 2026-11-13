@@ -60,11 +60,12 @@ struct ExercisePlayer: View {
     @State private var picks: [String] = []
     @State private var options: [String] = []
     @State private var result: Bool?
+    @Environment(\.subjectTheme) private var theme
     @AppStorage("mastered") private var mastered = ""
     @AppStorage(ActivityLog.storageKey) private var activity = ""
     var body: some View {
         Page {
-            Text("\(item.subject) · \(item.format)").foregroundStyle(Color.lagoon)
+            Text("\(item.subject) · \(item.format)").font(.subheadline.bold()).foregroundStyle(accent)
             Text(item.prompt).font(.title2.bold())
             if item.kind == "number" {
                 Text(item.accuracy).font(.footnote)
@@ -77,21 +78,26 @@ struct ExercisePlayer: View {
                 Text(item.kind == "order" ? "Preki sipas radhës. Për ta hequr një zgjedhje, preke sërish." : "Prek të gjitha përgjigjet e sakta.")
                 ForEach(options, id: \.self) { option in
                     Button {
-                        if picks.contains(option) { picks.removeAll { $0 == option } } else { picks.append(option) }
+                        Haptics.tap()
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            if picks.contains(option) { picks.removeAll { $0 == option } } else { picks.append(option) }
+                        }
                     } label: {
                         HStack {
                             Text(option); Spacer()
                             if let i = picks.firstIndex(of: option) {
                                 Text(item.kind == "order" ? "\(i + 1)" : "✓").bold()
                             }
-                        }.padding().background(picks.contains(option) ? Color.lagoon.opacity(0.15) : Color.card, in: RoundedRectangle(cornerRadius: 12))
-                    }.buttonStyle(.plain).disabled(result != nil)
+                        }.padding().background(picks.contains(option) ? accent.opacity(0.15) : Color.card, in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(picks.contains(option) ? accent : Color.clear, lineWidth: 1.5))
+                    }.buttonStyle(.springy).disabled(result != nil)
                 }
             }
             if let result {
-                SectionText(heading: result ? "Saktë!" : "Shiko zgjidhjen", text: item.why + "\nPërgjigjja: " + item.answers.joined(separator: ", ") + " " + item.unit)
+                AnswerBanner(correct: result, heading: result ? "Saktë!" : "Shiko zgjidhjen",
+                             text: item.why + "\nPërgjigjja: " + item.answers.joined(separator: ", ") + " " + item.unit)
                 if let advance { Button("Vazhdo") { advance(result) }.buttonStyle(.borderedProminent) }
-                else if !result { Button("Riprovo") { self.result = nil }.buttonStyle(.bordered) }
+                else if !result { Button("Riprovo") { withAnimation { self.result = nil } }.buttonStyle(.bordered) }
             } else {
                 Button("Kontrollo përgjigjen") { check() }.buttonStyle(.borderedProminent)
             }
@@ -104,6 +110,8 @@ struct ExercisePlayer: View {
             }
         }
     }
+    /// Ngjyra e lëndës së ushtrimit (edhe kur hapet jashtë dhomës së lëndës).
+    private var accent: Color { (theme ?? Subject(rawValue: item.subject))?.color ?? .lagoon }
     private static func numeric(_ raw: String) -> Double? { NumericAnswer.parse(raw) }
     private func check() {
         let right: Bool
@@ -117,7 +125,8 @@ struct ExercisePlayer: View {
                 right = NumericAnswer.accepts(actual, expected:expected, tolerance:item.tolerance)
             } else { right = false }
         }
-        result = right
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) { result = right }
+        if right { Haptics.success() } else { Haptics.error() }
         recordAnswer?(right)
         if right && !mastered.components(separatedBy: "|").contains(item.id) { mastered += "|" + item.id }
         activity = ActivityLog.recordingAnswer(activity, correct: right)
@@ -151,7 +160,7 @@ struct RoleDesk: View {
     }
     var body: some View {
         if role == .teacher {
-            Page { SchoolHub(); AccountControls() }
+            Page { SchoolHub(); AccountControls() }.refreshable { await pullToRefresh() }
         } else {
         Page {
             Text(role.title).font(.largeTitle.bold())
@@ -190,8 +199,20 @@ struct RoleDesk: View {
                 }
             }
         }.navigationTitle(role.rawValue)
+        .refreshable { await pullToRefresh() }
         }
     }
+    /// Tërhiq poshtë: rifreskon klasat, testet dhe rezultatet nga serveri.
+    private func pullToRefresh() async {
+        Haptics.tap()
+        NotificationCenter.default.post(name: .brainSparkRefresh, object: nil)
+        try? await Task.sleep(nanoseconds: 700_000_000)
+    }
+}
+
+extension Notification.Name {
+    /// Kërkesë për të rifreskuar të dhënat e shkollës (tërhiq poshtë për rifreskim).
+    static let brainSparkRefresh = Notification.Name("brainspark.refresh")
 }
 
 // A parent imports only the report the learner explicitly shared.

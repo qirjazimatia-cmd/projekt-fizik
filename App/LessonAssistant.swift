@@ -744,6 +744,14 @@ private struct ConversationList: View {
                                 .buttonStyle(.plain).foregroundStyle(.secondary).accessibilityLabel("Fshi bisedën")
                         }
                         .listRowBackground(conversation.id == currentID ? Color.lagoon.opacity(0.14) : Color.clear)
+                        // Rrëshqit majtas ose mbaj shtypur bisedën për ta fshirë.
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) { delete(conversation) } label: { Label("Fshi", systemImage: "trash") }
+                        }
+                        .contextMenu {
+                            Button { choose(conversation) } label: { Label("Hap bisedën", systemImage: "bubble.left") }
+                            Button(role: .destructive) { delete(conversation) } label: { Label("Fshi bisedën", systemImage: "trash") }
+                        }
                     }
                 }
                 .listStyle(.plain)

@@ -111,10 +111,11 @@ struct MockTestView: View {
         if !started { setup } else if index < items.count {
             ExercisePlayer(item: items[index], advance: { right in
                 if right { correct += 1 } else { wrong.append(items[index]) }
-                index += 1
+                withAnimation(.easeInOut) { index += 1 }
+                if index == items.count && correct * 10 >= items.count * 8 { Haptics.celebrate() }
             }).id(items[index].id + "-\(index)")
             .safeAreaInset(edge: .top) {
-                ProgressView(value: Double(index), total: Double(items.count)).padding(.horizontal).tint(.lagoon)
+                ProgressView(value: Double(index), total: Double(items.count)).padding(.horizontal).tint(subject.color)
             }
         } else { results }
     }
@@ -149,6 +150,7 @@ struct MockTestView: View {
             }
             Button("Test i ri") { started = false; index = 0; correct = 0; wrong = [] }.buttonStyle(.bordered)
         }.navigationTitle("Rezultati")
+        .confetti(correct * 10 >= items.count * 8, colors: [subject.color, .sun, subject.deep, .white])
     }
 
     private var feedback: String {

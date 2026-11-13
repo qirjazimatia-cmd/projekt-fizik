@@ -1,14 +1,7 @@
 import SwiftUI
 
 extension Subject {
-    var color: Color {
-        switch self {
-        case .physics: return Color(red: 0.15, green: 0.25, blue: 0.77)
-        case .math: return Color(red: 0.58, green: 0.13, blue: 0.43)
-        case .chemistry: return Color(red: 0.66, green: 0.21, blue: 0.07)
-        case .biology: return Color(red: 0.14, green: 0.41, blue: 0.18)
-        }
-    }
+    // Ngjyrat dhe stili i secilës lëndë: SubjectTheme.swift.
     var short: String {
         switch self {
         case .physics: return "Fiz."
@@ -57,7 +50,11 @@ struct Dashboard: View {
                         case .subject(let subject): SubjectRoom(subject: subject)
                         }
                     }.environment(\.learnerLevel, role == .student ? SchoolLevel(rawValue: selectedLevel) : nil)
+                    // Brenda një lënde, gjithë faqet (edhe ato që hapen më thellë) marrin ngjyrat e saj.
+                    .environment(\.subjectTheme, currentSubject)
+                    .tint(currentSubject?.color ?? .lagoon)
                     .id(destination).frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .transition(.opacity.combined(with: .scale(scale: 0.985)))
                 }
                 if drawer && !wide {
                     Color.black.opacity(0.45).ignoresSafeArea().onTapGesture { drawer = false }
@@ -67,7 +64,14 @@ struct Dashboard: View {
             }
         }.tint(.lagoon)
     }
-    private func select(_ value: Destination) { destination = value; drawer = false }
+    private var currentSubject: Subject? {
+        if case .subject(let subject) = destination { return subject }
+        return nil
+    }
+    private func select(_ value: Destination) {
+        if value != destination { Haptics.tap() }
+        withAnimation(.easeInOut(duration: 0.22)) { destination = value; drawer = false }
+    }
     private func rail(expanded: Bool, canToggle: Bool) -> some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 8) {
@@ -79,7 +83,7 @@ struct Dashboard: View {
                 if expanded { Text("Brain\nSpark").font(.system(size: 30, weight: .black, design: .rounded)).padding(.bottom, 16) }
                 tab(.home, "Krye", "Krye", "house.fill", expanded)
                 ForEach([Subject.math, .physics, .chemistry, .biology]) { subject in
-                    tab(.subject(subject), subject.rawValue, subject.short, subject.icon, expanded)
+                    tab(.subject(subject), subject.rawValue, subject.short, subject.icon, expanded, highlight: subject.color)
                 }
                 Divider().background(.white.opacity(0.6)).padding(.vertical, 6)
                 tab(.lab, "Laboratori", "Lab", "flask.fill", expanded)
@@ -90,14 +94,14 @@ struct Dashboard: View {
         }.frame(width: expanded ? 198 : 58).frame(maxHeight: .infinity)
         .foregroundStyle(.white).background(Color.midnight).buttonStyle(.plain)
     }
-    private func tab(_ value: Destination, _ label: String, _ short: String, _ symbol: String, _ expanded: Bool) -> some View {
+    private func tab(_ value: Destination, _ label: String, _ short: String, _ symbol: String, _ expanded: Bool, highlight: Color? = nil) -> some View {
         Button { select(value) } label: {
             Group {
                 if expanded { Label(label, systemImage: symbol).font(.headline).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 9) }
                 else { VStack(spacing: 4) { Image(systemName: symbol); Text(short).font(.caption2.bold()) } }
             }.frame(maxWidth: .infinity, minHeight: expanded ? 43 : 49)
-            .foregroundStyle(destination == value ? Color.midnight : .white)
-            .background(destination == value ? Color.sun : Color.clear, in: RoundedRectangle(cornerRadius: 9))
+            .foregroundStyle(destination == value ? (highlight == nil ? Color.midnight : .white) : .white)
+            .background(destination == value ? (highlight ?? Color.sun) : Color.clear, in: RoundedRectangle(cornerRadius: 9))
         }.accessibilityLabel(label).accessibilityAddTraits(destination == value ? .isSelected : [])
     }
 }
@@ -119,19 +123,24 @@ private struct SubjectRoom: View {
     var body: some View {
         Page {
             SubjectBanner(subject: subject)
-            ForEach(RoomTab.allCases, id: \.self) { tab in
+            ForEach(Array(RoomTab.allCases.enumerated()), id: \.element) { index, tab in
                 NavigationLink {
                     if tab == .lessons { StudyLibrary(subject: subject) }
                     else { SubjectShelf(subject: subject, tab: tab) }
                 } label: {
-                    HStack {
-                        Image(systemName: tab.icon).font(.title2).foregroundStyle(subject.color).frame(width: 40)
+                    HStack(spacing: 14) {
+                        Image(systemName: tab.icon).font(.title3).foregroundStyle(.white)
+                            .frame(width: 46, height: 46).background(subject.gradient, in: RoundedRectangle(cornerRadius: 12))
                         Text(tab.rawValue).font(.title3.bold())
                         Spacer()
-                        Image(systemName: "arrow.up.right").foregroundStyle(subject.color)
-                    }.padding(14).background(Color.card, in: RoundedRectangle(cornerRadius: 10))
-                    .overlay(alignment: .leading) { Rectangle().fill(subject.color).frame(width: 4) }
+                        Image(systemName: "chevron.right").font(.headline).foregroundStyle(subject.color)
+                    }.padding(12).background(Color.card, in: RoundedRectangle(cornerRadius: 16))
+                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(subject.color.opacity(0.25), lineWidth: 1))
+                    .shadow(color: subject.color.opacity(0.12), radius: 8, y: 4)
                 }
+                .buttonStyle(.springy)
+                .simultaneousGesture(TapGesture().onEnded { Haptics.tap() })
+                .appearIn(index)
             }
         }.buttonStyle(.plain)
     }
@@ -227,7 +236,8 @@ struct SubjectQuiz: View {
                         score += earned
                         stars += earned
                     } else { streak = 0; missed.append(item) }
-                    index += 1
+                    withAnimation(.easeInOut) { index += 1 }
+                    if index == deck.count && missed.count * 5 <= deck.count { Haptics.celebrate() }
                 }).id(item.id)
             } else {
                 Page {
@@ -241,6 +251,7 @@ struct SubjectQuiz: View {
                     }
                     Button("Sfida të tjera") { started = false }
                 }
+                .confetti(missed.count * 5 <= deck.count, colors: [subject.color, .sun, .white, subject.deep])
             }
         }.navigationTitle("Kuizi · " + level.name)
     }
@@ -375,8 +386,8 @@ private struct SortGame: View {
                     Button(labels[group]) {
                         guard correct == nil else { return }
                         let hit = (group == 0) == card.first
-                        correct = hit
-                        if hit { score += 1 }
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) { correct = hit }
+                        if hit { score += 1; Haptics.success() } else { Haptics.error() }
                     }.buttonStyle(.bordered).disabled(correct != nil)
                 }
                 if let correct {
@@ -397,16 +408,38 @@ private struct SortGame: View {
 
 struct SubjectBanner: View {
     let subject: Subject
+    @State private var float = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(subject.rawValue).font(.system(.largeTitle, design: .rounded).weight(.black))
-                Text("\(lessons.filter { $0.subject == subject }.count) mësime · \(Exercise.all.filter { $0.subject == subject.rawValue }.count) ushtrime").font(.subheadline.bold())
+                Text(subject.motto).font(.headline).opacity(0.9)
+                Text("\(lessons.filter { $0.subject == subject }.count) mësime · \(Exercise.all.filter { $0.subject == subject.rawValue }.count) ushtrime")
+                    .font(.caption.bold()).padding(.horizontal, 10).padding(.vertical, 4)
+                    .background(.white.opacity(0.2), in: Capsule())
             }
             Spacer()
-            Image(systemName: subject.icon).font(.system(size: 44, weight: .light)).accessibilityHidden(true)
-        }.padding(17).frame(maxWidth: .infinity, minHeight: 110)
-        .foregroundStyle(.white).background(subject.color, in: RoundedRectangle(cornerRadius: 12))
+            Image(systemName: subject.icon).font(.system(size: 52, weight: .semibold))
+                .shadow(color: .black.opacity(0.25), radius: 8, y: 4)
+                .offset(y: float ? -5 : 5)
+                .rotationEffect(.degrees(float ? 4 : -4))
+                .accessibilityHidden(true)
+        }
+        .padding(20).frame(maxWidth: .infinity, minHeight: 130)
+        .foregroundStyle(.white)
+        .background {
+            ZStack {
+                subject.gradient
+                GlyphField(subject: subject, opacity: 0.18, tint: .white)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 20))
+        }
+        .shadow(color: subject.color.opacity(0.35), radius: 14, y: 8)
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true)) { float = true }
+        }
     }
 }
 
