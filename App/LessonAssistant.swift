@@ -391,6 +391,7 @@ struct TutorChat: View {
     @State private var showCamera = false
     /// Bisedat që po presin përgjigje nga Bosko AI online (secila bisedë e vetën).
     @State private var waitingIDs: Set<UUID> = []
+    @FocusState private var typing: Bool
     /// "Mos ma thuaj përgjigjen": Bosko jep vetëm sugjerime hap pas hapi.
     @AppStorage("bosko.hints.v1", store: .standard) private var hintMode = false
     @StateObject private var reader = SpeechReader()
@@ -489,6 +490,14 @@ struct TutorChat: View {
         }
         #endif
         .onAppear { load() }
+        #if os(iOS)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button { typing = false } label: { Label("Mbyll tastierën", systemImage: "keyboard.chevron.compact.down") }
+            }
+        }
+        #endif
         .environmentObject(reader)
         .onDisappear { reader.stop() }
         .sheet(isPresented: $showMockTest) {
@@ -528,6 +537,8 @@ struct TutorChat: View {
                     .animation(.spring(response: 0.35, dampingFraction: 0.8), value: thinking)
                 }
                 .scrollDismissesKeyboard(.interactively)
+                // Prek bisedën për ta mbyllur tastierën.
+                .simultaneousGesture(TapGesture().onEnded { typing = false })
                 .onChange(of: lines.count) { _ in
                     if let last = lines.last { withAnimation { proxy.scrollTo(last.id, anchor: .bottom) } }
                 }
@@ -579,6 +590,7 @@ struct TutorChat: View {
                 .buttonStyle(.plain).disabled(thinking)
                 .accessibilityLabel(recorder.recording ? "Ndalo dhe dërgo pyetjen me zë" : "Pyet me zë")
                 TextField(recorder.recording ? "Po dëgjoj… shtyp ⏹ kur të mbarosh" : (pendingImage == nil ? "Shkruaj këtu…" : "Shto një pyetje për foton (s'është e detyrueshme)…"), text: $draft, axis: .vertical)
+                    .focused($typing)
                     .textFieldStyle(.roundedBorder).lineLimit(1...5)
                     .onSubmit { if canSend { send(draft) } }
                 Button { send(draft) } label: { Image(systemName: "arrow.up.circle.fill").font(.title) }
