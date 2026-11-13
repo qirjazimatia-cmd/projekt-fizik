@@ -14,7 +14,7 @@ extension Subject {
 }
 
 private enum Destination: Hashable {
-    case home, lab, events, assistant, desk, friends, settings, subject(Subject)
+    case home, lab, events, assistant, desk, friends, chats, settings, subject(Subject)
 }
 
 struct Dashboard: View {
@@ -30,6 +30,8 @@ struct Dashboard: View {
     @State private var drawer = false
     @Namespace private var railSelection
     @StateObject private var social = SocialModel()
+    /// Bisedat (#80): numri i të palexuarave rifreskohet çdo 30 sekonda.
+    @StateObject private var chats = ChatStore()
     @StateObject private var keyboard = KeyboardWatcher()
     var body: some View {
         GeometryReader { geometry in
@@ -84,6 +86,10 @@ struct Dashboard: View {
                 guard account.isOnline else { return }
                 await social.loadProfile()
                 await social.loadFriends()
+                while !Task.isCancelled {
+                    await chats.loadUnread()
+                    try? await Task.sleep(nanoseconds: 30_000_000_000)
+                }
             }
             }
         }.tint(.lagoon)
@@ -98,6 +104,7 @@ struct Dashboard: View {
             case .assistant: TutorChat(role: role)
             case .lab: Lab()
             case .friends: FriendsView(social: social)
+            case .chats: ChatsView(store: chats, social: social)
             case .settings: SettingsView(social: social)
             case .subject(let subject): SubjectRoom(subject: subject)
             }
@@ -123,16 +130,18 @@ struct Dashboard: View {
             }
             barItem(.lab, "Lab", "flask.fill")
             barItem(.assistant, "Bosko", "sparkles")
-            barItem(.friends, "Shokët", "person.2.fill")
-                .overlay(alignment: .topTrailing) { inviteBadge.offset(x: -6, y: 2) }
+            // Bisedat përfshijnë edhe Shokët (butoni sipër te Bisedat); rrethi i kuq = mesazhe të palexuara + ftesa.
+            barItem(.chats, "Bisedat", "bubble.left.and.bubble.right.fill")
+                .overlay(alignment: .topTrailing) { chatBadge.offset(x: -6, y: 2) }
             barItem(.desk, "Profili", "person.fill")
             Menu {
                 Button { select(.settings) } label: { Label("Cilësimet", systemImage: "gearshape.fill") }
                 Button { select(.events) } label: { Label("Eventet", systemImage: "calendar") }
+                Button { select(.friends) } label: { Label(social.incoming.isEmpty ? "Shokët" : "Shokët · \(social.incoming.count) ftesa", systemImage: "person.2.fill") }
             } label: {
-                barLabel(destination == .settings ? "Cilësimet" : destination == .events ? "Eventet" : "Më shumë",
-                         destination == .settings ? "gearshape.fill" : destination == .events ? "calendar" : "ellipsis.circle.fill",
-                         selected: destination == .settings || destination == .events, color: nil)
+                barLabel(destination == .settings ? "Cilësimet" : destination == .events ? "Eventet" : destination == .friends ? "Shokët" : "Më shumë",
+                         destination == .settings ? "gearshape.fill" : destination == .events ? "calendar" : destination == .friends ? "person.2.fill" : "ellipsis.circle.fill",
+                         selected: destination == .settings || destination == .events || destination == .friends, color: nil)
             }
         }
         .buttonStyle(.plain)
@@ -175,6 +184,20 @@ struct Dashboard: View {
                 .allowsHitTesting(false)
         }
     }
+    /// Mesazhe të palexuara (për skedën Bisedat te paneli anësor).
+    @ViewBuilder private var unreadBadge: some View { countBadge(chats.unread) }
+    /// Mesazhe të palexuara + ftesa shoqërie (për skedën Bisedat te shiriti i iPhone).
+    @ViewBuilder private var chatBadge: some View { countBadge(chats.unread + social.incoming.count) }
+    @ViewBuilder private func countBadge(_ count: Int) -> some View {
+        if count > 0 {
+            Text(count > 99 ? "99+" : "\(count)").font(.caption2.bold()).foregroundStyle(.white)
+                .padding(.horizontal, 5).frame(minWidth: 18, minHeight: 18)
+                .background(Capsule().fill(.red))
+                .transition(.scale.combined(with: .opacity))
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
+    }
     private var currentSubject: Subject? {
         if case .subject(let subject) = destination { return subject }
         return nil
@@ -202,6 +225,8 @@ struct Dashboard: View {
                 tab(.assistant, LessonTutor.name + " · asistenti", LessonTutor.name, "sparkles", expanded)
                 tab(.desk, role.title, "Profili", "person.fill", expanded)
                 Divider().background(.white.opacity(0.6)).padding(.vertical, 6)
+                tab(.chats, chats.unread == 0 ? "Bisedat" : "Bisedat · \(chats.unread) të reja", "Bisedat", "bubble.left.and.bubble.right.fill", expanded)
+                    .overlay(alignment: .topTrailing) { unreadBadge.offset(x: expanded ? -6 : -2, y: 2) }
                 tab(.friends, social.incoming.isEmpty ? "Shokët" : "Shokët · \(social.incoming.count) ftesa", "Shokët", "person.2.fill", expanded)
                     .overlay(alignment: .topTrailing) { inviteBadge.offset(x: expanded ? -6 : -2, y: 2) }
                 tab(.settings, "Cilësimet", "Cilësimet", "gearshape.fill", expanded)
