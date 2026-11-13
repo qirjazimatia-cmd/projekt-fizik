@@ -30,6 +30,7 @@ struct Dashboard: View {
     @State private var drawer = false
     @Namespace private var railSelection
     @StateObject private var social = SocialModel()
+    @StateObject private var keyboard = KeyboardWatcher()
     var body: some View {
         GeometryReader { geometry in
             let wide = geometry.size.width >= 760
@@ -46,7 +47,13 @@ struct Dashboard: View {
                 HStack(spacing: 0) {
                     if !compact { rail(expanded: wide, canToggle: !wide) }
                     if compact {
-                        content.safeAreaInset(edge: .bottom, spacing: 0) { tabBar }
+                        // Kur del tastiera, shiriti fshihet që fusha e shkrimit (p.sh. te Bosko AI) të mbetet e lirë për t'u prekur.
+                        // Shiriti qëndron poshtë faqes (jo sipër saj), që të mos mbulojë kurrë fushën e shkrimit.
+                        VStack(spacing: 0) {
+                            content
+                            if !keyboard.visible { tabBar.transition(.move(edge: .bottom).combined(with: .opacity)) }
+                        }
+                        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: keyboard.visible)
                     } else {
                         content
                     }
@@ -143,7 +150,7 @@ struct Dashboard: View {
             Image(systemName: symbol).font(.system(size: 18, weight: .semibold))
                 .scaleEffect(selected ? 1.12 : 1)
                 .bounceSymbol(on: selected)
-            Text(title).font(.system(size: 10, weight: .semibold)).lineLimit(1)
+            Text(title).font(.system(size: 10, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.7)
         }
         .foregroundStyle(selected ? (color ?? Color.lagoon) : Color.ink.opacity(0.75))
         .frame(maxWidth: .infinity, minHeight: 48)
@@ -838,4 +845,24 @@ enum LevelGameBank {
             return SortClue(lesson.check.prompt + "\nPërgjigjja e propozuar: " + lesson.check.options[index],right,lesson.check.why)
         }
     }
+}
+
+
+/// Dëgjon kur shfaqet/fshihet tastiera (vetëm iPhone/iPad).
+@MainActor
+final class KeyboardWatcher: ObservableObject {
+    @Published var visible = false
+    private var tokens: [NSObjectProtocol] = []
+    init() {
+        #if os(iOS)
+        let center = NotificationCenter.default
+        tokens.append(center.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.visible = true }
+        })
+        tokens.append(center.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.visible = false }
+        })
+        #endif
+    }
+    deinit { tokens.forEach(NotificationCenter.default.removeObserver) }
 }

@@ -441,9 +441,9 @@ struct TutorChat: View {
                     if compact { showListSheet = true } else { withAnimation { showList.toggle() } }
                 } label: { Label("Bisedat", systemImage: "sidebar.left") }
                 Button { newConversation() } label: { Label("Bisedë e re", systemImage: "square.and.pencil") }
-                Toggle(isOn: $hintMode) { Label("Vetëm sugjerime", systemImage: hintMode ? "lightbulb.fill" : "lightbulb") }
-                    .help("Mos ma thuaj përgjigjen: vetëm sugjerime hap pas hapi")
                 Menu {
+                    // Në iPhone shiriti sipër ka pak vend: «Vetëm sugjerime» është brenda menysë.
+                    Toggle(isOn: $hintMode) { Label("Vetëm sugjerime", systemImage: hintMode ? "lightbulb.fill" : "lightbulb") }
                     Button { showMockTest = true } label: { Label("Test prove nga kapitujt", systemImage: "checklist") }
                     if role == .teacher {
                         Button { draft = "Krijo 10 pyetje testi (me alternativa dhe përgjigjet e sakta në fund) për temën: " } label: { Label("Pyetje testi për një temë", systemImage: "list.number") }
@@ -496,7 +496,7 @@ struct TutorChat: View {
                 MockTestView()
                     .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Mbyll") { showMockTest = false } } }
             }
-            .frame(minWidth: 420, minHeight: 520)
+            .macSheetFrame(minWidth: 420, minHeight: 520)
         }
     }
 
@@ -527,6 +527,7 @@ struct TutorChat: View {
                     .animation(.spring(response: 0.4, dampingFraction: 0.8), value: lines.count)
                     .animation(.spring(response: 0.35, dampingFraction: 0.8), value: thinking)
                 }
+                .scrollDismissesKeyboard(.interactively)
                 .onChange(of: lines.count) { _ in
                     if let last = lines.last { withAnimation { proxy.scrollTo(last.id, anchor: .bottom) } }
                 }
