@@ -76,7 +76,8 @@ struct StudyLibrary: View {
     private var chapters: [StudyLesson] {
         pool.filter { $0.order % 5 == 1 }.sorted { $0.chapterOrder < $1.chapterOrder }
     }
-    var body: some View {
+    var body: some View { themedBody.subjectStyle(subject) }
+    @ViewBuilder private var themedBody: some View {
         Page {
             VStack(alignment: .leading, spacing: 10) {
                 Label(subject.rawValue, systemImage: subject.icon).foregroundStyle(subject.color).font(.headline)
@@ -165,13 +166,29 @@ struct StudyChapter: View {
             Text(pool.first?.chapterTitle ?? "Kapitulli").font(.largeTitle.bold())
             Text("Pesë tema me shpjegime, shembuj të zgjidhur dhe vetëkontroll. Shënimet dhe temat e lexuara ruhen në llogarinë tënde.")
             if let overview = pool.first?.chapterIntroduction { SectionText(heading:"Hyrje në kapitull",text:overview) }
-            ForEach(pool) { lesson in
+            ForEach(Array(pool.enumerated()), id: \.element.id) { index, lesson in
+                let isRead = readIDs.split(separator: "|").contains(Substring(lesson.id))
                 NavigationLink { StudyReader(lesson: lesson) } label: {
-                    Tile(icon: readIDs.split(separator: "|").contains(Substring(lesson.id)) ? "checkmark.circle.fill" : "book.closed",
+                    Tile(icon: isRead ? "checkmark.circle.fill" : "book.closed",
                          title: lesson.title, detail: "\(lesson.readingMinutes) min · Shembull · Pyetje kontrolli")
                 }
+                .buttonStyle(.springy)
+                .appearIn(index)
+                // Mbaj shtypur temën: veprime të shpejta.
+                .contextMenu {
+                    Button { toggleRead(lesson.id) } label: {
+                        Label(isRead ? "Shëno si të palexuar" : "Shëno si të lexuar", systemImage: isRead ? "circle" : "checkmark.circle")
+                    }
+                    ShareLink(item: "BrainSpark · \(subject.rawValue): " + lesson.title) { Label("Ndaje temën", systemImage: "square.and.arrow.up") }
+                }
             }
-        }.buttonStyle(.plain).navigationTitle("Kapitulli")
+        }.buttonStyle(.plain).navigationTitle("Kapitulli").subjectStyle(subject)
+    }
+    private func toggleRead(_ id: String) {
+        var list = readIDs.split(separator: "|").map(String.init)
+        if list.contains(id) { list.removeAll { $0 == id } } else { list.append(id) }
+        readIDs = list.joined(separator: "|")
+        Haptics.tap()
     }
 }
 
@@ -183,7 +200,8 @@ struct StudySubjects: View {
             ForEach(Subject.allCases) { subject in
                 NavigationLink { StudyLibrary(subject: subject) } label: {
                     Tile(icon: subject.icon, title: subject.rawValue, detail: "150 mësime · 30 kapituj · 5 nivele")
-                }
+                        .environment(\.subjectTheme, subject)
+                }.buttonStyle(.springy)
             }
         }.buttonStyle(.plain).navigationTitle("Mësimet")
     }
@@ -208,7 +226,8 @@ struct StudyReader: View {
     private var next: StudyLesson? {
         StudyLesson.matching(subject: lesson.schoolSubject, level: lesson.schoolLevel).first { $0.order > lesson.order }
     }
-    var body: some View {
+    var body: some View { themedBody.subjectStyle(lesson.schoolSubject) }
+    @ViewBuilder private var themedBody: some View {
         ScrollViewReader { proxy in
             Page {
                 header.id(0)

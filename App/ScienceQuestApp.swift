@@ -5,6 +5,7 @@ struct ScienceQuestApp: App {
     @StateObject private var account = Account()
     @AppStorage(AppAppearance.schemeKey) private var appearance = 0
     @AppStorage(AppAppearance.textSizeKey) private var textSize = 2
+    @AppStorage(Onboarding.doneKey) private var onboardingDone = false
     var body: some Scene {
         WindowGroup {
             Group {
@@ -15,6 +16,7 @@ struct ScienceQuestApp: App {
             .preferredColorScheme(AppAppearance.scheme(appearance))
             .dynamicTypeSize(AppAppearance.textSize(textSize))
             .task { await account.restore() }
+            .modifier(FirstLaunch(done: $onboardingDone))
             .task(id:account.identity) {
                 guard account.isOnline else { return }
                 while !Task.isCancelled {
@@ -73,6 +75,7 @@ enum AppAppearance {
 struct AppearanceSettings: View {
     @AppStorage(AppAppearance.schemeKey, store: .standard) private var appearance = 0
     @AppStorage(AppAppearance.textSizeKey, store: .standard) private var textSize = 2
+    @AppStorage(Haptics.enabledKey, store: .standard) private var haptics = true
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Pamja").font(.headline)
@@ -87,6 +90,7 @@ struct AppearanceSettings: View {
             Slider(value: Binding(get: { Double(textSize) }, set: { textSize = Int($0.rounded()) }), in: 0...Double(AppAppearance.sizes.count - 1), step: 1) {
                 Text("Madhësia e tekstit")
             } minimumValueLabel: { Text("A").font(.caption) } maximumValueLabel: { Text("A").font(.title2) }
+            Toggle("Dridhje të lehta kur përgjigjesh", isOn: $haptics)
         }
     }
 }
@@ -100,7 +104,23 @@ struct Page<Content: View>: View {
                 .frame(maxWidth: 720, alignment: .leading)
                 .padding(20).frame(maxWidth: .infinity)
         }
-        .background(Color.paper).foregroundStyle(Color.ink)
+        .background { PageBackground().ignoresSafeArea() }.foregroundStyle(Color.ink)
+    }
+}
+
+/// Prezantimi i hapjes së parë (AppFeel.swift): ekran i plotë në iPhone/iPad, dritare në Mac.
+private struct FirstLaunch: ViewModifier {
+    @Binding var done: Bool
+    func body(content: Content) -> some View {
+        #if os(iOS)
+        content.fullScreenCover(isPresented: Binding(get: { !done }, set: { if !$0 { done = true } })) {
+            Onboarding { done = true }
+        }
+        #else
+        content.sheet(isPresented: Binding(get: { !done }, set: { if !$0 { done = true } })) {
+            Onboarding { done = true }.frame(minWidth: 560, minHeight: 620)
+        }
+        #endif
     }
 }
 
@@ -108,10 +128,12 @@ struct Tile: View {
     let icon: String
     let title: String
     let detail: String
+    @Environment(\.subjectTheme) private var subject
     var body: some View {
         HStack(spacing: 15) {
             Image(systemName: icon).font(.headline).foregroundStyle(.white)
-                .frame(width: 48, height: 48).background(Color.lagoon, in: RoundedRectangle(cornerRadius: 8))
+                .frame(width: 48, height: 48)
+                .background(subject.map { AnyShapeStyle($0.gradient) } ?? AnyShapeStyle(Color.lagoon), in: RoundedRectangle(cornerRadius: subject == nil ? 8 : 12))
             VStack(alignment: .leading, spacing: 4) {
                 Text(title).font(.headline)
                 Text(detail).font(.subheadline).foregroundStyle(.secondary)

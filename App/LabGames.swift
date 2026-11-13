@@ -151,9 +151,9 @@ private struct PredictionGame: View {
                 ForEach(question.options.indices,id: \.self) { option in
                     Button {
                         guard chosen == nil else { return }
-                        chosen = option
-                        if option == question.correct { streak += 1; score += 10 + min(streak-1,5)*2 }
-                        else { streak = 0 }
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) { chosen = option }
+                        if option == question.correct { streak += 1; score += 10 + min(streak-1,5)*2; Haptics.success() }
+                        else { streak = 0; Haptics.error() }
                     } label: {
                         HStack {
                             Text(question.options[option])
