@@ -146,7 +146,7 @@ struct ChemistryMixer: View {
             }.onEnded { _ in withAnimation(.spring(response: 0.4, dampingFraction: 0.35)) { tilt = 0 } })
             .shadow(color: Subject.chemistry.color.opacity(0.35), radius: 14, y: 8)
             HStack {
-                Button("Përzieji pa tërhequr") { pour() }.buttonStyle(.bordered).disabled(mixed || pouring)
+                Button("Përzieji pa tërhequr") { pour() }.buttonStyle(.liquid).disabled(mixed || pouring)
                 Button("Zbraz gotën") { withAnimation { reset() } }
             }
             if mixed {

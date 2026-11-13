@@ -74,7 +74,7 @@ private struct ScienceMemory: View {
                 GameOverCard(title: "🏆 I gjete të gjitha!", score: moves, unit: "prova",
                              best: BestScores.best(game), newRecord: newRecord, stars: moves <= pairs.count + 2 ? 3 : moves <= pairs.count * 2 ? 2 : 1,
                              color: subject.color) {
-                    Button("Luaj përsëri") { withAnimation(.spring()) { restart() } }.buttonStyle(.borderedProminent)
+                    Button("Luaj përsëri") { withAnimation(.spring()) { restart() } }.buttonStyle(.liquidProminent)
                 }
             }
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 110), spacing: 10)], spacing: 10) {
@@ -104,7 +104,7 @@ private struct ScienceMemory: View {
                     .accessibilityLabel(visible ? card.text : "Kartë e mbuluar")
                 }
             }
-            Button("Përziej dhe rifillo") { withAnimation(.spring()) { restart() } }.buttonStyle(.bordered)
+            Button("Përziej dhe rifillo") { withAnimation(.spring()) { restart() } }.buttonStyle(.liquid)
         }.onAppear { if cards.isEmpty { restart() } }
         .task(id: opened) {
             guard opened.count == 2 else { return }
@@ -170,14 +170,14 @@ private struct ScienceRescue: View {
                             deck = Array(Exercise.all.filter { $0.subject == subject.rawValue && $0.level == (learnerLevel ?? level).rawValue }.shuffled().prefix(3))
                             stage = 0; misses = 0; round = UUID(); newRecord = false
                         }
-                    }.buttonStyle(.borderedProminent)
+                    }.buttonStyle(.liquidProminent)
                 }
             } else if stage == deck.count {
                 Page {
                     DoorOpening(color: subject.color)
                     GameOverCard(title: "🔓 Laboratori u hap!", score: misses, unit: "gabime", best: BestScores.best(game), newRecord: newRecord,
                                  stars: misses == 0 ? 3 : misses <= 2 ? 2 : 1, color: subject.color) {
-                        Button("Një mision tjetër") { withAnimation(.spring()) { deck = [] } }.buttonStyle(.borderedProminent)
+                        Button("Një mision tjetër") { withAnimation(.spring()) { deck = [] } }.buttonStyle(.liquidProminent)
                     }
                 }
             } else {
@@ -252,11 +252,11 @@ private struct PredictionGame: View {
             if deck.isEmpty {
                 if let learnerLevel { Text(learnerLevel.name).bold() } else { LevelPicker(level:$level) }
                 Text("10 pyetje, 3 jetë. Çdo përgjigje e saktë radhazi jep më shumë pikë. Rekordi: \(BestScores.best(game)) pikë.")
-                Button("Fillo sfidën") { withAnimation(.spring()) { restart() } }.buttonStyle(.borderedProminent)
+                Button("Fillo sfidën") { withAnimation(.spring()) { restart() } }.buttonStyle(.liquidProminent)
             } else if over {
                 GameOverCard(title: lives == 0 ? "💥 Mbaruan jetët" : "🌟 Sfida mbaroi", score: score, best: BestScores.best(game),
                              newRecord: newRecord, celebrate: lives > 0 || newRecord, color: subject.color) {
-                    Button("Luaj përsëri") { withAnimation(.spring()) { restart() } }.buttonStyle(.borderedProminent)
+                    Button("Luaj përsëri") { withAnimation(.spring()) { restart() } }.buttonStyle(.liquidProminent)
                 }
             } else {
                 let question = deck[index]
@@ -294,7 +294,7 @@ private struct PredictionGame: View {
                     }
                     if let chosen {
                         AnswerBanner(correct: chosen == question.correct, heading: chosen == question.correct ? "E parashikove!" : "Zbulo arsyen", text: question.why)
-                        Button(index+1 == deck.count || lives == 0 ? "Shiko rezultatin" : "Sfida tjetër") { next() }.buttonStyle(.borderedProminent)
+                        Button(index+1 == deck.count || lives == 0 ? "Shiko rezultatin" : "Sfida tjetër") { next() }.buttonStyle(.liquidProminent)
                     }
                 }
                 .id(index)

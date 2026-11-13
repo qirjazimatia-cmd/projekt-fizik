@@ -212,8 +212,8 @@ struct SpringLaboratory: View {
                             .truncatingRemainder(dividingBy: model.period)
                     }
                     started=Date();running.toggle()
-                }.buttonStyle(.borderedProminent)
-                Button("Kthe në nisje") { reset() }.buttonStyle(.bordered)
+                }.buttonStyle(.liquidProminent)
+                Button("Kthe në nisje") { reset() }.buttonStyle(.liquid)
             }
             if !running {
                 Text(String(format:"Koha fizike: %.3f s · Një cikël: %.3f s",elapsed,model.period)).font(.caption)

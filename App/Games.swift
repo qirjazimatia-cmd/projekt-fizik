@@ -90,26 +90,26 @@ struct QuizGame: View {
                 Text(kind.rawValue).font(.largeTitle.bold())
                 Text(kind.detail)
                 if let learnerLevel { Text(learnerLevel.name) } else { LevelPicker(level:$level) }
-                Button("Fillo lojën", action: restart).buttonStyle(.borderedProminent)
+                Button("Fillo lojën", action: restart).buttonStyle(.liquidProminent)
             } else if round == questions.count {
                 if kind == .battle {
                     GameOverCard(title: scores[0] == scores[1] ? "🤝 Barazim!" : "🏆 Fiton skuadra \(scores[0] > scores[1] ? 1 : 2)!",
                                  score: max(scores[0], scores[1]), unit: "pikë") {
                         Text("Skuadra 1: \(scores[0]) / 4   •   Skuadra 2: \(scores[1]) / 4").font(.headline)
-                        Button("Luaj përsëri") { withAnimation(.spring()) { restart() } }.buttonStyle(.borderedProminent)
+                        Button("Luaj përsëri") { withAnimation(.spring()) { restart() } }.buttonStyle(.liquidProminent)
                     }
                 } else {
                     GameOverCard(title: "Loja përfundoi", score: scores[0], unit: "nga \(questions.count) të sakta",
                                  stars: scores[0] * 10 >= questions.count * 9 ? 3 : scores[0] * 2 >= questions.count ? 2 : 1,
                                  celebrate: scores[0] * 2 >= questions.count) {
-                        Button("Luaj përsëri") { withAnimation(.spring()) { restart() } }.buttonStyle(.borderedProminent)
+                        Button("Luaj përsëri") { withAnimation(.spring()) { restart() } }.buttonStyle(.liquidProminent)
                     }
                 }
             } else if handoff {
                 Text(team == 0 ? "🔵" : "🔴").font(.system(size: 80)).frame(maxWidth: .infinity).transition(.scale)
                 Text("Radha e skuadrës \(team + 1)").font(.largeTitle.bold())
                 Text("Kalojani pajisjen skuadrës që ka radhën. Çdo përgjigje e saktë vlen një pikë.")
-                Button("Jemi gati") { handoff = false }.buttonStyle(.borderedProminent)
+                Button("Jemi gati") { handoff = false }.buttonStyle(.liquidProminent)
             } else {
                 ScoreHUD(score: scores[team], color: kind == .battle ? (team == 0 ? .blue : .red) : .lagoon)
                     .floatingPoints("+1", trigger: scores[0] + scores[1])
@@ -128,7 +128,7 @@ struct QuizGame: View {
                                 selection = nil
                                 handoff = kind == .battle
                             }
-                        }.buttonStyle(.borderedProminent)
+                        }.buttonStyle(.liquidProminent)
                     }
                 }
                 .id(round)
@@ -153,7 +153,7 @@ struct EscapeRoom: View {
                     Text("Science Escape Room").font(.largeTitle.bold())
                     Text("Hap katër dyer: një për çdo lëndë. Çdo lojë sjell enigma të tjera të nivelit tënd.")
                     if let learnerLevel { Text(learnerLevel.name) } else { LevelPicker(level:$level) }
-                    Button("Nis ekspeditën",action:restart).buttonStyle(.borderedProminent)
+                    Button("Nis ekspeditën",action:restart).buttonStyle(.liquidProminent)
                 }
             } else if stage == deck.count {
                 Page {
@@ -161,7 +161,7 @@ struct EscapeRoom: View {
                     GameOverCard(title: "Laboratori u hap!", score: misses, unit: "riprovime",
                                  stars: misses == 0 ? 3 : misses <= 2 ? 2 : 1) {
                         Text("Katër lëndë, katër dyer 🚪").font(.headline)
-                        Button("Ekspeditë e re") { withAnimation(.spring()) { deck = [] } }.buttonStyle(.borderedProminent)
+                        Button("Ekspeditë e re") { withAnimation(.spring()) { deck = [] } }.buttonStyle(.liquidProminent)
                     }
                 }
             } else {
@@ -688,7 +688,7 @@ private struct InteractiveExperiment: View {
                     GameOverCard(title: "Misioni u arrit!", score: stars * 10, unit: "pikë laboratori",
                                  stars: stars, color: experiment.subject.color) {
                         Text(attempts == 1 ? "Me provën e parë! 🚀" : "Me \(attempts) prova").font(.headline)
-                        Button("Provo përsëri për 3 yje") { checked = false; earnedStars = nil; attempts = 0 }.buttonStyle(.bordered)
+                        Button("Provo përsëri për 3 yje") { checked = false; earnedStars = nil; attempts = 0 }.buttonStyle(.liquid)
                     }
                 } else {
                     AnswerBanner(correct: false, heading: "Ende jo",
@@ -819,7 +819,7 @@ private struct InteractiveExperiment: View {
                     }
                     running.toggle()
                     startTime = Date()
-                }.buttonStyle(.bordered)
+                }.buttonStyle(.liquid)
                 Button("Rivendos") {
                     withAnimation(.spring()) {
                         a = experiment.first.initial; b = experiment.second.initial
@@ -846,7 +846,7 @@ private struct InteractiveExperiment: View {
                         return Int.random(in: 0..<10) < Int(a)
                     }.count
                     checked = false
-                }.buttonStyle(.borderedProminent)
+                }.buttonStyle(.liquidProminent)
             }
             if !freePlay {
             Button("Kontrollo misionin") {
@@ -861,7 +861,7 @@ private struct InteractiveExperiment: View {
                     ids.insert(experiment.rawValue); completed = ids.sorted().joined(separator: "|")
                     starLog = LabStars.recording(starLog, experiment.rawValue, earnedStars ?? 1)
                 } else { Haptics.error() }
-            }.buttonStyle(.borderedProminent).disabled(experiment == .energy && running)
+            }.buttonStyle(.liquidProminent).disabled(experiment == .energy && running)
             Text("🏅 \(Set(completed.split(separator: "|")).count)/\(LabExperiment.allCases.count) misione të arritura").font(.caption.bold())
             }
         }

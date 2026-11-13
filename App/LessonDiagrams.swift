@@ -72,7 +72,7 @@ struct LessonDiagramView: View {
             }
             Text(diagram.caption).font(.caption).foregroundStyle(.secondary)
             if lesson.schoolSubject == .physics && (lesson.title.lowercased().contains("sust") || lesson.chapterTitle.lowercased().contains("hukut")) {
-                NavigationLink("Provoje këtë temë në laboratorin e sustave") { SpringLaboratory() }.buttonStyle(.borderedProminent)
+                NavigationLink("Provoje këtë temë në laboratorin e sustave") { SpringLaboratory() }.buttonStyle(.liquidProminent)
             }
         }.padding(16).background(lesson.schoolSubject.color.opacity(0.06),in:RoundedRectangle(cornerRadius:16))
         .onAppear { control = min(range.upperBound,max(range.lowerBound,diagram.kind == "rays" ? 45 : 3)) }
@@ -85,7 +85,7 @@ struct LessonDiagramView: View {
                     Text(node).fixedSize(horizontal:false,vertical:true).frame(maxWidth:.infinity,alignment:.leading)
                 }
             }
-            if reveal<diagram.nodes.count { Button("Zbulo hapin tjetër") { withAnimation { reveal += 1 } }.buttonStyle(.bordered) }
+            if reveal<diagram.nodes.count { Button("Zbulo hapin tjetër") { withAnimation { reveal += 1 } }.buttonStyle(.liquid) }
             else { Button("Fillo arsyetimin përsëri") { reveal = 1 } }
         }
     }

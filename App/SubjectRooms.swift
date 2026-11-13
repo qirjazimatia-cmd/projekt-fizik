@@ -32,6 +32,8 @@ struct Dashboard: View {
     var body: some View {
         GeometryReader { geometry in
             let wide = geometry.size.width >= 760
+            // iPhone në këmbë: shirit xhami poshtë (si iOS 26); iPad/Mac: panel xhami anash.
+            let compact = geometry.size.width < 600
             if role == .student && SchoolLevel(rawValue: selectedLevel) == nil {
                 Page {
                     Text("Këndi i nxënësit").font(.largeTitle.bold())
@@ -41,30 +43,91 @@ struct Dashboard: View {
             } else {
             ZStack(alignment: .leading) {
                 HStack(spacing: 0) {
-                    rail(expanded: wide, canToggle: !wide)
-                    NavigationStack {
-                        switch destination {
-                        case .home: HomePage(role: role) { select(.subject($0)) }
-                        case .desk: RoleDesk(role: role)
-                        case .events: if account.isOnline { SharedSchoolCalendar() } else { SchoolEventsView() }
-                        case .assistant: TutorChat(role: role)
-                        case .lab: Lab()
-                        case .subject(let subject): SubjectRoom(subject: subject)
-                        }
-                    }.environment(\.learnerLevel, role == .student ? SchoolLevel(rawValue: selectedLevel) : nil)
-                    // Brenda një lënde, gjithë faqet (edhe ato që hapen më thellë) marrin ngjyrat e saj.
-                    .environment(\.subjectTheme, currentSubject)
-                    .tint(currentSubject?.color ?? .lagoon)
-                    .id(destination).frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .transition(.opacity.combined(with: .scale(scale: 0.985)))
+                    if !compact { rail(expanded: wide, canToggle: !wide) }
+                    if compact {
+                        content.safeAreaInset(edge: .bottom, spacing: 0) { tabBar }
+                    } else {
+                        content
+                    }
                 }
-                if drawer && !wide {
-                    Color.black.opacity(0.45).ignoresSafeArea().onTapGesture { drawer = false }
+                if drawer && !wide && !compact {
+                    Color.black.opacity(0.35).ignoresSafeArea().onTapGesture { withAnimation(.spring()) { drawer = false } }
+                        .transition(.opacity)
                     rail(expanded: true, canToggle: true)
+                        .transition(.move(edge: .leading).combined(with: .opacity))
                 }
+            }
+            .background {
+                ZStack {
+                    Color.paper
+                    AmbientBlobs(colors: currentSubject.map { [$0.color, $0.deep, .sun, $0.color] } ?? [.lagoon, .pink, .cyan, .sun])
+                }.ignoresSafeArea()
             }
             }
         }.tint(.lagoon)
+    }
+
+    private var content: some View {
+        NavigationStack {
+            switch destination {
+            case .home: HomePage(role: role) { select(.subject($0)) }
+            case .desk: RoleDesk(role: role)
+            case .events: if account.isOnline { SharedSchoolCalendar() } else { SchoolEventsView() }
+            case .assistant: TutorChat(role: role)
+            case .lab: Lab()
+            case .subject(let subject): SubjectRoom(subject: subject)
+            }
+        }.environment(\.learnerLevel, role == .student ? SchoolLevel(rawValue: selectedLevel) : nil)
+        // Brenda një lënde, gjithë faqet (edhe ato që hapen më thellë) marrin ngjyrat e saj.
+        .environment(\.subjectTheme, currentSubject)
+        .tint(currentSubject?.color ?? .lagoon)
+        .id(destination).frame(maxWidth: .infinity, maxHeight: .infinity)
+        .transition(.opacity.combined(with: .scale(scale: 0.985)))
+    }
+
+    /// Shiriti i skedave prej xhami që noton poshtë (iPhone).
+    private var tabBar: some View {
+        HStack(spacing: 2) {
+            barItem(.home, "Krye", "house.fill")
+            Menu {
+                ForEach([Subject.math, .physics, .chemistry, .biology]) { subject in
+                    Button { select(.subject(subject)) } label: { Label(subject.rawValue, systemImage: subject.icon) }
+                }
+            } label: {
+                barLabel(currentSubject?.short ?? "Lëndët", currentSubject?.icon ?? "square.grid.2x2.fill",
+                         selected: currentSubject != nil, color: currentSubject?.color)
+            }
+            barItem(.lab, "Lab", "flask.fill")
+            barItem(.assistant, "Bosko", "sparkles")
+            barItem(.events, "Eventet", "calendar")
+            barItem(.desk, "Profili", "person.fill")
+        }
+        .buttonStyle(.plain)
+        .padding(6)
+        .glassCapsule(tint: currentSubject?.color, strength: 0.10)
+        .padding(.horizontal, 12).padding(.bottom, 6)
+        .animation(.spring(response: 0.4, dampingFraction: 0.78), value: destination)
+    }
+    private func barItem(_ value: Destination, _ title: String, _ symbol: String) -> some View {
+        Button { select(value) } label: { barLabel(title, symbol, selected: destination == value, color: nil) }
+            .accessibilityLabel(title).accessibilityAddTraits(destination == value ? .isSelected : [])
+    }
+    private func barLabel(_ title: String, _ symbol: String, selected: Bool, color: Color?) -> some View {
+        VStack(spacing: 3) {
+            Image(systemName: symbol).font(.system(size: 18, weight: .semibold))
+                .scaleEffect(selected ? 1.12 : 1)
+            Text(title).font(.system(size: 10, weight: .semibold)).lineLimit(1)
+        }
+        .foregroundStyle(selected ? (color ?? Color.lagoon) : Color.ink.opacity(0.75))
+        .frame(maxWidth: .infinity, minHeight: 48)
+        .background {
+            if selected {
+                Capsule().fill((color ?? Color.lagoon).opacity(0.18))
+                    .overlay(Capsule().strokeBorder(.white.opacity(0.5), lineWidth: 0.8))
+                    .matchedGeometryEffect(id: "bar", in: railSelection)
+            }
+        }
+        .contentShape(Capsule())
     }
     private var currentSubject: Subject? {
         if case .subject(let subject) = destination { return subject }
@@ -72,13 +135,13 @@ struct Dashboard: View {
     }
     private func select(_ value: Destination) {
         if value != destination { Haptics.tap() }
-        withAnimation(.easeInOut(duration: 0.22)) { destination = value; drawer = false }
+        withAnimation(.spring(response: 0.42, dampingFraction: 0.82)) { destination = value; drawer = false }
     }
     private func rail(expanded: Bool, canToggle: Bool) -> some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 8) {
                 if canToggle {
-                    Button { drawer.toggle() } label: {
+                    Button { withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { drawer.toggle() } } label: {
                         Image(systemName: drawer ? "xmark" : "sidebar.left").font(.title2).frame(width: 44, height: 44)
                     }.accessibilityLabel(drawer ? "Mbyll menunë" : "Hap menunë")
                 }
@@ -95,13 +158,10 @@ struct Dashboard: View {
             }.padding(.horizontal, expanded ? 12 : 4).padding(.vertical, 12)
         }.frame(width: expanded ? 198 : 58).frame(maxHeight: .infinity)
         .foregroundStyle(.white)
-        .background {
-            ZStack {
-                Color.midnight
-                LinearGradient(colors: [(currentSubject?.color ?? .lagoon).opacity(0.45), .clear], startPoint: .top, endPoint: .bottom)
-                    .animation(.easeInOut(duration: 0.5), value: currentSubject)
-            }.ignoresSafeArea()
-        }
+        // Paneli anësor prej xhami të errët që noton mbi sfond.
+        .glass(cornerRadius: 30, tint: .midnight, strength: 0.72)
+        .animation(.easeInOut(duration: 0.5), value: currentSubject)
+        .padding(10)
         .buttonStyle(.plain)
     }
     private func tab(_ value: Destination, _ label: String, _ short: String, _ symbol: String, _ expanded: Bool, highlight: Color? = nil) -> some View {
@@ -237,7 +297,7 @@ struct SubjectQuiz: View {
                     Text("Një përgjigje e saktë sjell një yll. Çdo tri përgjigje të sakta radhazi sjellin edhe dy yje bonus.")
                     Button("Nis sfidën") {
                         start(Array(Exercise.all.filter { $0.subject == subject.rawValue && $0.level == level.rawValue }.shuffled().prefix(count)))
-                    }.buttonStyle(.borderedProminent)
+                    }.buttonStyle(.liquidProminent)
                 }
             } else if index < deck.count {
                 VStack(alignment: .leading, spacing: 8) {
@@ -265,7 +325,7 @@ struct SubjectQuiz: View {
                     if !missed.isEmpty {
                         Text("Përforco ato që të ngatërruan.")
                         ForEach(missed) { item in Text("• " + item.prompt) }
-                        Button("Riprovo pyetjet e humbura") { start(missed.shuffled()) }.buttonStyle(.borderedProminent)
+                        Button("Riprovo pyetjet e humbura") { start(missed.shuffled()) }.buttonStyle(.liquidProminent)
                     }
                     Button("Sfida të tjera") { started = false }
                 }
@@ -350,7 +410,7 @@ private struct PairGame: View {
             }
             Text(feedback).font(.headline)
             if solved.count == pairs.count {
-                Button("Përziej kartat dhe luaj përsëri", action: restart).buttonStyle(.borderedProminent)
+                Button("Përziej kartat dhe luaj përsëri", action: restart).buttonStyle(.liquidProminent)
             }
         }.navigationTitle("Gjej çiftin").onAppear { if left.isEmpty { restart() } }
     }
@@ -406,18 +466,18 @@ private struct SortGame: View {
                         let hit = (group == 0) == card.first
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) { correct = hit }
                         if hit { score += 1; Haptics.success() } else { Haptics.error() }
-                    }.buttonStyle(.bordered).disabled(correct != nil)
+                    }.buttonStyle(.liquid).disabled(correct != nil)
                 }
                 if let correct {
                     SectionText(heading: correct ? "Saktë!" : labels[card.first ? 0 : 1], text: card.why)
                     Button(index + 1 == cards.count ? "Shiko rezultatin" : "Karta tjetër") {
                         index += 1; self.correct = nil
-                    }.buttonStyle(.borderedProminent)
+                    }.buttonStyle(.liquidProminent)
                 }
             } else if !cards.isEmpty {
                 Text("Loja përfundoi").font(.largeTitle.bold())
                 Text("Klasifikove saktë \(score) nga \(cards.count) karta.")
-                Button("Luaj përsëri", action: restart).buttonStyle(.borderedProminent)
+                Button("Luaj përsëri", action: restart).buttonStyle(.liquidProminent)
             }
         }.navigationTitle("Ndaji në grupe").onAppear { if cards.isEmpty { restart() } }
     }
@@ -569,7 +629,7 @@ private struct SchoolEventsView: View {
                     editing = SchoolEvent(owner: account.identity, title: "", subject: Subject.biology.rawValue,
                                           level: level.rawValue, date: selectedDate, note: "")
                 } label: { Label("Shto event", systemImage: "plus.circle.fill") }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.liquidProminent)
             }
             calendarView
             VStack(alignment: .leading, spacing: 12) {
@@ -661,7 +721,7 @@ private struct SchoolEventsView: View {
                 HStack {
                     Button("Ndrysho") { editing = event }
                     Button("Fshi", role: .destructive) { deleting = event }
-                }.buttonStyle(.bordered)
+                }.buttonStyle(.liquid)
             }
         }.padding().frame(maxWidth: .infinity, alignment: .leading)
         .glass(cornerRadius: 12)
@@ -699,7 +759,7 @@ private struct SchoolEventEditor: View {
                         event.title = event.title.trimmingCharacters(in: .whitespacesAndNewlines)
                         do { try SchoolEventStore.save(event, account: account); dismiss() }
                         catch { self.error = error.localizedDescription }
-                    }.buttonStyle(.borderedProminent)
+                    }.buttonStyle(.liquidProminent)
                     .disabled(event.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
