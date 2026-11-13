@@ -498,6 +498,9 @@ struct TutorChat: View {
     @AppStorage("bosko.aiConsent.v1") private var aiConsent = 0
     @State private var showPrivacy = false
     @State private var remaining: Int?
+    @State private var reporting: ChatLine?
+    @State private var reportedIDs: Set<UUID> = []
+    @State private var reportMessage = ""
     @StateObject private var reader = SpeechReader()
     @StateObject private var recorder = VoiceRecorder()
     @State private var showMockTest = false
@@ -599,6 +602,15 @@ struct TutorChat: View {
         .sheet(isPresented: $showPrivacy) {
             BoskoPrivacySheet(current: aiConsent) { accept in await decideConsent(accept) }
         }
+        .confirmationDialog("Pse po e raporton këtë përgjigje?", isPresented: Binding(get: { reporting != nil }, set: { if !$0 { reporting = nil } }),
+                            titleVisibility: .visible) {
+            Button("Është e gabuar") { sendReport("wrong") }
+            Button("Është e papërshtatshme ose e dëmshme") { sendReport("inappropriate") }
+            Button("Tjetër arsye") { sendReport("other") }
+            Button("Anulo", role: .cancel) { reporting = nil }
+        } message: {
+            Text("Përgjigjja dhe pyetja jote e fundit i dërgohen shkollës që t'i kontrollojë.")
+        }
         #if os(iOS)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
@@ -625,7 +637,7 @@ struct TutorChat: View {
                     LazyVStack(alignment: .leading, spacing: 12) {
                         ChatIntro()
                         ForEach(lines) { line in
-                            ChatBubble(line: line).id(line.id)
+                            ChatBubble(line: line, reported: reportedIDs.contains(line.id), report: line.online == true ? { reporting = line } : nil).id(line.id)
                                 .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.96, anchor: line.fromStudent ? .bottomTrailing : .bottomLeading)),
                                                         removal: .opacity))
                         }
@@ -657,6 +669,7 @@ struct TutorChat: View {
             }
             ChatSuggestions(items: lines.last(where: { !$0.fromStudent })?.reply.suggestions ?? LessonAssistantIndex.examples.prefix(3).map { $0 }) { send($0) }
             if !recorder.message.isEmpty { Text(recorder.message).font(.footnote).foregroundStyle(.orange).padding(.horizontal, 12) }
+            if !reportMessage.isEmpty { Text(reportMessage).font(.footnote).foregroundStyle(.orange).padding(.horizontal, 12) }
             if hintMode { Label("Mënyra «vetëm sugjerime»: Bosko nuk e jep përgjigjen, të çon hap pas hapi.", systemImage: "lightbulb.fill").font(.caption).foregroundStyle(.secondary).padding(.horizontal, 12) }
             if aiConsent == BoskoConsent.declined {
                 Button { showPrivacy = true } label: {
@@ -830,6 +843,22 @@ struct TutorChat: View {
         guard let failure = error as? BoskoOnline.Failure else { return }
         if failure.code == "consent" { aiConsent = BoskoConsent.unknown; showPrivacy = true }
         if failure.code == "limit" { remaining = 0 }
+    }
+
+    /// Raporton një përgjigje online te shkolla (`api_aiReport`), bashkë me pyetjen e fundit para saj.
+    private func sendReport(_ reason: String) {
+        guard let line = reporting else { return }
+        reporting = nil
+        let previous = lines.prefix(while: { $0.id != line.id }).last(where: { $0.fromStudent })?.reply.text ?? ""
+        Task { @MainActor in
+            do {
+                let _: OKReply = try await SchoolAPI.call("aiReport", body: ["reason": reason, "question": previous, "answer": line.reply.text])
+                reportedIDs.insert(line.id); reportMessage = ""
+                Haptics.success()
+            } catch {
+                reportMessage = (error as? LocalizedError)?.errorDescription ?? "Raporti nuk u dërgua. Provo përsëri."
+            }
+        }
     }
 
     /// Pyetja me zë: dërgohet te Bosko AI online (zëri shkruhet si tekst te serveri), vetëm me leje.
@@ -1020,9 +1049,11 @@ private struct BubbleGlass: ViewModifier {
 
 private struct ChatBubble: View {
     let line: ChatLine
+    var reported = false
+    var report: (() -> Void)? = nil
     @EnvironmentObject private var reader: SpeechReader
     private var avatar = AvatarStore()
-    init(line: ChatLine) { self.line = line }
+    init(line: ChatLine, reported: Bool = false, report: (() -> Void)? = nil) { self.line = line; self.reported = reported; self.report = report }
     private var formatted: AttributedString {
         (try? AttributedString(markdown: line.reply.text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
             ?? AttributedString(line.reply.text)
@@ -1057,6 +1088,14 @@ private struct ChatBubble: View {
                 }
                 if line.online == true {
                     Label("Bosko AI online · kontrolloje me mësuesin kur ke dyshime", systemImage: "sparkles").font(.caption2).foregroundStyle(.secondary)
+                    // Google Play (AI-Generated Content) / Apple 1.2: raportimi i përgjigjes brenda app-it.
+                    if reported {
+                        Label("U raportua. Faleminderit!", systemImage: "checkmark.circle.fill").font(.caption).foregroundStyle(.green)
+                    } else if let report {
+                        Button(action: report) { Label("Raporto përgjigjen", systemImage: "flag") .font(.caption) }
+                            .buttonStyle(.plain).foregroundStyle(.secondary)
+                            .accessibilityHint("Dërgon këtë përgjigje te shkolla si të gabuar ose të papërshtatshme.")
+                    }
                 }
             }
             .padding(12)
