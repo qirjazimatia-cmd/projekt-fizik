@@ -2,6 +2,7 @@ import SwiftUI
 import PhotosUI
 import ImageIO
 import UniformTypeIdentifiers
+import Vision
 
 // MARK: - Asistenti i mësimeve
 // Shpjegon temat duke kërkuar te 600 mësimet e aplikacionit. Punon në pajisje: pa internet, pa shërbim me pagesë,
@@ -327,13 +328,16 @@ private enum ChatImage {
     }
 }
 
-/// Lidhja me Bosko AI me internet (Edge Function `bosko-ai` te Supabase, që pyet Gemini). Çelësi nuk është në aplikacion.
+/// Lidhja me Bosko AI me internet (Edge Function `bosko-ai` te Supabase: Groq i pari, Gemini si rezervë). Çelësat nuk janë në aplikacion.
+/// Serveri kontrollon lejen e përdoruesit dhe kufirin ditor para çdo pyetjeje (`api_aiAllow`).
 private enum BoskoOnline {
-    struct Failure: LocalizedError { let message: String; var errorDescription: String? { message } }
-    private struct Answer: Decodable { let text: String?; let error: String? }
+    /// `code`: "consent" (mungon leja), "limit" / "school" (kufiri ditor), ose nil.
+    struct Failure: LocalizedError { let message: String; var code: String? = nil; var errorDescription: String? { message } }
+    private struct Answer: Decodable { let text: String?; let error: String?; let code: String? }
 
+    /// - Parameter photoText: teksti i fotos i lexuar në pajisje; kur jepet, fotoja vetë nuk dërgohet.
     @MainActor
-    static func ask(history: [ChatLine], image: Data?, role: TutorRole, lesson: String?, audio: Data? = nil, mode: String? = nil) async throws -> String {
+    static func ask(history: [ChatLine], image: Data?, role: TutorRole, lesson: String?, audio: Data? = nil, mode: String? = nil, photoText: String? = nil) async throws -> String {
         SupabaseAuth.shared.loadStored()
         guard SupabaseConfig.enabled, SupabaseAuth.shared.session != nil else {
             throw Failure(message: "Për Bosko AI me internet duhet të jesh i kyçur në llogari.")
@@ -342,12 +346,16 @@ private enum BoskoOnline {
         var base = SupabaseConfig.url
         while base.hasSuffix("/") { base.removeLast() }
         guard let url = URL(string: base + "/functions/v1/bosko-ai") else { throw Failure(message: "Adresa e shërbimit nuk është e vlefshme.") }
-        let messages: [[String: String]] = history.suffix(16).compactMap { line -> [String: String]? in
+        var messages: [[String: String]] = history.suffix(16).compactMap { line -> [String: String]? in
             var text = line.reply.text
             if let title = line.reply.title, !line.fromStudent { text = title + "\n" + text }
             if line.imageName != nil && line.fromStudent && text.isEmpty { text = "(foto)" }
             if line.fromStudent && text == "🎤 Pyetje me zë" { text = "(pyetje me zë)" }
             return text.isEmpty ? nil : ["role": line.fromStudent ? "user" : "model", "text": text]
+        }
+        if let photoText, let index = messages.lastIndex(where: { $0["role"] == "user" }) {
+            let question = messages[index]["text"] == "(foto)" ? "" : (messages[index]["text"] ?? "")
+            messages[index]["text"] = (question.isEmpty ? "Zgjidhe këtë ushtrim." : question) + "\n\nTeksti i ushtrimit (lexuar nga fotoja):\n" + photoText
         }
         var body: [String: Any] = ["messages": messages, "role": "\(role)"]
         if let lesson { body["lesson"] = lesson }
@@ -364,9 +372,104 @@ private enum BoskoOnline {
         let answer = try? JSONDecoder().decode(Answer.self, from: data)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode), let text = answer?.text, !text.isEmpty else {
             let code = (response as? HTTPURLResponse)?.statusCode ?? 0
-            throw Failure(message: answer?.error ?? (code == 404 ? "Bosko AI me internet nuk është aktivizuar ende te Supabase." : "Bosko AI nuk u përgjigj (\(code))."))
+            throw Failure(message: answer?.error ?? (code == 404 ? "Bosko AI me internet nuk është aktivizuar ende te Supabase." : "Bosko AI nuk u përgjigj (\(code))."),
+                          code: answer?.code)
         }
         return text
+    }
+}
+
+/// Leja për Bosko AI me internet (Apple App Review 5.1.2(i)): ruhet në server, kontrollohet nga serveri, tërhiqet kur të duash.
+private enum BoskoConsent {
+    struct Status: Decodable { let consent: Bool; let limit: Int; let remaining: Int }
+    /// Vlerat e ruajtura në pajisje (vetëm për ndërfaqen; vendimi është i serverit).
+    static let unknown = 0, given = 1, declined = 2
+
+    static var signedIn: Bool {
+        SupabaseAuth.shared.loadStored()
+        return SupabaseConfig.enabled && SupabaseAuth.shared.session != nil
+    }
+    @MainActor static func status() async -> Status? {
+        guard signedIn else { return nil }
+        return try? await SchoolAPI.call("aiStatus")
+    }
+    @MainActor static func set(_ accept: Bool) async throws {
+        let _: OKReply = try await SchoolAPI.call("aiConsent", body: ["accept": accept])
+    }
+}
+
+/// Ekrani i lejes: çfarë dërgohet, ku, pse, dhe si tërhiqet. Del para pyetjes së parë me internet.
+private struct BoskoPrivacySheet: View {
+    let current: Int
+    let decide: (Bool) async -> String?
+    @Environment(\.dismiss) private var dismiss
+    @State private var busy = false
+    @State private var error = ""
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Label("Bosko AI me internet", systemImage: "lock.shield.fill").font(.title2.bold()).foregroundStyle(Color.lagoon)
+                Text("Pa internet, Bosko të ndihmon nga 700 mësimet e aplikacionit dhe asgjë nuk del nga pajisja. Për përgjigje më të zgjuara, Bosko mund t'i dërgojë pyetjen një shërbimi AI jashtë shkollës. Kjo bëhet vetëm me lejen tënde.")
+                privacyRow("text.bubble.fill", "Çfarë dërgohet", "Pyetjet e bisedës, pjesë nga mësimet e aplikacionit dhe, kur ti i zgjedh: teksti i fotos (lexohet në pajisje), fotoja vetë vetëm kur teksti nuk mjafton, dhe pyetjet me zë.")
+                privacyRow("server.rack", "Ku dërgohet", "Groq (groq.com), që nuk i përdor këto të dhëna për trajnim. Kur Groq është i zënë, ose për pyetjet me zë që Groq nuk i shkruan dot, përdoret Google Gemini; në nivelin falas Google mund t'i përdorë të dhënat për të përmirësuar shërbimet e veta.")
+                privacyRow("person.crop.circle.badge.xmark", "Çfarë NUK dërgohet", "Emri, emaili, klasa ose notat. Emailet dhe numrat e telefonit hiqen automatikisht nga teksti.")
+                privacyRow("gauge.with.dots.needle.33percent", "Kufiri", "Deri në 60 pyetje në ditë me internet (mësuesit 150), që shërbimi falas të mjaftojë për të gjithë shkollën.")
+                privacyRow("hand.raised.fill", "Zgjedhja jote", "Mund ta tërheqësh lejen kur të duash te Bosko → Më shumë → Privatësia e Bosko AI. Nëse je nën 16 vjeç, vendose bashkë me prindin.")
+                if !error.isEmpty { Text(error).font(.callout).foregroundStyle(.red) }
+                VStack(spacing: 10) {
+                    Button { choose(true) } label: { Label("Pajtohem, përdor Bosko me internet", systemImage: "checkmark.circle.fill").frame(maxWidth: .infinity) }
+                        .buttonStyle(.liquidProminent).disabled(busy)
+                    Button { choose(false) } label: {
+                        Text(current == BoskoConsent.given ? "Tërhiq lejen (vetëm pa internet)" : "Jo tani, vetëm pa internet").frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.liquid).disabled(busy)
+                }
+                .padding(.top, 6)
+            }
+            .padding(22)
+        }
+        .macSheetFrame(minWidth: 460, minHeight: 600)
+    }
+
+    private func privacyRow(_ icon: String, _ title: String, _ text: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon).font(.title3).foregroundStyle(Color.lagoon).frame(width: 30)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.headline)
+                Text(text).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private func choose(_ accept: Bool) {
+        busy = true
+        Task { @MainActor in
+            if let failure = await decide(accept) { error = failure } else { dismiss() }
+            busy = false
+        }
+    }
+}
+
+/// Lexon tekstin e fotos në pajisje (Apple Vision), pa e dërguar fotografinë askund.
+private enum PhotoText {
+    static func recognize(_ data: Data) async -> String {
+        guard let image = ChatImage.cgImage(data) else { return "" }
+        return await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                let request = VNRecognizeTextRequest()
+                request.recognitionLevel = .accurate
+                request.usesLanguageCorrection = false
+                try? VNImageRequestHandler(cgImage: image, options: [:]).perform([request])
+                let lines = (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }
+                continuation.resume(returning: lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines))
+            }
+        }
+    }
+    /// Teksti mjafton kur ka disa fjalë ose një shprehje me numra; përndryshe (vizatime, grafikë) dërgohet fotoja.
+    static func isEnough(_ text: String) -> Bool {
+        let letters = text.filter { $0.isLetter || $0.isNumber }.count
+        return letters >= 20
     }
 }
 
@@ -394,6 +497,10 @@ struct TutorChat: View {
     @FocusState private var typing: Bool
     /// "Mos ma thuaj përgjigjen": Bosko jep vetëm sugjerime hap pas hapi.
     @AppStorage("bosko.hints.v1", store: .standard) private var hintMode = false
+    /// Leja për Bosko me internet, për këtë llogari (BoskoConsent.unknown/given/declined). Vendimi përfundimtar është i serverit.
+    @AppStorage("bosko.aiConsent.v1") private var aiConsent = 0
+    @State private var showPrivacy = false
+    @State private var remaining: Int?
     @StateObject private var reader = SpeechReader()
     @StateObject private var recorder = VoiceRecorder()
     @State private var showMockTest = false
@@ -446,6 +553,7 @@ struct TutorChat: View {
                     // Në iPhone shiriti sipër ka pak vend: «Vetëm sugjerime» është brenda menysë.
                     Toggle(isOn: $hintMode) { Label("Vetëm sugjerime", systemImage: hintMode ? "lightbulb.fill" : "lightbulb") }
                     Button { showMockTest = true } label: { Label("Test prove nga kapitujt", systemImage: "checklist") }
+                    Button { showPrivacy = true } label: { Label("Privatësia e Bosko AI", systemImage: "lock.shield") }
                     if role == .teacher {
                         Button { draft = "Krijo 10 pyetje testi (me alternativa dhe përgjigjet e sakta në fund) për temën: " } label: { Label("Pyetje testi për një temë", systemImage: "list.number") }
                         Button { draft = "Bëj një plan mësimi 45-minutësh (objektivat, hyrja, aktivitetet, kontrolli, detyra) për temën: " } label: { Label("Plan mësimi për një temë", systemImage: "doc.text") }
@@ -490,6 +598,10 @@ struct TutorChat: View {
         }
         #endif
         .onAppear { load() }
+        .task { await syncConsent() }
+        .sheet(isPresented: $showPrivacy) {
+            BoskoPrivacySheet(current: aiConsent) { accept in await decideConsent(accept) }
+        }
         #if os(iOS)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
@@ -549,6 +661,15 @@ struct TutorChat: View {
             ChatSuggestions(items: lines.last(where: { !$0.fromStudent })?.reply.suggestions ?? LessonAssistantIndex.examples.prefix(3).map { $0 }) { send($0) }
             if !recorder.message.isEmpty { Text(recorder.message).font(.footnote).foregroundStyle(.orange).padding(.horizontal, 12) }
             if hintMode { Label("Mënyra «vetëm sugjerime»: Bosko nuk e jep përgjigjen, të çon hap pas hapi.", systemImage: "lightbulb.fill").font(.caption).foregroundStyle(.secondary).padding(.horizontal, 12) }
+            if aiConsent == BoskoConsent.declined {
+                Button { showPrivacy = true } label: {
+                    Label("Bosko punon pa internet (nga mësimet). Prek për ta aktivizuar me internet.", systemImage: "wifi.slash")
+                        .font(.caption).foregroundStyle(.secondary)
+                }.buttonStyle(.plain).padding(.horizontal, 12)
+            } else if let remaining, remaining <= 10 {
+                Label("Të kanë mbetur \(remaining) pyetje me internet për sot.", systemImage: "gauge.with.dots.needle.33percent")
+                    .font(.caption).foregroundStyle(.secondary).padding(.horizontal, 12)
+            }
             composer
         }
     }
@@ -679,18 +800,63 @@ struct TutorChat: View {
         return parts.isEmpty ? nil : parts.joined(separator: "\n\n")
     }
 
-    /// Pyetja me zë: dërgohet te Bosko AI online, që e kupton shqipen e folur.
+    // MARK: Leja për Bosko me internet
+
+    /// Merr nga serveri gjendjen e lejes dhe pyetjet e mbetura. Herën e parë (pa vendim) shfaq ekranin e lejes.
+    private func syncConsent() async {
+        guard BoskoConsent.signedIn else { return }
+        if let status = await BoskoConsent.status() {
+            remaining = status.remaining
+            if status.consent { aiConsent = BoskoConsent.given }
+            else if aiConsent == BoskoConsent.given { aiConsent = BoskoConsent.unknown }
+        }
+        if aiConsent == BoskoConsent.unknown { showPrivacy = true }
+    }
+
+    /// Ruan vendimin në server. Kthen mesazhin e gabimit, ose nil kur u ruajt.
+    private func decideConsent(_ accept: Bool) async -> String? {
+        do {
+            try await BoskoConsent.set(accept)
+            aiConsent = accept ? BoskoConsent.given : BoskoConsent.declined
+            if accept, let status = await BoskoConsent.status() { remaining = status.remaining }
+            return nil
+        } catch {
+            if !accept { aiConsent = BoskoConsent.declined; return nil }   // Refuzimi vlen edhe pa internet: thjesht s'dërgojmë gjë.
+            return (error as? LocalizedError)?.errorDescription ?? "Leja nuk u ruajt. Provo përsëri."
+        }
+    }
+
+    private var online: Bool { aiConsent == BoskoConsent.given }
+
+    /// Pas një përgjigjeje të serverit: nëse leja mungon atje, kërkohet përsëri.
+    private func handle(_ error: Error) {
+        guard let failure = error as? BoskoOnline.Failure else { return }
+        if failure.code == "consent" { aiConsent = BoskoConsent.unknown; showPrivacy = true }
+        if failure.code == "limit" { remaining = 0 }
+    }
+
+    /// Pyetja me zë: dërgohet te Bosko AI online (zëri shkruhet si tekst te serveri), vetëm me leje.
     private func sendVoice(_ audio: Data) {
         guard !thinking, let id = currentID else { return }
         append([ChatLine(fromStudent: true, reply: TutorReply(text: "🎤 Pyetje me zë"))], to: id)
+        guard online else {
+            append([ChatLine(fromStudent: false, reply: TutorReply(title: "Pyetja me zë kërkon Bosko me internet",
+                text: BoskoConsent.signedIn
+                    ? "Zërin e kupton vetëm Bosko me internet, dhe për këtë duhet leja jote. Ose shkruaje pyetjen: pa internet të përgjigjem nga mësimet e aplikacionit."
+                    : "Zërin e kupton vetëm Bosko me internet: hyr në llogarinë e shkollës. Ose shkruaje pyetjen: pa internet të përgjigjem nga mësimet e aplikacionit."))], to: id)
+            if BoskoConsent.signedIn { showPrivacy = true }
+            return
+        }
         let history = conversations.first(where: { $0.id == id })?.lines ?? []
         waitingIDs.insert(id)
         Task { @MainActor in
             do {
                 let answer = try await BoskoOnline.ask(history: history, image: nil, role: role, lesson: lessonContext(conversations.first(where: { $0.id == id }), question: ""),
                                                        audio: audio, mode: hintMode ? "hints" : nil)
+                remaining = remaining.map { max($0 - 1, 0) }
                 append([ChatLine(fromStudent: false, reply: TutorReply(text: answer, suggestions: ["Shpjegoje më thjesht", "Më jep një shembull"]), online: true)], to: id)
             } catch {
+                handle(error)
                 let reason = (error as? LocalizedError)?.errorDescription ?? "Nuk ka lidhje me internetin."
                 append([ChatLine(fromStudent: false, reply: TutorReply(title: "Pyetja me zë nuk u dërgua", text: reason + "\n\nPyetjet me zë i kupton vetëm Bosko AI me internet. Provo përsëri ose shkruaje pyetjen."))], to: id)
             }
@@ -712,19 +878,42 @@ struct TutorChat: View {
             return
         }
         let history = conversations.first(where: { $0.id == id })?.lines ?? []
-        let context = lessonContext(conversations.first(where: { $0.id == id }), question: clean)
         waitingIDs.insert(id)
         Task { @MainActor in
+            // Fotoja lexohet në pajisje: në shumicën e rasteve dërgohet vetëm teksti, jo fotografia.
+            var photoText = ""
+            if let image { photoText = await PhotoText.recognize(image) }
+            let question = [clean, photoText].filter { !$0.isEmpty }.joined(separator: "\n")
+            let context = lessonContext(conversations.first(where: { $0.id == id }), question: question)
+
+            // Pa leje: asgjë nuk del nga pajisja. Përgjigjet asistenti lokal (edhe për foton, nga teksti i saj).
+            guard online else {
+                if question.isEmpty {
+                    append([ChatLine(fromStudent: false, reply: TutorReply(title: "Fotoja nuk u lexua",
+                        text: "Nuk arrita ta lexoj tekstin e fotos në pajisje. Shkruaje ushtrimin këtu, ose aktivizo Bosko me internet që kupton edhe vizatimet."))], to: id)
+                } else {
+                    var local = tutor.reply(to: question)
+                    local.text = "(Bosko pa internet: po të përgjigjem nga mësimet e aplikacionit.)\n\n" + local.text
+                    append([ChatLine(fromStudent: false, reply: local)], to: id)
+                }
+                if aiConsent == BoskoConsent.unknown && BoskoConsent.signedIn { showPrivacy = true }
+                waitingIDs.remove(id)
+                return
+            }
+            let textEnough = PhotoText.isEnough(photoText)
             do {
-                let answer = try await BoskoOnline.ask(history: history, image: image, role: role, lesson: context, mode: hintMode ? "hints" : nil)
+                let answer = try await BoskoOnline.ask(history: history, image: textEnough ? nil : image, role: role, lesson: context,
+                                                       mode: hintMode ? "hints" : nil, photoText: textEnough ? photoText : nil)
+                remaining = remaining.map { max($0 - 1, 0) }
                 append([ChatLine(fromStudent: false, reply: TutorReply(text: answer, suggestions: ["Shpjegoje më thjesht", "Më jep një shembull", "Më jep një ushtrim"]), online: true)], to: id)
             } catch {
+                handle(error)
                 let reason = (error as? LocalizedError)?.errorDescription ?? "Nuk ka lidhje me internetin."
-                if image != nil || clean.isEmpty {
+                if question.isEmpty {
                     append([ChatLine(fromStudent: false, reply: TutorReply(title: "Fotoja nuk u dërgua",
-                        text: reason + "\n\nFotot i kupton vetëm Bosko AI me internet. Provo përsëri pas pak, ose shkruaje ushtrimin këtu."))], to: id)
+                        text: reason + "\n\nFotot pa tekst (vizatime, grafikë) i kupton vetëm Bosko AI me internet. Provo përsëri pas pak, ose shkruaje ushtrimin këtu."))], to: id)
                 } else {
-                    var local = tutor.reply(to: clean)
+                    var local = tutor.reply(to: question)
                     local.text = "(Pa internet tani: " + reason + " Po të përgjigjem nga mësimet e aplikacionit.)\n\n" + local.text
                     append([ChatLine(fromStudent: false, reply: local)], to: id)
                 }
