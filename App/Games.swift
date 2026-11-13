@@ -563,6 +563,8 @@ private struct InteractiveExperiment: View {
     @AppStorage("labMissions") private var completed = ""
     @AppStorage("labStars.v1") private var starLog = ""
     @AppStorage("labPredictions.v1") private var predictionsRight = 0
+    @AppStorage("lab.dragged.v1", store: .standard) private var draggedOnce = false
+    @State private var touch: CGPoint?
     @AppStorage("labObservations") private var observations = Data()
     @State private var notebookBlocked = false
 
@@ -664,6 +666,7 @@ private struct InteractiveExperiment: View {
                             }
                         }
                         .shadow(color: experiment.subject.color.opacity(0.35), radius: 14, y: 8)
+                        .overlay { touchLayer }
                     if experiment == .energy { EnergyReadout(height: a, percent: percent) }
                 }
             }
@@ -706,6 +709,56 @@ private struct InteractiveExperiment: View {
         .onDisappear { running = false }
     }
 
+    /// Kontrolli me gisht në skenë: majtas–djathtas ndryshon vlerën e parë, lart–poshtë të dytën.
+    private var touchLayer: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color.clear.contentShape(Rectangle())
+                if let touch {
+                    Circle().stroke(.white, lineWidth: 2).frame(width: 54, height: 54)
+                        .background(Circle().fill(experiment.subject.color.opacity(0.35)))
+                        .shadow(color: experiment.subject.color, radius: 10)
+                        .position(touch)
+                        .transition(.scale.combined(with: .opacity))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("↔ " + String(format: "%.1f", a)).monospacedDigit()
+                        if !(experiment == .energy && running) { Text("↕ " + String(format: "%.1f", b)).monospacedDigit() }
+                    }
+                    .font(.caption.bold()).foregroundStyle(.white).padding(8)
+                    .background(.black.opacity(0.45), in: RoundedRectangle(cornerRadius: 10))
+                    .position(x: min(max(touch.x, 60), geometry.size.width - 60), y: max(touch.y - 58, 26))
+                }
+                if !draggedOnce && touch == nil {
+                    Label("Tërhiq gishtin në skenë", systemImage: "hand.draw.fill")
+                        .font(.subheadline.bold()).foregroundStyle(.white)
+                        .padding(.horizontal, 14).padding(.vertical, 8)
+                        .background(.black.opacity(0.4), in: Capsule())
+                        .frame(maxHeight: .infinity, alignment: .bottom).padding(.bottom, 12)
+                        .transition(.opacity)
+                }
+            }
+            .gesture(DragGesture(minimumDistance: 0).onChanged { value in
+                withAnimation(.interactiveSpring(response: 0.25, dampingFraction: 0.8)) { touch = value.location }
+                draggedOnce = true
+                let x = min(max(value.location.x / max(geometry.size.width, 1), 0), 1)
+                let y = 1 - min(max(value.location.y / max(geometry.size.height, 1), 0), 1)
+                let first = experiment.first, second = experiment.second
+                if !(experiment == .energy && running) {
+                    let nb = snap(second.range.lowerBound + y * (second.range.upperBound - second.range.lowerBound), second.range, second.step)
+                    if nb != b { b = nb }
+                }
+                let upper = experiment == .fraction ? max(b, first.range.lowerBound) : first.range.upperBound
+                let na = snap(first.range.lowerBound + x * (upper - first.range.lowerBound), first.range.lowerBound...upper, first.step)
+                if na != a { a = na }
+            }.onEnded { _ in withAnimation(.spring()) { touch = nil } })
+        }
+        .accessibilityHidden(true)
+    }
+    private func snap(_ value: Double, _ range: ClosedRange<Double>, _ step: Double) -> Double {
+        let stepped = range.lowerBound + ((value - range.lowerBound) / step).rounded() * step
+        return min(max(stepped, range.lowerBound), range.upperBound)
+    }
+
     /// «Parashiko para se të provosh»: rritet, zvogëlohet apo mbetet njësoj rezultati kur rrit vlerën e parë?
     @ViewBuilder private var predictionCard: some View {
         if experiment != .membrane, let truth = LabPrediction.trend(experiment, b: b) {
@@ -733,7 +786,7 @@ private struct InteractiveExperiment: View {
                     Text("🔮 \(predictionsRight) parashikime të sakta gjithsej").font(.caption).foregroundStyle(.secondary)
                 }
             }
-            .padding(14).background(Color.card, in: RoundedRectangle(cornerRadius: 16))
+            .padding(14).glass(cornerRadius: 16)
             .overlay(RoundedRectangle(cornerRadius: 16).stroke(experiment.subject.color.opacity(0.25), lineWidth: 1))
         }
     }

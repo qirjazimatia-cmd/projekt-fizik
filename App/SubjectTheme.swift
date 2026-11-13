@@ -92,10 +92,14 @@ struct PageBackground: View {
         if let subject {
             ZStack {
                 subject.paper
-                GlyphField(subject: subject, opacity: 0.07)
+                AmbientBlobs(colors: [subject.color, subject.deep, .sun, subject.color])
+                GlyphField(subject: subject, opacity: 0.06)
             }
         } else {
-            Color.paper
+            ZStack {
+                Color.paper
+                AmbientBlobs(colors: [.lagoon, .pink, .cyan, .sun])
+            }
         }
     }
 }

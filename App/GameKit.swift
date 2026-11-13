@@ -201,7 +201,7 @@ struct GameOverCard<Actions: View>: View {
             actions()
         }
         .padding(24).frame(maxWidth: .infinity)
-        .background(Color.card, in: RoundedRectangle(cornerRadius: 24))
+        .glass(cornerRadius: 24)
         .overlay(RoundedRectangle(cornerRadius: 24).stroke(color.opacity(0.3), lineWidth: 2))
         .shadow(color: color.opacity(0.2), radius: 16, y: 8)
         .confetti(celebrate, colors: [color, .sun, .white, .pink])

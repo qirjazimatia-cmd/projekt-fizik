@@ -90,7 +90,7 @@ struct PracticalActivityView: View {
             SectionText(heading:"Diskutoni së bashku",text:activity.discuss)
             Text("Parashikimi, matjet dhe përfundimi im").font(.headline)
             TextEditor(text:$note).frame(minHeight:140).padding(6)
-                .background(Color.card,in:RoundedRectangle(cornerRadius:12))
+                .glass(cornerRadius: 12)
                 .accessibilityLabel("Fletorja e vëzhgimeve")
             Text("Shënimet ruhen në këtë llogari.").font(.footnote)
             ShareLink(item: activity.title+"\n\n"+note) {

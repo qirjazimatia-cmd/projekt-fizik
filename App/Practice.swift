@@ -195,7 +195,7 @@ struct RoleDesk: View {
                                 homeActivity = ids.sorted().joined(separator: "|")
                             }.buttonStyle(.bordered)
                         }.padding(.top, 10)
-                    }.padding().background(Color.card, in: RoundedRectangle(cornerRadius: 14))
+                    }.padding().glass(cornerRadius: 14)
                 }
             }
         }.navigationTitle(role.rawValue)
