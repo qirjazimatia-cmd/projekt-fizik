@@ -18,7 +18,14 @@ struct ChatSummary: Decodable, Identifiable, Equatable {
     let last: Last?
     let unread: Int
     var name: String { title ?? "Bisedë" }
-    var icon: String { kind == "class" ? "person.3.fill" : kind == "family" ? "figure.and.child.holdinghands" : "bubble.left.fill" }
+    var icon: String {
+        switch kind {
+        case "class": return "person.3.fill"
+        case "family": return "figure.and.child.holdinghands"
+        case "tutor": return "graduationcap.fill"
+        default: return "bubble.left.fill"
+        }
+    }
 }
 
 struct ChatMessage: Decodable, Identifiable, Equatable {
@@ -160,7 +167,7 @@ struct ChatsView: View {
             HStack(spacing: 12) {
                 Image(systemName: chat.icon).font(.headline).foregroundStyle(.white)
                     .frame(width: 46, height: 46)
-                    .background(Circle().fill(chat.kind == "class" ? Color.lagoon : chat.kind == "family" ? Color.orange : Color.pink))
+                    .background(Circle().fill(chat.kind == "class" ? Color.lagoon : chat.kind == "family" ? Color.orange : chat.kind == "tutor" ? Color.indigo : Color.pink))
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
@@ -204,32 +211,56 @@ private struct NewChatSheet: View {
                     ForEach(groups) { chat in Button { opened(chat.id) } label: { Label(chat.name, systemImage: "person.3.fill") } }
                 }
             }
-            Section(account.role == .student ? "Shokët e mi" : account.role == .parent ? "Mësuesit e fëmijës" : "Prindërit e nxënësve") {
-                if store.contacts.isEmpty {
-                    Text(account.role == .student ? "Shto shokë te «Shokët» që t'u shkruash." :
+            ForEach(sections, id: \.title) { section in
+                Section(section.title) {
+                    ForEach(section.contacts) { contact in contactRow(contact) }
+                }
+            }
+            if store.contacts.isEmpty {
+                Section {
+                    Text(account.role == .student ? "Pasi mësuesi të pranon në klasë, këtu dalin mësuesit e tu; shokët i shton te «Shokët»." :
                          account.role == .parent ? "Lidhu me fëmijën tënd me kodin e familjes." : "Prindërit shfaqen kur lidhen me fëmijët e klasave të tua.")
                         .foregroundStyle(.secondary)
-                }
-                ForEach(store.contacts) { contact in
-                    Button {
-                        busy = true
-                        Task { @MainActor in
-                            if let id = await store.open(userID: contact.userID) { opened(id) }
-                            busy = false
-                        }
-                    } label: {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(contact.name ?? "Pa emër").font(.headline)
-                            Text(contact.detail).font(.caption).foregroundStyle(.secondary)
-                        }
-                    }.disabled(busy)
                 }
             }
             if !store.message.isEmpty { Text(store.message).foregroundStyle(.orange) }
         }
         .navigationTitle("Bisedë e re")
+        .safeAreaInset(edge: .bottom) {
+            if account.role != .parent {
+                Label("Bisedat mësues–nxënës i sheh edhe prindi i lidhur i nxënësit.", systemImage: "eye")
+                    .font(.caption).foregroundStyle(.secondary).padding(10)
+            }
+        }
         .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Mbyll") { dismiss() } } }
         .task { await store.loadContacts() }
+    }
+}
+
+private extension NewChatSheet {
+    struct ContactSection { let title: String; let contacts: [ChatContact] }
+    var sections: [ContactSection] {
+        let titles: [(String, String)] = [("tutor", account.role == .teacher ? "Nxënësit e klasave të mia" : "Mësuesit e mi"),
+                                          ("family", account.role == .teacher ? "Prindërit e nxënësve" : "Mësuesit e fëmijës"),
+                                          ("friend", "Shokët e mi")]
+        return titles.compactMap { kind, title in
+            let list = store.contacts.filter { $0.kind == kind }
+            return list.isEmpty ? nil : ContactSection(title: title, contacts: list)
+        }
+    }
+    func contactRow(_ contact: ChatContact) -> some View {
+        Button {
+            busy = true
+            Task { @MainActor in
+                if let id = await store.open(userID: contact.userID) { opened(id) }
+                busy = false
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(contact.name ?? "Pa emër").font(.headline)
+                Text(contact.detail).font(.caption).foregroundStyle(.secondary)
+            }
+        }.disabled(busy)
     }
 }
 
@@ -257,6 +288,10 @@ struct ChatThreadView: View {
                         if summary?.kind == "friend" {
                             Label("Mos ndaj numra telefoni, adresa ose fjalëkalime. Raporto çdo gjë që të shqetëson (mbaj shtypur mesazhin).",
                                   systemImage: "shield.lefthalf.filled")
+                                .font(.caption).foregroundStyle(.secondary).padding(10).glass(cornerRadius: 14)
+                        }
+                        if summary?.kind == "tutor" {
+                            Label("Bisedë mësues–nxënës: prindi i lidhur i nxënësit mund ta lexojë.", systemImage: "eye")
                                 .font(.caption).foregroundStyle(.secondary).padding(10).glass(cornerRadius: 14)
                         }
                         if summary?.kind == "class" {
@@ -341,7 +376,7 @@ struct ChatThreadView: View {
                     .accessibilityHidden(true)
             }
             VStack(alignment: message.mine ? .trailing : .leading, spacing: 3) {
-                if !message.mine && summary?.kind == "class" {
+                if !message.mine && (summary?.kind == "class" || summary?.otherID == nil) {
                     HStack(spacing: 4) {
                         Text(message.sender ?? "").font(.caption.bold())
                         if message.teacher { Text("Mësues").font(.caption2.bold()).padding(.horizontal, 5).padding(.vertical, 1).background(Capsule().fill(Color.lagoon.opacity(0.2))) }
