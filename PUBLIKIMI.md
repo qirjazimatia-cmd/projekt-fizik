@@ -18,7 +18,7 @@ Statuset: ✅ gati · 🟡 pjesërisht · ❌ mungon · ➖ nuk vlen
 | URL mbështetjeje (kontakt) | 1.5 | ❌ | #67 |
 | Llogari demo për App Review | 2.1 | ❌ | #68 · Nxënës + mësues; mësuesi ka kod me email → duhet zgjidhje për rishikuesin |
 | Përmbajtje nga përdoruesit (shokët, emrat publikë): filtër, «Blloko», «Raporto», kontakt | 1.2 | ❌ | #69 · zona e Jurit (Shokët) |
-| Raportimi i përgjigjeve të papërshtatshme të AI | 1.2 / Play AI | ❌ | #70 · buton te flluska e Bosko AI |
+| Raportimi i përgjigjeve të papërshtatshme të AI | 1.2 / Play AI | ✅ | #70 · «Raporto përgjigjen» te flluska; raportet te `app.ai_reports` · buton te flluska e Bosko AI |
 | Vlerësimi i moshës (pyetësori i ri: AI chatbot, përmbajtje përdoruesish) | 2.3.6 | ❌ | Mos zgjidhni kategorinë «Kids»: ajo ndalon dërgimin e të dhënave te palë të treta |
 | Etiketat e privatësisë në App Store Connect | 5.1.1 | ❌ | Të përputhen me `PrivacyInfo.xcprivacy` dhe me AI-në |
 | Asnjë funksion demo/i pakonfiguruar i shfaqur si real | 2.1 / 2.3.1 | 🟡 | Kontrollo para dërgimit |
@@ -33,7 +33,7 @@ Statuset: ✅ gati · 🟡 pjesërisht · ❌ mungon · ➖ nuk vlen
 | Formulari «Data safety» | ❌ | Njëlloj si etiketat e Apple |
 | Fshirja e llogarisë: në app **dhe** me një URL në web | 🟡 | Në app ✅; URL në web ❌ (#67) |
 | Politika e privatësisë (URL) | ❌ | E njëjta si te Apple |
-| Përmbajtje e krijuar nga AI: raportim brenda app-it | ❌ | E njëjta pikë si te Apple |
+| Përmbajtje e krijuar nga AI: raportim brenda app-it | ✅ | E njëjta pikë si te Apple |
 | Leje e qartë para dërgimit te AI | ✅ | E njëjta fletë leje (në web) |
 | Politika «Families» nëse publiku përfshin nën 13 vjeç | ❌ | Vendim: publiku i synuar (13+ ose edhe më të vegjël) |
 | Llogaria Google Play Console | ❌ | 25 USD një herë |
