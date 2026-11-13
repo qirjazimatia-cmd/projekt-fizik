@@ -202,7 +202,8 @@ Deno.serve(async (req) => {
   }
 
   // 3) Zinxhiri i ofruesve: fillon me Groq (pa trajnim), pastaj Gemini si rezervë.
-  const general = clean(Deno.env.get("GROQ_MODEL")) || "llama-3.3-70b-versatile";
+  // llama-3.3-70b-versatile u hoq nga Groq (404 model_not_found, 13 nëntor): gpt-oss-120b me arsyetim «low» është i shpejtë dhe i saktë.
+  const general = clean(Deno.env.get("GROQ_MODEL")) || "openai/gpt-oss-120b";
   const reasoning = clean(Deno.env.get("GROQ_REASONING_MODEL")) || "openai/gpt-oss-120b";
   const vision = clean(Deno.env.get("GROQ_VISION_MODEL")) || "meta-llama/llama-4-scout-17b-16e-instruct";
   type Step = [string, () => Promise<string | null>];
@@ -212,9 +213,13 @@ Deno.serve(async (req) => {
   } else if (image) {
     steps.push(["groq-vision", () => groq(vision, 25_000, true)], ["gemini-lite", geminiFast], ["gemini-flash", () => gemini("gemini-flash-latest", 15_000)]);
   } else if (problem) {
-    steps.push(["groq-reasoning", () => groq(reasoning, 30_000)], ["groq", () => groq(general, 12_000)], ["gemini-flash", () => gemini("gemini-flash-latest", 15_000)], ["gemini-lite", geminiFast]);
+    steps.push(["groq-reasoning", () => groq(reasoning, 30_000)]);
+    if (general !== reasoning) steps.push(["groq", () => groq(general, 12_000)]);
+    steps.push(["gemini-flash", () => gemini("gemini-flash-latest", 15_000)], ["gemini-lite", geminiFast]);
   } else {
-    steps.push(["groq", () => groq(general, 12_000)], ["groq-reasoning", () => groq(reasoning, 20_000)], ["gemini-lite", geminiFast], ["gemini-flash", () => gemini("gemini-flash-latest", 15_000)]);
+    steps.push(["groq", () => groq(general, 12_000)]);
+    if (reasoning !== general) steps.push(["groq-reasoning", () => groq(reasoning, 20_000)]);
+    steps.push(["gemini-lite", geminiFast], ["gemini-flash", () => gemini("gemini-flash-latest", 15_000)]);
   }
   let text: string | null = null;
   let via = "";
