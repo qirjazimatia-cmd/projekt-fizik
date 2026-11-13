@@ -51,7 +51,7 @@ struct Dashboard: View {
                         // Shiriti qëndron poshtë faqes (jo sipër saj), që të mos mbulojë kurrë fushën e shkrimit.
                         VStack(spacing: 0) {
                             content
-                            if !keyboard.visible { tabBar.transition(.move(edge: .bottom).combined(with: .opacity)) }
+                            tabBar
                         }
                         .animation(.spring(response: 0.35, dampingFraction: 0.85), value: keyboard.visible)
                     } else {
