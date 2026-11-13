@@ -6,6 +6,8 @@ struct ProgressDashboard: View {
     let level: SchoolLevel?
     @AppStorage(ActivityLog.storageKey) private var activity = ""
     @AppStorage("mastered") private var mastered = ""
+    /// Numrat dhe shiritat rriten nga zero kur hapet faqja.
+    @State private var appeared = false
 
     private var days: [String: ActivityDay] { ActivityLog.decode(activity) }
     private var week: [ActivityEntry] { ActivityLog.lastDays(7, days) }
@@ -18,18 +20,18 @@ struct ProgressDashboard: View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Përparimi im").font(.title2.bold())
             HStack(spacing: 10) {
-                stat(value: "\(ActivityLog.streak(days))", label: "ditë radhazi", icon: "flame.fill", color: .orange)
-                stat(value: "\(weekAnswers)", label: "ushtrime këtë javë", icon: "checkmark.seal.fill", color: .lagoon)
-                stat(value: weekAnswers == 0 ? "–" : "\(Int((Double(weekCorrect) / Double(weekAnswers) * 100).rounded()))%", label: "saktësia", icon: "target", color: .green)
-                stat(value: "\(weekLessons)", label: "mësime të lexuara", icon: "book.fill", color: .purple)
+                stat(ActivityLog.streak(days), label: "ditë radhazi", icon: "flame.fill", color: .orange)
+                stat(weekAnswers, label: "ushtrime këtë javë", icon: "checkmark.seal.fill", color: .lagoon)
+                stat(weekAnswers == 0 ? nil : Int((Double(weekCorrect) / Double(weekAnswers) * 100).rounded()), suffix: "%", label: "saktësia", icon: "target", color: .green)
+                stat(weekLessons, label: "mësime të lexuara", icon: "book.fill", color: .purple)
             }
             Chart {
                 ForEach(week) { entry in
-                    BarMark(x: .value("Dita", entry.date, unit: .day), y: .value("Ushtrime", entry.day.correct))
+                    BarMark(x: .value("Dita", entry.date, unit: .day), y: .value("Ushtrime", appeared ? entry.day.correct : 0))
                         .foregroundStyle(by: .value("Lloji", "Të sakta"))
-                    BarMark(x: .value("Dita", entry.date, unit: .day), y: .value("Ushtrime", entry.day.answers - entry.day.correct))
+                    BarMark(x: .value("Dita", entry.date, unit: .day), y: .value("Ushtrime", appeared ? entry.day.answers - entry.day.correct : 0))
                         .foregroundStyle(by: .value("Lloji", "Të gabuara"))
-                    BarMark(x: .value("Dita", entry.date, unit: .day), y: .value("Ushtrime", entry.day.lessons))
+                    BarMark(x: .value("Dita", entry.date, unit: .day), y: .value("Ushtrime", appeared ? entry.day.lessons : 0))
                         .foregroundStyle(by: .value("Lloji", "Mësime"))
                 }
             }
@@ -47,7 +49,7 @@ struct ProgressDashboard: View {
                             Spacer()
                             Text("\(done)/\(group.count)").font(.caption).foregroundStyle(.secondary)
                         }
-                        ProgressView(value: Double(done), total: Double(max(group.count, 1))).tint(.lagoon)
+                        ProgressView(value: appeared ? Double(done) : 0, total: Double(max(group.count, 1))).tint(subject.color)
                     }
                 }
             }
@@ -55,6 +57,7 @@ struct ProgressDashboard: View {
         }
         .padding()
         .background(Color.card, in: RoundedRectangle(cornerRadius: 14))
+        .onAppear { withAnimation(.spring(response: 0.9, dampingFraction: 0.85).delay(0.15)) { appeared = true } }
     }
 
     private var motivation: String {
@@ -64,10 +67,12 @@ struct ProgressDashboard: View {
         return "Bravo! \(streak) ditë radhazi. Vazhdo kështu."
     }
 
-    private func stat(value: String, label: String, icon: String, color: Color) -> some View {
+    private func stat(_ value: Int?, suffix: String = "", label: String, icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Image(systemName: icon).foregroundStyle(color)
-            Text(value).font(.title3.bold()).monospacedDigit()
+            if icon == "flame.fill" && (value ?? 0) > 0 { FlameIcon() } else { Image(systemName: icon).foregroundStyle(color) }
+            if let value {
+                CountingText(appeared ? value : 0, format: { "\($0)" + suffix }).font(.title3.bold())
+            } else { Text("–").font(.title3.bold()) }
             Text(label).font(.caption2).foregroundStyle(.secondary).lineLimit(2)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

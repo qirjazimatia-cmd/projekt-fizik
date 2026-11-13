@@ -185,14 +185,10 @@ struct HomePage: View {
             Text("BrainSpark · versioni " + (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")).font(.caption.bold()).foregroundStyle(Color.lagoon)
             Text("Zgjidh lëndën").font(.system(.title, design: .rounded).weight(.black))
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 160))], spacing: 12) {
-                ForEach([Subject.math, .physics, .chemistry, .biology]) { subject in
-                    Button { open(subject) } label: {
-                        VStack(alignment: .leading, spacing: 14) {
-                            HStack { Image(systemName: subject.icon).font(.title); Spacer(); Image(systemName: "arrow.up.right") }
-                            Text(subject.rawValue).font(.title2.bold())
-                        }.padding(16).frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(.white).background(subject.color, in: RoundedRectangle(cornerRadius: 12))
-                    }
+                ForEach(Array([Subject.math, .physics, .chemistry, .biology].enumerated()), id: \.element) { index, subject in
+                    Button { open(subject) } label: { HomeSubjectCard(subject: subject) }
+                        .buttonStyle(.springy)
+                        .appearIn(index)
                 }
             }
             let readingPool = StudyLesson.all.filter { learnerLevel == nil || $0.level == learnerLevel?.rawValue }
@@ -216,6 +212,33 @@ struct HomePage: View {
                 AccountControls()
             }
         }.buttonStyle(.plain)
+    }
+}
+
+/// Karta e lëndës në faqen Krye: gradient, simbole që lëvizin dhe ikonë që noton.
+private struct HomeSubjectCard: View {
+    let subject: Subject
+    @State private var float = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Image(systemName: subject.icon).font(.system(size: 30, weight: .semibold))
+                    .offset(y: float ? -3 : 3).rotationEffect(.degrees(float ? 6 : -6))
+                Spacer()
+                Image(systemName: "arrow.up.right").font(.headline)
+            }
+            Text(subject.rawValue).font(.title2.bold())
+            Text(subject.motto).font(.caption).opacity(0.9).lineLimit(2)
+        }
+        .padding(16).frame(maxWidth: .infinity, minHeight: 140, alignment: .topLeading)
+        .foregroundStyle(.white)
+        .background { ZStack { subject.gradient; GlyphField(subject: subject, opacity: 0.14, tint: .white) }.clipShape(RoundedRectangle(cornerRadius: 20)) }
+        .shadow(color: subject.color.opacity(0.35), radius: 10, y: 6)
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 2.2 + Double(subject.rawValue.count % 4) * 0.3).repeatForever(autoreverses: true)) { float = true }
+        }
     }
 }
 

@@ -26,6 +26,13 @@ enum Haptics {
         NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
         #endif
     }
+    /// «Klik» i lehtë kur lëviz rrëshqitësin e laboratorit.
+    static func selection() {
+        guard enabled else { return }
+        #if os(iOS)
+        UISelectionFeedbackGenerator().selectionChanged()
+        #endif
+    }
     /// Festim: test i mbaruar mirë.
     static func celebrate() {
         guard enabled else { return }
