@@ -385,7 +385,7 @@ private enum BoskoConsent {
     /// Vlerat e ruajtura në pajisje (vetëm për ndërfaqen; vendimi është i serverit).
     static let unknown = 0, given = 1, declined = 2
 
-    static var signedIn: Bool {
+    @MainActor static var signedIn: Bool {
         SupabaseAuth.shared.loadStored()
         return SupabaseConfig.enabled && SupabaseAuth.shared.session != nil
     }
