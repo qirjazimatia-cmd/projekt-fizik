@@ -192,6 +192,16 @@ final class Account: ObservableObject {
     }
     /// Ka një seancë të ruajtur që pret Face ID / Touch ID.
     @Published private(set) var lockedSession = false
+    /// Po rikthehet seanca e ruajtur (shfaqet një ekran i shkurtër hapjeje, jo ekrani i hyrjes).
+    @Published private(set) var restoring = false
+
+    /// Llogaria e fundit në këtë pajisje (pa sekrete: vetëm identiteti, emaili dhe roli), që app-i të hapet menjëherë
+    /// pa pritur serverin. Seanca vetë mbetet në Keychain; serveri e verifikon në sfond.
+    private struct LastAccount: Codable { let identity: String; let email: String; let role: String }
+    private static let lastAccountKey = "lastAccount.v1"
+    private static func lastAccount() -> LastAccount? {
+        UserDefaults.standard.data(forKey: lastAccountKey).flatMap { try? JSONDecoder().decode(LastAccount.self, from: $0) }
+    }
     func restore() async {
         guard cloud, role == nil, SupabaseAuth.shared.session == nil else { return }
         SupabaseAuth.shared.loadStored()
@@ -201,8 +211,41 @@ final class Account: ObservableObject {
             guard await BiometricGate.unlock() else { return }
             lockedSession = false
         }
-        do { _ = try await SupabaseAuth.shared.accessToken(); try await finishSignIn() }
-        catch { cloudMessage = "Seanca nuk u rikthye (" + error.localizedDescription + "). Hyr përsëri ose shfleto mësimet pa llogari." }
+        restoring = true
+        defer { restoring = false }
+        // Hyrje e menjëhershme me llogarinë e fundit; serveri kontrollohet më poshtë.
+        let optimistic: Bool
+        if let last = Self.lastAccount(), let cached = SchoolRole(rawValue: last.role) {
+            identity = last.identity; email = last.email; token = SupabaseAuth.shared.session?.access ?? ""
+            isOnline = true; role = cached; optimistic = true
+        } else { optimistic = false }
+        do {
+            _ = try await SupabaseAuth.shared.accessToken()
+            try await finishSignIn()
+            // Serveri kërkon një hap tjetër (faktori i dytë, roli): shfaq ekranin e hyrjes.
+            if stage != .entry { role = nil }
+        } catch is URLError {
+            // Pa internet: mbetet brenda me të dhënat e fundit; sinkronizohet kur të kthehet lidhja.
+            if optimistic { syncMessage = "Pa internet: po punon me të dhënat e ruajtura në pajisje." }
+            else { cloudMessage = "Nuk ka lidhje me internetin. Provo përsëri ose shfleto mësimet pa llogari." }
+        } catch {
+            if optimistic && !Self.sessionInvalid(error) {
+                // Gabim i përkohshëm i serverit: mbetet brenda; provohet përsëri në hapjen tjetër.
+                syncMessage = "Serveri nuk u përgjigj tani. Po punon me të dhënat e ruajtura."
+                return
+            }
+            // Seanca nuk vlen më (p.sh. dole nga një pajisje tjetër ose ndryshove fjalëkalimin): hyr përsëri.
+            if optimistic { logout() }
+            cloudMessage = "Seanca nuk u rikthye (" + error.localizedDescription + "). Hyr përsëri ose shfleto mësimet pa llogari."
+        }
+    }
+    /// A tregon gabimi që seanca e ruajtur nuk vlen më (dhe duhet hyrë përsëri)?
+    private static func sessionInvalid(_ error: Error) -> Bool {
+        guard let failure = error as? AuthFailure else { return false }
+        let codes: Set<String> = ["refresh_token_not_found", "refresh_token_already_used", "session_not_found", "session_expired",
+                                  "bad_jwt", "invalid_grant", "user_not_found", "PT401", "PT403"]
+        if let code = failure.code, codes.contains(code) { return true }
+        return failure.message.hasPrefix("Seanca") || failure.message.contains("Hyr përsëri")
     }
     /// Pas çdo hyrje/verifikimi: kontrollon faktorin e dytë, pastaj pyet SERVERIN për rolin. Roli nuk vjen kurrë nga klienti.
     private func finishSignIn() async throws {
@@ -253,6 +296,9 @@ final class Account: ObservableObject {
             baseline = Dictionary(uniqueKeysWithValues:entries.map { ($0.key,$0) })
         }
         stage = .entry; role = resolved
+        if let data = try? JSONEncoder().encode(LastAccount(identity: identity, email: email, role: resolved.rawValue)) {
+            UserDefaults.standard.set(data, forKey: Self.lastAccountKey)
+        }
         await synchronize()
     }
     func openLegacy(_ address: String, password: String) async throws {
@@ -266,6 +312,7 @@ final class Account: ObservableObject {
         if cloud { Task { await SupabaseAuth.shared.logout() } }
         else if !old.isEmpty { Task { let _: OKReply? = try? await SchoolAPI.call("logout",token:old) } }
         pendingRole = nil; attemptedRole = nil; pendingTeacherCode = ""; pendingNewPassword = nil; recoveryVerified = false; recoveryEmail = ""; stage = .entry; cloudMessage = ""; lockedSession = false
+        UserDefaults.standard.removeObject(forKey: Self.lastAccountKey)
         SessionVault.clear(); role = nil; identity = ""; email = ""; token = ""; isOnline = false; baseline = [:]; recoveryNotice = ""; syncMessage = ""
     }
     func remove(password: String) async throws {
