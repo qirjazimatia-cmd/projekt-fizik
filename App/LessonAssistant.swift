@@ -85,7 +85,7 @@ private struct AssistantHeader: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Label("Asistenti i mësimeve", systemImage: "questionmark.bubble.fill").font(.largeTitle.bold())
-            Text("Shkruaj çfarë nuk kupton dhe asistenti gjen temën te 600 mësimet, pastaj ta shpjegon hap pas hapi.")
+            Text("Shkruaj çfarë nuk kupton dhe asistenti gjen temën te 700 mësimet, pastaj ta shpjegon hap pas hapi.")
             Text("Punon në pajisjen tënde, edhe pa internet. Pyetjet nuk dërgohen gjëkundi. Nuk është AI që shpik përgjigje: çdo shpjegim vjen nga një mësim i aplikacionit.")
                 .font(.footnote).foregroundStyle(.secondary)
         }

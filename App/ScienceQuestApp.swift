@@ -196,6 +196,7 @@ struct HomePage: View {
     var body: some View {
         Page {
             HomeHeader(role: role).appearIn(0)
+            TodaySection(role: role)
             GlobalSearchField().appearIn(1)
             if let last = StudyLesson.all.first(where: { $0.id == lastID && (learnerLevel == nil || $0.level == learnerLevel?.rawValue) }) {
                 ContinueCard(lesson: last, readIDs: readIDs).appearIn(2)
@@ -216,7 +217,7 @@ struct HomePage: View {
                 Text("Mësime të lexuara · \(count)/\(readingPool.count)").font(.subheadline.bold())
             }
             Group {
-                NavigationLink { StudySubjects() } label: { Tile(icon: "books.vertical.fill", title: "Mësime sipas kapitujve", detail: "600 mësime · 120 kapituj · Pesë nivele") }
+                NavigationLink { StudySubjects() } label: { Tile(icon: "books.vertical.fill", title: "Mësime sipas kapitujve", detail: "\(StudyLesson.all.count) mësime · Pesë nivele") }
                 NavigationLink { TutorChat(role: role) } label: { Tile(icon: "sparkles", title: "Bisedo me " + LessonTutor.name, detail: "Asistenti i mësimeve · edhe me foto, pa internet") }
                 NavigationLink { RoleDesk(role: role) } label: { Tile(icon: "person.fill", title: role.title, detail: "Detyrat dhe aktivitetet e profilit") }
                 NavigationLink { PracticeMenu() } label: { Tile(icon: "magnifyingglass", title: role == .student ? "Ushtrimet e mia" : "Gjej detyrën", detail: role == .student ? "Ushtrime dhe detyra për klasën time" : "Kërko ushtrimin me kodin e mësuesit") }

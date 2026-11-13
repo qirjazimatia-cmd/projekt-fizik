@@ -238,7 +238,7 @@ final class LessonTutor {
                               (current == nil ? "Kur të duhet, më pyet për një temë." : "Do ta provosh veten me një ushtrim?"),
                               lessonID: current?.id, suggestions: current == nil ? [] : ["Më jep një ushtrim", "Temë të ngjashme"])
         case .whoAreYou:
-            return TutorReply(text: "Jam \(Self.name), asistenti i mësimeve e ScienceQuest. Punoj në pajisjen tënde, edhe pa internet, dhe di gjithçka që është te 600 mësimet dhe 600 ushtrimet e aplikacionit: ta shpjegoj më thjesht, me shembull hap pas hapi, të them pse ndodh dhe ku gabohet zakonisht, të jap ushtrime e t'i kontrolloj, të llogaris dhe të bëj plan për testin.\n\nNuk jam si Google: nuk di gjëra jashtë mësimeve dhe nuk shpik përgjigje. Kur nuk e di, ta them.",
+            return TutorReply(text: "Jam \(Self.name), asistenti i mësimeve i BrainSpark. Punoj në pajisjen tënde, edhe pa internet, dhe di gjithçka që është te 700 mësimet dhe 700 ushtrimet e aplikacionit: ta shpjegoj më thjesht, me shembull hap pas hapi, të them pse ndodh dhe ku gabohet zakonisht, të jap ushtrime e t'i kontrolloj, të llogaris dhe të bëj plan për testin.\n\nNuk jam si Google: nuk di gjëra jashtë mësimeve dhe nuk shpik përgjigje. Kur nuk e di, ta them.",
                               suggestions: ["Çfarë është fotosinteza?", "Kam test nesër për përqindjet"])
         case .goodbye:
             return TutorReply(text: pick(["Mirupafshim! Suksese me mësimet.", "Shihemi! Mos harro të pushosh pak.", "Natën e mirë! Bëre punë të mirë sot."]))
