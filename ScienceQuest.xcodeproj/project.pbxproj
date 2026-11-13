@@ -482,8 +482,8 @@ isa = PBXNativeTarget; buildConfigurationList = 2D4B4987D85FBBA640B3A339; buildP
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BrainSpark;
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "BrainSpark përdor Face ID vetëm për të hapur llogarinë tënde në këtë pajisje pa fjalëkalim.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Bosko AI përdor mikrofonin vetëm kur shtyp butonin 🎤 për të bërë një pyetje me zë.";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Bosko AI përdor kamerën vetëm kur fotografon një ushtrim për ta zgjidhur. Fotoja lexohet në pajisje dhe nuk dërgohet gjëkundi.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Bosko AI përdor mikrofonin vetëm kur shtyp butonin 🎤. Pyetja me zë dërgohet te Bosko me internet vetëm me lejen tënde.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Bosko AI përdor kamerën vetëm kur fotografon një ushtrim. Teksti i fotos lexohet në pajisje; fotoja dërgohet te Bosko me internet vetëm me lejen tënde dhe vetëm kur teksti nuk mjafton.";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -517,8 +517,8 @@ isa = PBXNativeTarget; buildConfigurationList = 2D4B4987D85FBBA640B3A339; buildP
 				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BrainSpark;
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "BrainSpark përdor Face ID vetëm për të hapur llogarinë tënde në këtë pajisje pa fjalëkalim.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Bosko AI përdor mikrofonin vetëm kur shtyp butonin 🎤 për të bërë një pyetje me zë.";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Bosko AI përdor kamerën vetëm kur fotografon një ushtrim për ta zgjidhur. Fotoja lexohet në pajisje dhe nuk dërgohet gjëkundi.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Bosko AI përdor mikrofonin vetëm kur shtyp butonin 🎤. Pyetja me zë dërgohet te Bosko me internet vetëm me lejen tënde.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Bosko AI përdor kamerën vetëm kur fotografon një ushtrim. Teksti i fotos lexohet në pajisje; fotoja dërgohet te Bosko me internet vetëm me lejen tënde dhe vetëm kur teksti nuk mjafton.";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

@@ -49,5 +49,11 @@ Në bisedat e Claude, GraphQL i GitHub nuk lejohet (`gh issue list`, `gh pr list
 - Versioni mbetet **1.0.0** (build 1) derisa app-i të dalë në App Store dhe Play Store, sado ndryshime të bëjmë. Pas publikimit: rregullime → 1.0.1, veçori të reja → 1.1.0; build-i rritet me +1 për çdo ngarkim.
 - Android (Play Store) del si version web i paketuar (TWA) me të njëjtin version 1.0.0 dhe të njëjtin Supabase (detyra #4).
 
+## 9. Gjithmonë drejt publikimit (App Store + Google Play)
+- Qëllimi përfundimtar: publikimi në App Store dhe Google Play. Çdo veçori ndërtohet që të pranohet nga të dy dyqanet.
+- Para çdo PR-je kontrollo `PUBLIKIMI.md` dhe thuaj personit nëse ndryshimi ndikon te pranimi (p.sh. App Review 1.2 përmbajtje përdoruesish, 5.1.1 privatësia, 5.1.2(i) AI i palëve të treta; Google Play Data safety, AI-generated content, Families).
+- Leje e re, shërbim i jashtëm i ri ose e dhënë e re që mblidhet → përditëso në të njëjtin PR `PrivacyInfo.xcprivacy`, tekstet e lejeve (`INFOPLIST_KEY_*Usage*`) dhe `PUBLIKIMI.md`.
+- Tekstet e lejeve duhet të thonë saktësisht çfarë bën app-i: Apple refuzon tekste që nuk përputhen me sjelljen.
+
 ## 7. Udhëzimi bazë
 Kërkesat e plota të produktit janë te `PROMPT-DON-BOSKO.md`. Raportet e versioneve: `RAPORTI-*.md`.

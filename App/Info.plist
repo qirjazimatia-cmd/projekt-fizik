@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
@@ -12,6 +14,6 @@
 	<key>SupabaseKey</key>
 	<string></string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>ScienceQuest lidhet me shërbimin e shkollës për llogaritë, testet dhe kalendarin.</string>
+	<string>BrainSpark lidhet me shërbimin e shkollës për llogaritë, testet dhe kalendarin.</string>
 </dict>
 </plist>
