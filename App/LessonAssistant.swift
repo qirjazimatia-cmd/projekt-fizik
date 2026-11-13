@@ -506,13 +506,26 @@ struct TutorChat: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 12) {
                         ChatIntro()
-                        ForEach(lines) { line in ChatBubble(line: line).id(line.id) }
+                        ForEach(lines) { line in
+                            ChatBubble(line: line).id(line.id)
+                                .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.96, anchor: line.fromStudent ? .bottomTrailing : .bottomLeading)),
+                                                        removal: .opacity))
+                        }
                         if thinking {
-                            HStack(spacing: 8) { ProgressView(); Text("Bosko po mendon…").foregroundStyle(.secondary) }
-                                .padding(.vertical, 6).id("thinking")
+                            HStack(spacing: 10) {
+                                Image(systemName: "sparkles").foregroundStyle(Color.lagoon)
+                                TypingDots(color: .lagoon)
+                                Text("Bosko po mendon…").font(.callout).foregroundStyle(.secondary)
+                            }
+                            .padding(.horizontal, 14).padding(.vertical, 10)
+                            .background(Color.card, in: Capsule())
+                            .id("thinking")
+                            .transition(.scale(scale: 0.8, anchor: .leading).combined(with: .opacity))
                         }
                     }
                     .frame(maxWidth: 720, alignment: .leading).padding(16).frame(maxWidth: .infinity)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.8), value: lines.count)
+                    .animation(.spring(response: 0.35, dampingFraction: 0.8), value: thinking)
                 }
                 .onChange(of: lines.count) { _ in
                     if let last = lines.last { withAnimation { proxy.scrollTo(last.id, anchor: .bottom) } }

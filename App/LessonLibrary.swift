@@ -217,6 +217,7 @@ struct StudyReader: View {
     @AppStorage("studyReadingSize.v1") private var textSize = 17.0
     @AppStorage private var notes: String
     @State private var choice: Int?
+    @State private var justRead = false
     init(lesson: StudyLesson) {
         self.lesson = lesson
         _notes = AppStorage(wrappedValue: "", "studyNotes." + lesson.id)
@@ -352,11 +353,26 @@ struct StudyReader: View {
     }
     private var footer: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Button(read ? "Shënoje si të palexuar" : "E lexova këtë mësim") {
-                if !read { activity = ActivityLog.recordingLesson(activity) }
-                readIDs = toggling(readIDs)
+            Button {
+                if !read {
+                    activity = ActivityLog.recordingLesson(activity)
+                    Haptics.celebrate()
+                    justRead = true
+                }
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) { readIDs = toggling(readIDs) }
+            } label: {
+                Label(read ? "E lexuar · shëno si të palexuar" : "E lexova këtë mësim", systemImage: read ? "checkmark.circle.fill" : "circle")
+                    .contentTransition(.opacity)
             }
-                .buttonStyle(.borderedProminent)
+            .buttonStyle(.borderedProminent)
+            .tint(read ? .green : nil)
+            .scaleEffect(justRead ? 1.06 : 1)
+            .confetti(justRead, colors: [lesson.schoolSubject.color, .sun, .green, .white])
+            .task(id: justRead) {
+                guard justRead else { return }
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                withAnimation { justRead = false }
+            }
             if let next {
                 NavigationLink { StudyReader(lesson: next) } label: {
                     Tile(icon: "arrow.right.circle", title: "Tema pasuese", detail: next.title)

@@ -34,9 +34,10 @@ struct Arcade: View {
                         }
                     } else if kind == .escape { EscapeRoom() } else { QuizGame(kind: kind) }
                 } label: { Tile(icon: kind == .escape ? "lock.fill" : "gamecontroller.fill", title: kind.rawValue, detail: kind == .quiz ? (learnerLevel?.name ?? kind.detail) : kind.detail) }
+                .buttonStyle(.springy)
             }
             ForEach(Subject.allCases) { subject in
-                Text(subject.rawValue).font(.title2.bold())
+                Label(subject.rawValue, systemImage: subject.icon).font(.title2.bold()).foregroundStyle(subject.color)
                 LabGameLinks(subject:subject)
             }
         }.navigationTitle("Luaj").buttonStyle(.plain)
@@ -91,31 +92,47 @@ struct QuizGame: View {
                 if let learnerLevel { Text(learnerLevel.name) } else { LevelPicker(level:$level) }
                 Button("Fillo lojën", action: restart).buttonStyle(.borderedProminent)
             } else if round == questions.count {
-                Text("Loja përfundoi").font(.largeTitle.bold())
                 if kind == .battle {
-                    Text(scores[0] == scores[1] ? "Barazim!" : "Fiton skuadra \(scores[0] > scores[1] ? 1 : 2)!")
-                    Text("Skuadra 1: \(scores[0]) / 4   •   Skuadra 2: \(scores[1]) / 4")
-                } else { Text("Përgjigje të sakta: \(scores[0]) nga \(questions.count)") }
-                Button("Luaj përsëri", action: restart).buttonStyle(.borderedProminent)
+                    GameOverCard(title: scores[0] == scores[1] ? "🤝 Barazim!" : "🏆 Fiton skuadra \(scores[0] > scores[1] ? 1 : 2)!",
+                                 score: max(scores[0], scores[1]), unit: "pikë") {
+                        Text("Skuadra 1: \(scores[0]) / 4   •   Skuadra 2: \(scores[1]) / 4").font(.headline)
+                        Button("Luaj përsëri") { withAnimation(.spring()) { restart() } }.buttonStyle(.borderedProminent)
+                    }
+                } else {
+                    GameOverCard(title: "Loja përfundoi", score: scores[0], unit: "nga \(questions.count) të sakta",
+                                 stars: scores[0] * 10 >= questions.count * 9 ? 3 : scores[0] * 2 >= questions.count ? 2 : 1,
+                                 celebrate: scores[0] * 2 >= questions.count) {
+                        Button("Luaj përsëri") { withAnimation(.spring()) { restart() } }.buttonStyle(.borderedProminent)
+                    }
+                }
             } else if handoff {
+                Text(team == 0 ? "🔵" : "🔴").font(.system(size: 80)).frame(maxWidth: .infinity).transition(.scale)
                 Text("Radha e skuadrës \(team + 1)").font(.largeTitle.bold())
                 Text("Kalojani pajisjen skuadrës që ka radhën. Çdo përgjigje e saktë vlen një pikë.")
                 Button("Jemi gati") { handoff = false }.buttonStyle(.borderedProminent)
             } else {
-                Text("Pyetja \(round + 1) nga \(questions.count)").font(.headline)
-                if kind == .battle { Text("Skuadra \(team + 1)") }
-                Answers(question: questions[round], selection: selection) { index in
-                    guard selection == nil else { return }
-                    selection = index
-                    if index == questions[round].correct { scores[team] += 1 }
+                ScoreHUD(score: scores[team], color: kind == .battle ? (team == 0 ? .blue : .red) : .lagoon)
+                    .floatingPoints("+1", trigger: scores[0] + scores[1])
+                Text("Pyetja \(round + 1) nga \(questions.count)" + (kind == .battle ? " · Skuadra \(team + 1)" : "")).font(.headline)
+                ProgressView(value: Double(round), total: Double(questions.count)).animation(.easeInOut, value: round)
+                Group {
+                    Answers(question: questions[round], selection: selection) { index in
+                        guard selection == nil else { return }
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) { selection = index }
+                        if index == questions[round].correct { scores[team] += 1; Haptics.success() } else { Haptics.error() }
+                    }
+                    if selection != nil {
+                        Button(round + 1 == questions.count ? "Shiko rezultatin" : "Vazhdo") {
+                            withAnimation(.spring(response: 0.45, dampingFraction: 0.85)) {
+                                round += 1
+                                selection = nil
+                                handoff = kind == .battle
+                            }
+                        }.buttonStyle(.borderedProminent)
+                    }
                 }
-                if selection != nil {
-                    Button(round + 1 == questions.count ? "Shiko rezultatin" : "Vazhdo") {
-                        round += 1
-                        selection = nil
-                        handoff = kind == .battle
-                    }.buttonStyle(.borderedProminent)
-                }
+                .id(round)
+                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
             }
         }.navigationTitle(kind.rawValue)
     }
@@ -140,17 +157,31 @@ struct EscapeRoom: View {
                 }
             } else if stage == deck.count {
                 Page {
-                    Text("Laboratori u hap!").font(.largeTitle.bold())
-                    Text("Katër lëndë · \(misses) riprovime")
-                    Button("Ekspeditë e re") { deck = [] }.buttonStyle(.borderedProminent)
+                    DoorOpening(color: .lagoon)
+                    GameOverCard(title: "Laboratori u hap!", score: misses, unit: "riprovime",
+                                 stars: misses == 0 ? 3 : misses <= 2 ? 2 : 1) {
+                        Text("Katër lëndë, katër dyer 🚪").font(.headline)
+                        Button("Ekspeditë e re") { withAnimation(.spring()) { deck = [] } }.buttonStyle(.borderedProminent)
+                    }
                 }
             } else {
-                Text("Dera \(stage+1)/\(deck.count) · " + deck[stage].subject).font(.headline).padding()
-                ProgressView(value:Double(stage),total:Double(deck.count)).padding(.horizontal)
+                HStack(spacing: 10) {
+                    ForEach(deck.indices, id: \.self) { i in
+                        Image(systemName: i < stage ? "door.left.hand.open" : "door.left.hand.closed")
+                            .font(.title2)
+                            .foregroundStyle(i < stage ? Color.green : (i == stage ? Subject(rawValue: deck[i].subject)?.color ?? .lagoon : .gray))
+                            .scaleEffect(i == stage ? 1.2 : 1)
+                            .animation(.spring(response: 0.4, dampingFraction: 0.5), value: stage)
+                    }
+                    Text("Dera \(stage+1)/\(deck.count) · " + deck[stage].subject).font(.headline)
+                }.padding()
                 ExercisePlayer(item:deck[stage],advance:{ right in
-                    if right { stage += 1 } else { misses += 1 }
-                    run = UUID()
+                    withAnimation(.spring()) {
+                        if right { stage += 1 } else { misses += 1 }
+                        run = UUID()
+                    }
                 }).id(run)
+                .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .move(edge: .leading).combined(with: .opacity)))
             }
         }
     }
@@ -506,11 +537,7 @@ struct LabExperiments: View {
                 Tile(icon:"testtube.2",title:"🧪 Tavolina e përzierjeve",detail:"Zgjidh substancat dhe zbulo çfarë ndodh")
             }
         }
-        ForEach(LabExperiment.allCases.filter { $0.subject == subject }) { experiment in
-            NavigationLink { InteractiveExperiment(experiment: experiment) } label: {
-                Tile(icon: subject.icon, title: experiment.title, detail: experiment.mission)
-            }
-        }
+        LabCardGrid(subject: subject)
     }
 }
 
@@ -529,8 +556,13 @@ private struct InteractiveExperiment: View {
     @State private var startTime = Date()
     @State private var checked = false
     @State private var hits: Int?
-    @State private var freePlay = true
+    @State private var freePlay = false
+    @State private var attempts = 0
+    @State private var earnedStars: Int?
+    @State private var prediction: Int?
     @AppStorage("labMissions") private var completed = ""
+    @AppStorage("labStars.v1") private var starLog = ""
+    @AppStorage("labPredictions.v1") private var predictionsRight = 0
     @AppStorage("labObservations") private var observations = Data()
     @State private var notebookBlocked = false
 
@@ -587,45 +619,129 @@ private struct InteractiveExperiment: View {
     var body: some View {
         Page {
             VStack(alignment: .leading, spacing: 10) {
-                Text(experiment.title).font(.largeTitle.bold())
+                Text(experiment.title).font(.system(.largeTitle, design: .rounded).weight(.black))
                 Picker("Mënyra", selection: $freePlay) {
-                    Text("Eksperimento lirshëm").tag(true)
-                    Text("Provo misionin").tag(false)
+                    Text("🎯 Misioni").tag(false)
+                    Text("🧪 Eksperimento lirshëm").tag(true)
                 }.pickerStyle(.segmented)
-                if !freePlay { Text(experiment.mission).font(.headline) }
-                Text("Parashiko çfarë do të ndodhë, ndrysho vlerat dhe vëzhgo modelin.")
+                if !freePlay {
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: "scope").font(.title2).foregroundStyle(experiment.subject.color)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Misioni").font(.caption.bold()).foregroundStyle(experiment.subject.color)
+                            Text(experiment.mission).font(.headline)
+                        }
+                        Spacer()
+                        if let best = LabStars.best(starLog, experiment.rawValue) { StarRow(stars: best, size: 14) }
+                    }
+                    .padding(12).background(experiment.subject.color.opacity(0.1), in: RoundedRectangle(cornerRadius: 14))
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
             }
-            TimelineView(.animation(minimumInterval: 0.04, paused: !running)) { timeline in
+            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: freePlay)
+            predictionCard
+            TimelineView(.animation(minimumInterval: 0.03, paused: !running)) { timeline in
                 let elapsed = running ? timeline.date.timeIntervalSince(startTime) : 0
                 let percent = experiment == .energy && running ? energyProgress(elapsed) : b
                 VStack(spacing: 0) {
                     LabScene(experiment: experiment, a: a, b: percent, time: elapsed)
-                        .frame(height: 235)
-                        .background(Color.midnight, in: RoundedRectangle(cornerRadius: 24))
+                        .frame(height: 250)
+                        .background {
+                            // Skena merr ngjyrat e lëndës: gradient i errët, dritë e butë dhe simbole.
+                            ZStack {
+                                LinearGradient(colors: [Color.midnight, experiment.subject.deep], startPoint: .top, endPoint: .bottom)
+                                RadialGradient(colors: [experiment.subject.color.opacity(0.45), .clear], center: .center, startRadius: 10, endRadius: 220)
+                                GlyphField(subject: experiment.subject, opacity: 0.08, tint: .white)
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 24))
+                        }
+                        .overlay(alignment: .topTrailing) {
+                            if running {
+                                Label("LIVE", systemImage: "dot.radiowaves.left.and.right")
+                                    .font(.caption2.bold()).padding(.horizontal, 8).padding(.vertical, 4)
+                                    .background(.red, in: Capsule()).foregroundStyle(.white).padding(10)
+                                    .transition(.scale.combined(with: .opacity))
+                            }
+                        }
+                        .shadow(color: experiment.subject.color.opacity(0.35), radius: 14, y: 8)
                     if experiment == .energy { EnergyReadout(height: a, percent: percent) }
                 }
             }
             controls
-            if experiment != .energy { Text(result).font(.title3.bold()).foregroundStyle(experiment.subject.color) }
+            if experiment != .energy {
+                Text(result).font(.title2.bold()).foregroundStyle(experiment.subject.color)
+                    .numericTransition()
+                    .animation(.spring(response: 0.35, dampingFraction: 0.8), value: result)
+                    .padding(.vertical, 6).padding(.horizontal, 12)
+                    .background(experiment.subject.color.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+            }
             if experiment.requiresTrial, let hits {
                 Text("Prova · \(hits) rezultate të kërkuara nga \(Int(b)) · \(Int(Double(hits) / b * 100))%")
+                    .transition(.scale.combined(with: .opacity))
             }
             actions
             if checked && !freePlay {
-                let success = experiment.achieved(a, b) && (!experiment.requiresTrial || hits != nil)
-                Label(success ? "Misioni u arrit!" : "Vazhdo eksperimentin. Krahaso rezultatin me synimin.",
-                      systemImage: success ? "star.circle.fill" : "lightbulb")
-                    .foregroundStyle(success ? Color.green : Color.primary)
+                if let stars = earnedStars {
+                    GameOverCard(title: "Misioni u arrit!", score: stars * 10, unit: "pikë laboratori",
+                                 stars: stars, color: experiment.subject.color) {
+                        Text(attempts == 1 ? "Me provën e parë! 🚀" : "Me \(attempts) prova").font(.headline)
+                        Button("Provo përsëri për 3 yje") { checked = false; earnedStars = nil; attempts = 0 }.buttonStyle(.bordered)
+                    }
+                } else {
+                    AnswerBanner(correct: false, heading: "Ende jo",
+                                 text: "Krahaso rezultatin me synimin dhe ndrysho vlerat. Prova \(attempts).")
+                }
             }
             DisclosureGroup("Pse ndodh kjo?") { Text(experiment.explanation).padding(.top) }
             notebook
         }.navigationTitle("Laboratori")
-        .onChange(of: a) { _ in changed() }
+        .subjectStyle(experiment.subject)
+        .onChange(of: a) { _ in Haptics.selection(); changed() }
         .onChange(of: b) { _ in
+            Haptics.selection()
             if experiment == .fraction { a = min(a, b) }
             changed()
         }
+        .onAppear { if experiment != .energy && !experiment.requiresTrial { startTime = Date(); withAnimation { running = true } } }
         .onDisappear { running = false }
+    }
+
+    /// «Parashiko para se të provosh»: rritet, zvogëlohet apo mbetet njësoj rezultati kur rrit vlerën e parë?
+    @ViewBuilder private var predictionCard: some View {
+        if experiment != .membrane, let truth = LabPrediction.trend(experiment, b: b) {
+            VStack(alignment: .leading, spacing: 10) {
+                Label("Parashiko", systemImage: "wand.and.stars").font(.headline).foregroundStyle(experiment.subject.color)
+                Text("Nëse e rrit «\(experiment.first.label)», rezultati…").font(.callout)
+                HStack {
+                    ForEach(LabPrediction.options.indices, id: \.self) { i in
+                        Button {
+                            guard prediction == nil else { return }
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) { prediction = i }
+                            if i == truth { predictionsRight += 1; Haptics.success() } else { Haptics.error() }
+                        } label: {
+                            Text(LabPrediction.options[i]).font(.subheadline.bold())
+                                .frame(maxWidth: .infinity).padding(.vertical, 10)
+                                .background(predictionColor(i, truth: truth), in: RoundedRectangle(cornerRadius: 12))
+                                .foregroundStyle(prediction == nil ? experiment.subject.color : .white)
+                        }.buttonStyle(.springy)
+                    }
+                }
+                if let prediction {
+                    Text(prediction == truth ? "🔮 E parashikove saktë! Tani provoje me rrëshqitësin." : "Jo tamam: rezultati " + LabPrediction.options[truth].lowercased() + ". Lëvize rrëshqitësin dhe shiko vetë.")
+                        .font(.callout.bold())
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    Text("🔮 \(predictionsRight) parashikime të sakta gjithsej").font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            .padding(14).background(Color.card, in: RoundedRectangle(cornerRadius: 16))
+            .overlay(RoundedRectangle(cornerRadius: 16).stroke(experiment.subject.color.opacity(0.25), lineWidth: 1))
+        }
+    }
+    private func predictionColor(_ i: Int, truth: Int) -> Color {
+        guard let prediction else { return experiment.subject.color.opacity(0.12) }
+        if i == truth { return .green }
+        if i == prediction { return .orange }
+        return Color.secondary.opacity(0.3)
     }
     private var controls: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -652,8 +768,10 @@ private struct InteractiveExperiment: View {
                     startTime = Date()
                 }.buttonStyle(.bordered)
                 Button("Rivendos") {
-                    a = experiment.first.initial; b = experiment.second.initial
-                    running = false; hits = nil; checked = false
+                    withAnimation(.spring()) {
+                        a = experiment.first.initial; b = experiment.second.initial
+                        running = false; hits = nil; checked = false; earnedStars = nil; attempts = 0; prediction = nil
+                    }
                 }
             }
             if freePlay {
@@ -669,6 +787,7 @@ private struct InteractiveExperiment: View {
             }
             if experiment.requiresTrial {
                 Button("Kryej \(Int(b)) prova") {
+                    Haptics.tap()
                     hits = (0..<Int(b)).filter { _ in
                         if experiment == .dice { return Int.random(in: 1...6) + Int.random(in: 1...6) == Int(a) }
                         return Int.random(in: 0..<10) < Int(a)
@@ -678,11 +797,17 @@ private struct InteractiveExperiment: View {
             }
             if !freePlay {
             Button("Kontrollo misionin") {
-                checked = true
-                if experiment.achieved(a, b) && (!experiment.requiresTrial || hits != nil) {
+                attempts += 1
+                let success = experiment.achieved(a, b) && (!experiment.requiresTrial || hits != nil)
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+                    checked = true
+                    earnedStars = success ? (attempts == 1 ? 3 : attempts <= 3 ? 2 : 1) : nil
+                }
+                if success {
                     var ids = Set(completed.split(separator: "|").map(String.init))
                     ids.insert(experiment.rawValue); completed = ids.sorted().joined(separator: "|")
-                }
+                    starLog = LabStars.recording(starLog, experiment.rawValue, earnedStars ?? 1)
+                } else { Haptics.error() }
             }.buttonStyle(.borderedProminent).disabled(experiment == .energy && running)
             Text("🏅 \(Set(completed.split(separator: "|")).count)/\(LabExperiment.allCases.count) misione të arritura").font(.caption.bold())
             }
@@ -710,7 +835,10 @@ private struct InteractiveExperiment: View {
             }.padding(.top)
         }
     }
-    private func changed() { checked = false; hits = nil; startTime = Date() }
+    private func changed() {
+        if checked && earnedStars != nil { return }
+        checked = false; hits = nil; startTime = Date()
+    }
     private func energyProgress(_ elapsed: Double) -> Double {
         // Constant acceleration down the incline: distance is proportional to t².
         // Slow playback provides time to compare the two forms of energy.
@@ -904,5 +1032,90 @@ private struct LabScene: View {
             }
         }.accessibilityLabel(experiment.title + ". Modeli ndryshon sipas vlerave të zgjedhura.")
     }
+    }
+}
+
+
+/// Yjet e misioneve të laboratorit: "id:3|id2:2".
+enum LabStars {
+    static func best(_ log: String, _ id: String) -> Int? {
+        for item in log.split(separator: "|") {
+            let parts = item.split(separator: ":")
+            if parts.count == 2, parts[0] == Substring(id) { return Int(parts[1]) }
+        }
+        return nil
+    }
+    static func recording(_ log: String, _ id: String, _ stars: Int) -> String {
+        var map: [String: Int] = [:]
+        for item in log.split(separator: "|") {
+            let parts = item.split(separator: ":")
+            if parts.count == 2, let n = Int(parts[1]) { map[String(parts[0])] = n }
+        }
+        map[id] = max(map[id] ?? 0, stars)
+        return map.keys.sorted().map { "\($0):\(map[$0]!)" }.joined(separator: "|")
+    }
+}
+
+/// Parashikimi: si ndryshon rezultati kur rritet vlera e parë (llogaritet nga vetë modeli).
+enum LabPrediction {
+    static let options = ["Rritet", "Zvogëlohet", "Nuk ndryshon"]
+    static func trend(_ experiment: LabExperiment, b: Double) -> Int? {
+        let range = experiment.first.range
+        let upper = experiment == .fraction ? min(range.upperBound, b) : range.upperBound
+        guard upper > range.lowerBound else { return nil }
+        let low = range.lowerBound + (upper - range.lowerBound) * 0.25
+        let high = range.lowerBound + (upper - range.lowerBound) * 0.75
+        let v1 = experiment.value(low, b), v2 = experiment.value(high, b)
+        guard v1.isFinite, v2.isFinite else { return nil }
+        let scale = max(abs(v1), abs(v2), 1e-9)
+        if abs(v2 - v1) / scale < 0.01 { return 2 }
+        return v2 > v1 ? 0 : 1
+    }
+}
+
+/// Kartat e eksperimenteve të një lënde: emoji e madhe, misioni dhe yjet e fituara.
+private struct LabCardGrid: View {
+    let subject: Subject
+    @AppStorage("labStars.v1") private var starLog = ""
+    var body: some View {
+        let items = LabExperiment.allCases.filter { $0.subject == subject }
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: 12)], spacing: 12) {
+            ForEach(Array(items.enumerated()), id: \.element.id) { index, experiment in
+                NavigationLink { InteractiveExperiment(experiment: experiment) } label: {
+                    card(experiment)
+                }
+                .buttonStyle(.springy)
+                .appearIn(index)
+            }
+        }
+    }
+    private func card(_ experiment: LabExperiment) -> some View {
+        let parts = experiment.title.split(separator: " ", maxSplits: 1).map(String.init)
+        let emoji = parts.count == 2 ? parts[0] : "🧪"
+        let name = parts.count == 2 ? parts[1] : experiment.title
+        let stars = LabStars.best(starLog, experiment.rawValue) ?? 0
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top) {
+                Text(emoji).font(.system(size: 40))
+                Spacer()
+                HStack(spacing: 1) {
+                    ForEach(0..<3, id: \.self) { i in
+                        Image(systemName: i < stars ? "star.fill" : "star").font(.caption2)
+                            .foregroundStyle(i < stars ? Color.sun : .white.opacity(0.5))
+                    }
+                }
+            }
+            Text(name).font(.headline).lineLimit(2).multilineTextAlignment(.leading)
+            Text(experiment.mission).font(.caption).opacity(0.85).lineLimit(3).multilineTextAlignment(.leading)
+        }
+        .foregroundStyle(.white)
+        .padding(14).frame(maxWidth: .infinity, minHeight: 170, alignment: .topLeading)
+        .background {
+            ZStack {
+                subject.gradient
+                GlyphField(subject: subject, opacity: 0.12, tint: .white)
+            }.clipShape(RoundedRectangle(cornerRadius: 20))
+        }
+        .shadow(color: subject.color.opacity(0.3), radius: 8, y: 5)
     }
 }
