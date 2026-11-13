@@ -37,7 +37,7 @@ struct AccessScreen: View {
                 }
                 Text("Fjalëkalimi: të paktën 10 karaktere. Pas regjistrimit ruaj kodin personal të rikuperimit.").font(.footnote)
             }
-            Button(signup ? "Regjistrohu" : "Hyr") { perform { try await account.open(email.trimmingCharacters(in:.whitespacesAndNewlines).lowercased(),password:password,newRole:signup ? role : nil,teacherCode:teacherCode) } }.buttonStyle(.borderedProminent)
+            Button(signup ? "Regjistrohu" : "Hyr") { perform { try await account.open(email.trimmingCharacters(in:.whitespacesAndNewlines).lowercased(),password:password,newRole:signup ? role : nil,teacherCode:teacherCode) } }.buttonStyle(.liquidProminent)
             if busy { ProgressView() }
             if !message.isEmpty { Text(message).foregroundStyle(Color.red) }
             DisclosureGroup("Lidhja e shkollës") {
@@ -100,7 +100,7 @@ struct AccountControls: View {
                 Button("Fshi llogarinë",role:.destructive) { confirm = true }
             }
             if !message.isEmpty { Text(message) }
-        }.buttonStyle(.bordered)
+        }.buttonStyle(.liquid)
         .alert("Ta fshish llogarinë dhe të dhënat e saj?",isPresented:$confirm) {
             Button("Anulo",role:.cancel) {}
             Button("Fshije",role:.destructive) { Task { do { try await account.remove(password:password) } catch { message = error.localizedDescription } } }
@@ -164,7 +164,7 @@ struct CloudAccessScreen: View {
             Button { Task { await account.unlockSavedSession() } } label: {
                 Label("Hyr me " + (BiometricGate.kindName ?? "kodin e pajisjes"), systemImage: BiometricGate.kindName == "Touch ID" ? "touchid" : "faceid")
                     .frame(maxWidth: .infinity)
-            }.buttonStyle(.borderedProminent).controlSize(.large)
+            }.buttonStyle(.liquidProminent).controlSize(.large)
             Text("ose hyr me email dhe fjalëkalim më poshtë").font(.footnote).foregroundStyle(.secondary)
         }
         Text("Hyrja në shkollë").font(.title.bold())
@@ -190,7 +190,7 @@ struct CloudAccessScreen: View {
             }
             Text("Pas regjistrimit të dërgojmë një kod konfirmimi me email, pastaj çdo hyrje kërkon një kod të ri me email. Një email është një llogari.").font(.footnote)
         }
-        Button(signup ? "Regjistrohu" : "Hyr") { submit() }.buttonStyle(.borderedProminent)
+        Button(signup ? "Regjistrohu" : "Hyr") { submit() }.buttonStyle(.liquidProminent)
         DisclosureGroup("Harrove fjalëkalimin?") {
             Text("Të dërgojmë një kod me email për të caktuar fjalëkalim të ri. Nëse ke 2FA, do të kërkohet edhe faktori i dytë.").font(.footnote)
             Button("Më dërgo kodin") { perform { try await account.cloudRecover(email: mail) } }.disabled(mail.isEmpty)
@@ -221,7 +221,7 @@ struct CloudAccessScreen: View {
         Text("Adresa: " + address + ". Pas hyrjes do të hapet këndi i rolit tënd ekzistues. Një email është një llogari me një rol të vetëm.").font(.footnote)
         PasswordInput(title: "Fjalëkalimi", text: $password)
         Button("Hyr") { signup = false; perform { try await account.cloudSignIn(email: address, password: password) } }
-            .buttonStyle(.borderedProminent).disabled(password.isEmpty)
+            .buttonStyle(.liquidProminent).disabled(password.isEmpty)
         Button("Harrova fjalëkalimin") { perform { try await account.cloudRecover(email: address) } }
         Button("Kthehu") { signup = false; account.cancelCloudSignIn() }
     }
@@ -235,7 +235,7 @@ struct CloudAccessScreen: View {
             entry = real == .teacher ? .teacher : .studentParent
             UserDefaults.standard.set(entry.rawValue, forKey: "lastEntry.v8")
             perform { try await account.cloudContinueWithServerRole() }
-        }.buttonStyle(.borderedProminent)
+        }.buttonStyle(.liquidProminent)
         Button("Dil") { account.cancelCloudSignIn() }
     }
     @ViewBuilder private func emailCodeView(_ address: String) -> some View {
@@ -243,7 +243,7 @@ struct CloudAccessScreen: View {
         Text("Dërguam një kod 6-shifror te " + address + ". Pa konfirmim llogaria nuk ka akses te të dhënat. Kodi skadon; nëse ka skaduar, kërko një të ri. Ky kod konfirmon vetëm emailin. Pas tij, çdo hyrje kërkon edhe një kod të ri që të vjen me email.").font(.footnote)
         Text("Nuk të vjen kodi? Nëse ky email ka tashmë një llogari, nuk dërgohet kod i ri: përdor «Hyr» ose «Harrove fjalëkalimin?». Kontrollo edhe dosjen Spam.").font(.footnote)
         TextField("Kodi nga emaili", text: $code).autocorrectionDisabled()
-        Button("Konfirmo") { perform { try await account.cloudVerify(email: address, code: code); code = "" } }.buttonStyle(.borderedProminent).disabled(code.isEmpty)
+        Button("Konfirmo") { perform { try await account.cloudVerify(email: address, code: code); code = "" } }.buttonStyle(.liquidProminent).disabled(code.isEmpty)
         Button("Ridërgo kodin") { perform { try await account.cloudResend(email: address); message = "" ; account.cloudMessage = "Kodi i ri u dërgua." } }
         Button("Kthehu") { account.cancelCloudSignIn() }
     }
@@ -254,7 +254,7 @@ struct CloudAccessScreen: View {
             #if os(iOS)
             .keyboardType(.numberPad)
             #endif
-        Button("Hyr") { perform { try await account.cloudSubmitLoginCode(code); code = "" } }.buttonStyle(.borderedProminent).disabled(code.isEmpty)
+        Button("Hyr") { perform { try await account.cloudSubmitLoginCode(code); code = "" } }.buttonStyle(.liquidProminent).disabled(code.isEmpty)
         Button("Ridërgo kodin") { perform { try await account.cloudResendLoginCode(); account.cloudMessage = "Kodi i ri u dërgua te " + address + "." } }
         Text("Pas 5 kodeve të gabuara duhet të kërkosh një kod të ri.").font(.footnote)
         Button("Anulo hyrjen") { account.cancelCloudSignIn() }
@@ -266,7 +266,7 @@ struct CloudAccessScreen: View {
             #if os(iOS)
             .keyboardType(.numberPad)
             #endif
-        Button("Vazhdo") { perform { try await account.cloudMFA(code: code); code = "" } }.buttonStyle(.borderedProminent).disabled(code.isEmpty)
+        Button("Vazhdo") { perform { try await account.cloudMFA(code: code); code = "" } }.buttonStyle(.liquidProminent).disabled(code.isEmpty)
         Text("Humbe aksesin te aplikacioni? Kontakto administratorin e shkollës për të hequr faktorin; vetë aplikacioni nuk e anashkalon.").font(.footnote)
         Button("Anulo hyrjen") { account.cancelCloudSignIn() }
     }
@@ -275,13 +275,13 @@ struct CloudAccessScreen: View {
         if entry == .studentParent {
             Picker("Roli", selection: $role) { Text("Nxënës").tag(SchoolRole.student); Text("Prind").tag(SchoolRole.parent) }.pickerStyle(.segmented)
             Text("Roli caktohet një herë nga serveri dhe nuk ndryshohet më.").font(.footnote)
-            Button("Vazhdo") { perform { try await account.cloudChooseRole(role) } }.buttonStyle(.borderedProminent)
+            Button("Vazhdo") { perform { try await account.cloudChooseRole(role) } }.buttonStyle(.liquidProminent)
         } else {
             SecureField("Kodi 5-shifror i mësuesit", text: $teacherCode)
                 #if os(iOS)
                 .keyboardType(.numberPad)
                 #endif
-            Button("Verifiko kodin") { perform { try await account.cloudRedeemTeacher(teacherCode); teacherCode = "" } }.buttonStyle(.borderedProminent).disabled(teacherCode.isEmpty)
+            Button("Verifiko kodin") { perform { try await account.cloudRedeemTeacher(teacherCode); teacherCode = "" } }.buttonStyle(.liquidProminent).disabled(teacherCode.isEmpty)
             Text("Pas 5 gabimesh llogaria bllokohet për 24 orë për këtë kod.").font(.footnote)
         }
         Button("Dil") { account.cancelCloudSignIn() }
@@ -299,7 +299,7 @@ struct CloudAccessScreen: View {
         Button("Ndrysho fjalëkalimin") { perform {
             if let problem = PasswordPolicy.problem(newPassword, email: address) { throw AuthFailure(message: problem) }
             try await account.cloudCompleteRecovery(email: address, code: code, newPassword: newPassword); code = ""; newPassword = "" } }
-            .buttonStyle(.borderedProminent).disabled((code.isEmpty && !account.recoveryVerified) || newPassword.isEmpty)
+            .buttonStyle(.liquidProminent).disabled((code.isEmpty && !account.recoveryVerified) || newPassword.isEmpty)
         if !account.recoveryVerified {
             Button("Ridërgo kodin") { perform { try await account.cloudRecover(email: address); account.cloudMessage = "Kodi i ri u dërgua. Mund të duhet rreth 1 minutë para se të kërkosh përsëri." } }
         }
@@ -331,7 +331,7 @@ private struct MFASetupView: View {
                     #if os(iOS)
                     .keyboardType(.numberPad)
                     #endif
-                Button("Aktivizo dhe vazhdo") { confirm(pending) }.buttonStyle(.borderedProminent).disabled(code.isEmpty || busy)
+                Button("Aktivizo dhe vazhdo") { confirm(pending) }.buttonStyle(.liquidProminent).disabled(code.isEmpty || busy)
                 Text("Humbe aksesin te aplikacioni? Administratori i shkollës mund ta rivendosë faktorin; vetë aplikacioni nuk e anashkalon.").font(.footnote)
             } else if message.isEmpty {
                 ProgressView()

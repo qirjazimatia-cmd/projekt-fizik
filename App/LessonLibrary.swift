@@ -237,7 +237,7 @@ struct StudyReader: View {
                     Spacer()
                     Button("A−") { textSize = max(15, textSize - 2) }.accessibilityLabel("Zvogëlo shkrimin")
                     Button("A+") { textSize = min(25, textSize + 2) }.accessibilityLabel("Zmadho shkrimin")
-                }.buttonStyle(.bordered)
+                }.buttonStyle(.liquid)
                 DisclosureGroup("Përmbajtja e mësimit") {
                     VStack(alignment: .leading, spacing: 12) {
                         Button("Hyrja dhe synimet") { jump(0, proxy) }
@@ -250,7 +250,7 @@ struct StudyReader: View {
                 }
                 NavigationLink { TutorChat(startingLesson: lesson) } label: {
                     Label("Pyet " + LessonTutor.name + " për këtë temë", systemImage: "sparkles")
-                }.buttonStyle(.bordered)
+                }.buttonStyle(.liquid)
                 introduction
                 LessonDiagramView(lesson:lesson)
                 ForEach(lesson.sections.indices, id: \.self) { index in
@@ -276,7 +276,7 @@ struct StudyReader: View {
                 bookmarks = toggling(bookmarks)
             } label: {
                 Label(bookmarked ? "Hiqe nga të ruajturat" : "Ruaje për më vonë", systemImage: bookmarked ? "bookmark.fill" : "bookmark")
-            }.buttonStyle(.bordered)
+            }.buttonStyle(.liquid)
         }
     }
     private var introduction: some View {
@@ -320,7 +320,7 @@ struct StudyReader: View {
                 if selected == lesson.check.correct { passedIDs = inserting(passedIDs) }
             }
             if choice != nil {
-                Button("Provoje pyetjen përsëri") { choice = nil }.buttonStyle(.bordered)
+                Button("Provoje pyetjen përsëri") { choice = nil }.buttonStyle(.liquid)
             } else if includes(passedIDs) {
                 Text("Këtë pyetje e ke zgjidhur saktë më parë.").font(.caption)
             }
@@ -364,7 +364,7 @@ struct StudyReader: View {
                 Label(read ? "E lexuar · shëno si të palexuar" : "E lexova këtë mësim", systemImage: read ? "checkmark.circle.fill" : "circle")
                     .contentTransition(.opacity)
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.liquidProminent)
             .tint(read ? .green : nil)
             .scaleEffect(justRead ? 1.06 : 1)
             .confetti(justRead, colors: [lesson.schoolSubject.color, .sun, .green, .white])

@@ -7,47 +7,102 @@ import SwiftUI
 struct GlassBackground<S: InsettableShape>: ViewModifier {
     let shape: S
     var tint: Color? = nil
+    /// Sa e fortë është ngjyra në xham (0 = i tejdukshëm, 1 = plot ngjyrë).
+    var strength: Double = 0.18
     var interactive = false
     @Environment(\.colorScheme) private var scheme
 
     func body(content: Content) -> some View {
         #if compiler(>=6.2)
         if #available(iOS 26.0, macOS 26.0, *) {
-            content.glassEffect(interactive ? Glass.regular.tint(tint?.opacity(0.18)).interactive() : Glass.regular.tint(tint?.opacity(0.18)), in: shape)
+            let glass = Glass.regular.tint(tint?.opacity(strength))
+            content.glassEffect(interactive ? glass.interactive() : glass, in: shape)
         } else {
-            fallback(content)
+            liquid(content)
         }
         #else
-        fallback(content)
+        liquid(content)
         #endif
     }
 
-    private func fallback(_ content: Content) -> some View {
-        content
+    /// Imitimi i Liquid Glass për çdo version: xham i turbullt e i tejdukshëm, shkëlqim lart, buzë që thyejnë dritën
+    /// dhe hije e butë poshtë.
+    private func liquid(_ content: Content) -> some View {
+        let dark = scheme == .dark
+        return content
             .background {
                 ZStack {
                     shape.fill(.ultraThinMaterial)
-                    if let tint { shape.fill(tint.opacity(0.10)) }
-                    shape.fill(LinearGradient(colors: [.white.opacity(scheme == .dark ? 0.08 : 0.35), .clear],
-                                              startPoint: .top, endPoint: .center))
+                    shape.fill((tint ?? .white).opacity(tint == nil ? (dark ? 0.02 : 0.12) : strength * 0.75))
+                    // Shkëlqimi i sipërm (si drita që bie mbi xham).
+                    shape.fill(LinearGradient(colors: [.white.opacity(dark ? 0.16 : 0.45), .white.opacity(0)],
+                                              startPoint: .top, endPoint: UnitPoint(x: 0.5, y: 0.55)))
+                    // Refleks i pjerrët në cepin e sipërm majtas.
+                    shape.fill(RadialGradient(colors: [.white.opacity(dark ? 0.18 : 0.35), .clear],
+                                              center: UnitPoint(x: 0.12, y: 0.0), startRadius: 0, endRadius: 140))
+                    // Pak errësim poshtë, që xhami të ketë «trashësi».
+                    shape.fill(LinearGradient(colors: [.clear, .black.opacity(dark ? 0.18 : 0.05)],
+                                              startPoint: UnitPoint(x: 0.5, y: 0.6), endPoint: .bottom))
                 }
             }
             .overlay {
-                shape.strokeBorder(LinearGradient(colors: [.white.opacity(scheme == .dark ? 0.35 : 0.8), .white.opacity(0.05), (tint ?? .white).opacity(0.25)],
-                                                  startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
+                // Buza: e ndritshme lart-majtas, më e zbehtë në mes, pak dritë poshtë-djathtas.
+                shape.strokeBorder(
+                    LinearGradient(stops: [.init(color: .white.opacity(dark ? 0.55 : 0.95), location: 0),
+                                           .init(color: .white.opacity(dark ? 0.10 : 0.25), location: 0.45),
+                                           .init(color: .white.opacity(dark ? 0.05 : 0.15), location: 0.6),
+                                           .init(color: (tint ?? .white).opacity(dark ? 0.45 : 0.6), location: 1)],
+                                   startPoint: .topLeading, endPoint: .bottomTrailing),
+                    lineWidth: 1.2)
             }
-            .shadow(color: .black.opacity(scheme == .dark ? 0.35 : 0.08), radius: 14, y: 6)
+            .overlay {
+                shape.inset(by: 1.2).strokeBorder(.white.opacity(dark ? 0.06 : 0.25), lineWidth: 0.6)
+            }
+            .shadow(color: .black.opacity(dark ? 0.40 : 0.10), radius: 18, y: 8)
+            .shadow(color: (tint ?? .black).opacity(dark ? 0.15 : 0.06), radius: 3, y: 1)
     }
+}
+
+/// Butona xhami (në vend të butonave të zakonshëm). `prominent` = xham me ngjyrë të fortë për veprimin kryesor.
+struct LiquidButtonStyle: ButtonStyle {
+    var prominent = false
+    func makeBody(configuration: Configuration) -> some View {
+        LiquidButton(configuration: configuration, prominent: prominent)
+    }
+    private struct LiquidButton: View {
+        let configuration: ButtonStyleConfiguration
+        let prominent: Bool
+        @Environment(\.subjectTheme) private var subject
+        @Environment(\.isEnabled) private var enabled
+        var body: some View {
+            let color = subject?.color ?? .lagoon
+            configuration.label
+                .font(.headline)
+                .padding(.horizontal, 18).padding(.vertical, 11)
+                .foregroundStyle(prominent ? Color.white : color)
+                .glassCapsule(tint: color, strength: prominent ? 0.85 : 0.10, interactive: true)
+                // «Lëng»: shtypet pak dhe zgjerohet anash kur e prek.
+                .scaleEffect(x: configuration.isPressed ? 1.04 : 1, y: configuration.isPressed ? 0.94 : 1)
+                .brightness(configuration.isPressed ? 0.06 : 0)
+                .opacity(enabled ? 1 : 0.45)
+                .animation(.spring(response: 0.28, dampingFraction: 0.55), value: configuration.isPressed)
+        }
+    }
+}
+
+extension ButtonStyle where Self == LiquidButtonStyle {
+    static var liquid: LiquidButtonStyle { LiquidButtonStyle() }
+    static var liquidProminent: LiquidButtonStyle { LiquidButtonStyle(prominent: true) }
 }
 
 extension View {
     /// Kartë xhami me kënde të rrumbullakëta.
-    func glass(cornerRadius: CGFloat = 18, tint: Color? = nil, interactive: Bool = false) -> some View {
-        modifier(GlassBackground(shape: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous), tint: tint, interactive: interactive))
+    func glass(cornerRadius: CGFloat = 18, tint: Color? = nil, strength: Double = 0.18, interactive: Bool = false) -> some View {
+        modifier(GlassBackground(shape: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous), tint: tint, strength: strength, interactive: interactive))
     }
     /// Kapsulë xhami (butona, shirita).
-    func glassCapsule(tint: Color? = nil, interactive: Bool = false) -> some View {
-        modifier(GlassBackground(shape: Capsule(), tint: tint, interactive: interactive))
+    func glassCapsule(tint: Color? = nil, strength: Double = 0.18, interactive: Bool = false) -> some View {
+        modifier(GlassBackground(shape: Capsule(), tint: tint, strength: strength, interactive: interactive))
     }
 }
 

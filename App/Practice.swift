@@ -96,10 +96,10 @@ struct ExercisePlayer: View {
             if let result {
                 AnswerBanner(correct: result, heading: result ? "Saktë!" : "Shiko zgjidhjen",
                              text: item.why + "\nPërgjigjja: " + item.answers.joined(separator: ", ") + " " + item.unit)
-                if let advance { Button("Vazhdo") { advance(result) }.buttonStyle(.borderedProminent) }
-                else if !result { Button("Riprovo") { withAnimation { self.result = nil } }.buttonStyle(.bordered) }
+                if let advance { Button("Vazhdo") { advance(result) }.buttonStyle(.liquidProminent) }
+                else if !result { Button("Riprovo") { withAnimation { self.result = nil } }.buttonStyle(.liquid) }
             } else {
-                Button("Kontrollo përgjigjen") { check() }.buttonStyle(.borderedProminent)
+                Button("Kontrollo përgjigjen") { check() }.buttonStyle(.liquidProminent)
             }
         }.navigationTitle(item.id).onAppear {
             if options.isEmpty {
@@ -193,7 +193,7 @@ struct RoleDesk: View {
                                 var ids = Set(homeActivity.split(separator: "|").map(String.init))
                                 if ids.contains(activity.id) { ids.remove(activity.id) } else { ids.insert(activity.id) }
                                 homeActivity = ids.sorted().joined(separator: "|")
-                            }.buttonStyle(.bordered)
+                            }.buttonStyle(.liquid)
                         }.padding(.top, 10)
                     }.padding().glass(cornerRadius: 14)
                 }
@@ -250,7 +250,7 @@ struct FamilyReport: View {
                         }.joined(separator: "\n")
                         draft = ""; message = "Raporti u ruajt."
                     } else { message = "Ngjit raportin e plotë me rezultatet e të katër lëndëve." }
-                }.buttonStyle(.bordered)
+                }.buttonStyle(.liquid)
                 if !message.isEmpty { Text(message) }
                 if let values = scores(saved) {
                     ForEach(Subject.allCases.indices, id: \.self) { index in

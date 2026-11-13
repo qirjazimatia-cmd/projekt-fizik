@@ -132,7 +132,7 @@ struct MockTestView: View {
                                                     set: { if $0 { chosen.insert(chapter.id) } else { chosen.remove(chapter.id) } }))
             }
             Stepper("Pyetje: \(count)", value: $count, in: 5...20, step: 5)
-            Button("Fillo testin") { start() }.buttonStyle(.borderedProminent).disabled(chosen.isEmpty)
+            Button("Fillo testin") { start() }.buttonStyle(.liquidProminent).disabled(chosen.isEmpty)
         }.navigationTitle("Test prove")
     }
 
@@ -148,7 +148,7 @@ struct MockTestView: View {
                     NavigationLink { StudyReader(lesson: lesson) } label: { Label(lesson.title, systemImage: "book") }
                 }
             }
-            Button("Test i ri") { started = false; index = 0; correct = 0; wrong = [] }.buttonStyle(.bordered)
+            Button("Test i ri") { started = false; index = 0; correct = 0; wrong = [] }.buttonStyle(.liquid)
         }.navigationTitle("Rezultati")
         .confetti(correct * 10 >= items.count * 8, colors: [subject.color, .sun, subject.deep, .white])
     }

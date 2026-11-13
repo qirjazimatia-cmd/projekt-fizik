@@ -140,7 +140,7 @@ struct ClassScheduleView: View {
                                                "subject": subject.trimmingCharacters(in: .whitespaces), "room": room.trimmingCharacters(in: .whitespaces)]
                     Task { if await model.create(body) { subject = ""; room = "" } }
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.liquidProminent)
                 .disabled(model.busy || classID.isEmpty || subject.trimmingCharacters(in: .whitespaces).isEmpty)
             }
         }

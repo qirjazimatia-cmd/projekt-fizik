@@ -40,7 +40,7 @@ struct LessonAssistant: View {
             TextField("Çfarë nuk kupton? P.sh. \"si llogaritet nxitimi\"", text: $question, axis: .vertical)
                 .textFieldStyle(.roundedBorder).lineLimit(1...3).onSubmit(ask)
             AssistantFilters(subject: $subjectFilter, onlyMyLevel: $onlyMyLevel, hasLevel: learnerLevel != nil)
-            Button("Shpjegoje") { ask() }.buttonStyle(.borderedProminent)
+            Button("Shpjegoje") { ask() }.buttonStyle(.liquidProminent)
                 .disabled(question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             if !searched && selected == nil {
                 AssistantExamples { example in question = example; ask() }
@@ -112,7 +112,7 @@ private struct AssistantExamples: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Provo për shembull").font(.headline)
             ForEach(LessonAssistantIndex.examples, id: \.self) { example in
-                Button(example) { choose(example) }.buttonStyle(.bordered)
+                Button(example) { choose(example) }.buttonStyle(.liquid)
             }
         }
     }
@@ -169,7 +169,7 @@ private struct StepByStep: View {
             if shown < example.steps.count {
                 Text("Mendo vetë hapin \(shown + 1), pastaj krahasoje.").font(.footnote).foregroundStyle(.secondary)
                 HStack {
-                    Button("Shfaq hapin \(shown + 1)") { shown += 1 }.buttonStyle(.bordered)
+                    Button("Shfaq hapin \(shown + 1)") { shown += 1 }.buttonStyle(.liquid)
                     Button("Shfaq të gjithë") { shown = example.steps.count }
                 }
             } else {
@@ -733,7 +733,7 @@ private struct ConversationList: View {
             Button(action: newChat) {
                 Label("Bisedë e re", systemImage: "square.and.pencil").frame(maxWidth: .infinity, alignment: .leading)
             }
-            .buttonStyle(.bordered).padding(12)
+            .buttonStyle(.liquid).padding(12)
             if conversations.isEmpty {
                 Text("Bisedat e tua do shfaqen këtu. Ruhen në këtë pajisje derisa t'i fshish.")
                     .font(.footnote).foregroundStyle(.secondary).padding(.horizontal, 12)
@@ -873,7 +873,7 @@ private struct ChatSuggestions: View {
         if !items.isEmpty {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(items, id: \.self) { item in Button(item) { choose(item) }.buttonStyle(.bordered) }
+                    ForEach(items, id: \.self) { item in Button(item) { choose(item) }.buttonStyle(.liquid) }
                 }.padding(.horizontal, 12).padding(.vertical, 6)
             }
         }

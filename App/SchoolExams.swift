@@ -90,7 +90,7 @@ struct ExamComposer: View {
                     Button("Ruaj si draft") { Task { await publish(draft:true) } }.disabled(busy || title.isEmpty || questions.isEmpty)
                 }
                 Button(busy ? "Duke publikuar…" : "Publiko testin") { Task { await publish(draft:false) } }
-                    .buttonStyle(.borderedProminent).disabled(busy || title.isEmpty || generated+questions.count == 0 || generated+questions.count>30)
+                    .buttonStyle(.liquidProminent).disabled(busy || title.isEmpty || generated+questions.count == 0 || generated+questions.count>30)
             }
         }.textFieldStyle(.roundedBorder).disabled(busy || published)
         .onChange(of: subject) { _ in picked = [] }
@@ -236,11 +236,11 @@ struct SchoolTestPlayer: View {
                         if chosen>0 { Button("Mbrapa") { Task { if await save() { chosen -= 1; loadAnswer() } } } }
                         if chosen+1<a.questions.count { Button("Tjetra") { Task { if await save() { chosen += 1; loadAnswer() } } } }
                     }.disabled(busy || expired)
-                    Button("Dorëzo testin") { confirm = true }.buttonStyle(.borderedProminent).disabled(busy || expired)
+                    Button("Dorëzo testin") { confirm = true }.buttonStyle(.liquidProminent).disabled(busy || expired)
                 }
             } else {
                 Text("\(exam.minutes) minuta · \(exam.count) pyetje. Koha nis kur shtyp butonin.")
-                Button("Fillo ose vazhdo testin") { Task { await start() } }.buttonStyle(.borderedProminent).disabled(busy)
+                Button("Fillo ose vazhdo testin") { Task { await start() } }.buttonStyle(.liquidProminent).disabled(busy)
             }
             if busy { ProgressView() }
             if !message.isEmpty { Text(message).foregroundStyle(Color.red) }
@@ -372,7 +372,7 @@ struct ExamReview: View {
             }
             if SupabaseConfig.enabled {
                 Text("Statusi: " + (attempt.status ?? "") + (attempt.preliminary.map { " · pikë automatike paraprake: \($0)" } ?? "")).font(.footnote)
-                Button("Publiko rezultatin te nxënësi dhe prindi") { Task { await publishResults() } }.buttonStyle(.borderedProminent).disabled(busy)
+                Button("Publiko rezultatin te nxënësi dhe prindi") { Task { await publishResults() } }.buttonStyle(.liquidProminent).disabled(busy)
             }
             Text(message)
         }.textFieldStyle(.roundedBorder).onAppear { scores = attempt.grades ?? [:]; notes = attempt.feedback }
