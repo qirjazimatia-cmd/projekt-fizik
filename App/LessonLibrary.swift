@@ -160,6 +160,7 @@ struct StudyChapter: View {
     private var pool: [StudyLesson] {
         StudyLesson.matching(subject: subject, level: level).filter { $0.chapterID == chapterID }
     }
+    @Namespace private var zoom
     var body: some View {
         Page {
             Text(subject.rawValue + " · " + level.name).font(.caption.bold()).foregroundStyle(subject.color)
@@ -168,9 +169,10 @@ struct StudyChapter: View {
             if let overview = pool.first?.chapterIntroduction { SectionText(heading:"Hyrje në kapitull",text:overview) }
             ForEach(Array(pool.enumerated()), id: \.element.id) { index, lesson in
                 let isRead = readIDs.split(separator: "|").contains(Substring(lesson.id))
-                NavigationLink { StudyReader(lesson: lesson) } label: {
+                NavigationLink { StudyReader(lesson: lesson).zoomDestination(lesson.id, in: zoom) } label: {
                     Tile(icon: isRead ? "checkmark.circle.fill" : "book.closed",
                          title: lesson.title, detail: "\(lesson.readingMinutes) min · Shembull · Pyetje kontrolli")
+                        .zoomSource(lesson.id, in: zoom)
                 }
                 .buttonStyle(.springy)
                 .appearIn(index)

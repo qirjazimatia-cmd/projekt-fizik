@@ -548,7 +548,7 @@ private struct LabObservation: Codable, Identifiable {
     let result: String
 }
 
-private struct InteractiveExperiment: View {
+struct InteractiveExperiment: View {
     let experiment: LabExperiment
     @State private var a: Double
     @State private var b: Double
@@ -1129,13 +1129,14 @@ enum LabPrediction {
 /// Kartat e eksperimenteve të një lënde: emoji e madhe, misioni dhe yjet e fituara.
 private struct LabCardGrid: View {
     let subject: Subject
+    @Namespace private var zoom
     @AppStorage("labStars.v1") private var starLog = ""
     var body: some View {
         let items = LabExperiment.allCases.filter { $0.subject == subject }
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 160), spacing: 12)], spacing: 12) {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, experiment in
-                NavigationLink { InteractiveExperiment(experiment: experiment) } label: {
-                    card(experiment)
+                NavigationLink { InteractiveExperiment(experiment: experiment).zoomDestination(experiment.id, in: zoom) } label: {
+                    card(experiment).zoomSource(experiment.id, in: zoom)
                 }
                 .buttonStyle(.springy)
                 .appearIn(index)
