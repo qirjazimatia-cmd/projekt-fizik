@@ -822,13 +822,21 @@ private struct BubbleGlass: ViewModifier {
 private struct ChatBubble: View {
     let line: ChatLine
     @EnvironmentObject private var reader: SpeechReader
+    private var avatar = AvatarStore()
+    init(line: ChatLine) { self.line = line }
     private var formatted: AttributedString {
         (try? AttributedString(markdown: line.reply.text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
             ?? AttributedString(line.reply.text)
     }
     var body: some View {
-        HStack {
+        HStack(alignment: .bottom, spacing: 8) {
             if line.fromStudent { Spacer(minLength: 40) }
+            else {
+                Image(systemName: "sparkles").font(.system(size: 15, weight: .bold)).foregroundStyle(.white)
+                    .frame(width: 32, height: 32)
+                    .background(Circle().fill(LinearGradient(colors: [Color.lagoon, .pink], startPoint: .topLeading, endPoint: .bottomTrailing)))
+                    .accessibilityHidden(true)
+            }
             VStack(alignment: .leading, spacing: 8) {
                 if let name = line.imageName, let url = ChatHistory.imageURL(name), let data = try? Data(contentsOf: url),
                    let image = ChatImage.cgImage(data) {
@@ -861,7 +869,8 @@ private struct ChatBubble: View {
                 }
             }
             .modifier(BubbleGlass(enabled: !line.fromStudent))
-            if !line.fromStudent { Spacer(minLength: 40) }
+            if line.fromStudent { AvatarBadge(emoji: avatar.emoji, color: avatar.color, size: 32) }
+            else { Spacer(minLength: 40) }
         }
     }
 }

@@ -6,13 +6,15 @@ struct ScienceQuestApp: App {
     @AppStorage(AppAppearance.schemeKey) private var appearance = 0
     @AppStorage(AppAppearance.textSizeKey) private var textSize = 2
     @AppStorage(Onboarding.doneKey) private var onboardingDone = false
+    @AppStorage(AppAccent.key) private var accent = 0
     var body: some Scene {
         WindowGroup {
             Group {
                 if let role = account.role {
-                    Dashboard(role: role).defaultAppStorage(account.storage).id(account.identity)
+                    Dashboard(role: role).defaultAppStorage(account.storage).id("\(account.identity)|\(accent)")
                 } else { AccessScreen() }
             }.environmentObject(account)
+            .tint(Color.lagoon)
             .preferredColorScheme(AppAppearance.scheme(appearance))
             .dynamicTypeSize(AppAppearance.textSize(textSize))
             .task { await account.restore() }
@@ -41,7 +43,8 @@ extension Color {
     static let midnight = Color(red: 0.08, green: 0.07, blue: 0.19)
     static let sun = Color(red: 1.0, green: 0.84, blue: 0.27)
     /// Ngjyra kryesore; në modalitetin e errët pak më e çelët, që të lexohet mbi sfond të errët.
-    static let lagoon = Color(light: Color(red: 0.32, green: 0.22, blue: 0.74), dark: Color(red: 0.62, green: 0.55, blue: 1.0))
+    /// Ngjyra kryesore: ajo që zgjedh përdoruesi te Pamja (Progression.swift → AppAccent); parazgjedhja vjollcë.
+    static var lagoon: Color { AppAccent.color }
     /// Sfondi i faqeve.
     static let paper = Color(light: Color(red: 0.95, green: 0.94, blue: 0.99), dark: Color(red: 0.07, green: 0.07, blue: 0.11))
     /// Sfondi i kartave (ishte e bardhë).
@@ -91,6 +94,7 @@ struct AppearanceSettings: View {
                 Text("Madhësia e tekstit")
             } minimumValueLabel: { Text("A").font(.caption) } maximumValueLabel: { Text("A").font(.title2) }
             Toggle("Dridhje të lehta kur përgjigjesh", isOn: $haptics)
+            PersonalizeSettings().padding(.top, 6)
         }
     }
 }
@@ -129,9 +133,11 @@ struct Tile: View {
     let title: String
     let detail: String
     @Environment(\.subjectTheme) private var subject
+    @State private var shown = false
     var body: some View {
         HStack(spacing: 15) {
             Image(systemName: icon).font(.headline).foregroundStyle(.white)
+                .bounceSymbol(on: shown)
                 .frame(width: 48, height: 48)
                 .background(subject.map { AnyShapeStyle($0.gradient) } ?? AnyShapeStyle(Color.lagoon), in: RoundedRectangle(cornerRadius: subject == nil ? 8 : 12))
             VStack(alignment: .leading, spacing: 4) {
@@ -143,6 +149,7 @@ struct Tile: View {
         }
         .padding(15).glass(cornerRadius: 22, tint: subject?.color, interactive: true).contentShape(Rectangle())
         .modifier(ScrollFade())
+        .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { shown = true } }
     }
 }
 
@@ -182,6 +189,11 @@ struct HomePage: View {
     @Environment(\.learnerLevel) private var learnerLevel
     var body: some View {
         Page {
+            HomeHeader(role: role).appearIn(0)
+            GlobalSearchField().appearIn(1)
+            if let last = StudyLesson.all.first(where: { $0.id == lastID && (learnerLevel == nil || $0.level == learnerLevel?.rawValue) }) {
+                ContinueCard(lesson: last, readIDs: readIDs).appearIn(2)
+            }
             QuestCover()
             Text("BrainSpark · versioni " + (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")).font(.caption.bold()).foregroundStyle(Color.lagoon)
             Text("Zgjidh lëndën").font(.system(.title, design: .rounded).weight(.black))
@@ -196,11 +208,6 @@ struct HomePage: View {
             let count = readingPool.filter { readIDs.split(separator: "|").contains(Substring($0.id)) }.count
             ProgressView(value: Double(count), total: Double(max(1, readingPool.count))) {
                 Text("Mësime të lexuara · \(count)/\(readingPool.count)").font(.subheadline.bold())
-            }
-            if let last = readingPool.first(where: { $0.id == lastID }) {
-                NavigationLink { StudyReader(lesson: last) } label: {
-                    Tile(icon: "bookmark.fill", title: "Rihap temën e fundit", detail: last.title)
-                }
             }
             Group {
                 NavigationLink { StudySubjects() } label: { Tile(icon: "books.vertical.fill", title: "Mësime sipas kapitujve", detail: "600 mësime · 120 kapituj · Pesë nivele") }

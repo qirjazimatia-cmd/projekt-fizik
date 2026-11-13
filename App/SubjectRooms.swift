@@ -116,6 +116,7 @@ struct Dashboard: View {
         VStack(spacing: 3) {
             Image(systemName: symbol).font(.system(size: 18, weight: .semibold))
                 .scaleEffect(selected ? 1.12 : 1)
+                .bounceSymbol(on: selected)
             Text(title).font(.system(size: 10, weight: .semibold)).lineLimit(1)
         }
         .foregroundStyle(selected ? (color ?? Color.lagoon) : Color.ink.opacity(0.75))
@@ -167,8 +168,11 @@ struct Dashboard: View {
     private func tab(_ value: Destination, _ label: String, _ short: String, _ symbol: String, _ expanded: Bool, highlight: Color? = nil) -> some View {
         Button { select(value) } label: {
             Group {
-                if expanded { Label(label, systemImage: symbol).font(.headline).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 9) }
-                else { VStack(spacing: 4) { Image(systemName: symbol); Text(short).font(.caption2.bold()) } }
+                if expanded {
+                    Label { Text(label) } icon: { Image(systemName: symbol).bounceSymbol(on: destination == value) }
+                        .font(.headline).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 9)
+                }
+                else { VStack(spacing: 4) { Image(systemName: symbol).bounceSymbol(on: destination == value); Text(short).font(.caption2.bold()) } }
             }.frame(maxWidth: .infinity, minHeight: expanded ? 43 : 49)
             .foregroundStyle(destination == value ? (highlight == nil ? Color.midnight : .white) : .white)
             .background {
@@ -198,13 +202,16 @@ private enum RoomTab: String, CaseIterable {
 }
 private struct SubjectRoom: View {
     let subject: Subject
+    @Namespace private var zoom
     var body: some View {
         Page {
             SubjectBanner(subject: subject)
             ForEach(Array(RoomTab.allCases.enumerated()), id: \.element) { index, tab in
                 NavigationLink {
-                    if tab == .lessons { StudyLibrary(subject: subject) }
-                    else { SubjectShelf(subject: subject, tab: tab) }
+                    Group {
+                        if tab == .lessons { StudyLibrary(subject: subject) }
+                        else { SubjectShelf(subject: subject, tab: tab) }
+                    }.zoomDestination(tab.rawValue, in: zoom)
                 } label: {
                     HStack(spacing: 14) {
                         Image(systemName: tab.icon).font(.title3).foregroundStyle(.white)
@@ -215,6 +222,7 @@ private struct SubjectRoom: View {
                     }.padding(12).glass(cornerRadius: 16)
                     .overlay(RoundedRectangle(cornerRadius: 16).stroke(subject.color.opacity(0.25), lineWidth: 1))
                     .shadow(color: subject.color.opacity(0.12), radius: 8, y: 4)
+                    .zoomSource(tab.rawValue, in: zoom)
                 }
                 .buttonStyle(.springy)
                 .simultaneousGesture(TapGesture().onEnded { Haptics.tap() })
