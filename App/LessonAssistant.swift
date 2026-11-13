@@ -408,38 +408,35 @@ private struct BoskoPrivacySheet: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Label("Bosko AI me internet", systemImage: "lock.shield.fill").font(.title2.bold()).foregroundStyle(Color.lagoon)
-                Text("Pa internet, Bosko të ndihmon nga 700 mësimet e aplikacionit dhe asgjë nuk del nga pajisja. Për përgjigje më të zgjuara, Bosko mund t'i dërgojë pyetjen një shërbimi AI jashtë shkollës. Kjo bëhet vetëm me lejen tënde.")
-                privacyRow("text.bubble.fill", "Çfarë dërgohet", "Pyetjet e bisedës, pjesë nga mësimet e aplikacionit dhe, kur ti i zgjedh: teksti i fotos (lexohet në pajisje), fotoja vetë vetëm kur teksti nuk mjafton, dhe pyetjet me zë.")
-                privacyRow("server.rack", "Ku dërgohet", "Groq (groq.com), që nuk i përdor këto të dhëna për trajnim. Kur Groq është i zënë, ose për pyetjet me zë që Groq nuk i shkruan dot, përdoret Google Gemini; në nivelin falas Google mund t'i përdorë të dhënat për të përmirësuar shërbimet e veta.")
-                privacyRow("person.crop.circle.badge.xmark", "Çfarë NUK dërgohet", "Emri, emaili, klasa ose notat. Emailet dhe numrat e telefonit hiqen automatikisht nga teksti.")
-                privacyRow("gauge.with.dots.needle.33percent", "Kufiri", "Deri në 60 pyetje në ditë me internet (mësuesit 150), që shërbimi falas të mjaftojë për të gjithë shkollën.")
-                privacyRow("hand.raised.fill", "Zgjedhja jote", "Mund ta tërheqësh lejen kur të duash te Bosko → Më shumë → Privatësia e Bosko AI. Nëse je nën 16 vjeç, vendose bashkë me prindin.")
-                if !error.isEmpty { Text(error).font(.callout).foregroundStyle(.red) }
-                VStack(spacing: 10) {
-                    Button { choose(true) } label: { Label("Pajtohem, përdor Bosko me internet", systemImage: "checkmark.circle.fill").frame(maxWidth: .infinity) }
-                        .buttonStyle(.liquidProminent).disabled(busy)
+            VStack(alignment: .leading, spacing: 14) {
+                Label("Bosko me internet", systemImage: "lock.shield.fill").font(.title3.bold()).foregroundStyle(Color.lagoon)
+                // Apple 5.1.2(i): tregohet qartë ku shkojnë të dhënat dhe kërkohet leje para dërgimit. Hollësitë janë te «Më shumë».
+                Text("Për përgjigje më të zgjuara, pyetjet (dhe fotot ose zëri kur i dërgon) shkojnë te shërbimet AI **Groq** dhe **Google Gemini**. Emri dhe emaili yt nuk dërgohen.")
+                    .font(.callout).fixedSize(horizontal: false, vertical: true)
+                DisclosureGroup("Më shumë") {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("• Groq nuk i përdor të dhënat për trajnim. Gemini (rezervë) në nivelin falas mund t'i përdorë për të përmirësuar shërbimet e Google.")
+                        Text("• Teksti i fotos lexohet në pajisje; fotoja dërgohet vetëm kur ka vizatime. Emailet dhe numrat e telefonit hiqen.")
+                        Text("• Deri në 60 pyetje në ditë (mësuesit 150). Pa leje, Bosko punon nga mësimet e app-it.")
+                        Text("• Leja tërhiqet te Bosko → Më shumë → Privatësia. Nën 16 vjeç: vendose me prindin.")
+                    }
+                    .font(.footnote).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true).padding(.top, 6)
+                }
+                .font(.footnote)
+                if !error.isEmpty { Text(error).font(.footnote).foregroundStyle(.red) }
+                HStack(spacing: 10) {
                     Button { choose(false) } label: {
-                        Text(current == BoskoConsent.given ? "Tërhiq lejen (vetëm pa internet)" : "Jo tani, vetëm pa internet").frame(maxWidth: .infinity)
+                        Text(current == BoskoConsent.given ? "Tërhiq lejen" : "Jo tani").frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.liquid).disabled(busy)
+                    Button { choose(true) } label: { Text("Aktivizo").bold().frame(maxWidth: .infinity) }
+                        .buttonStyle(.liquidProminent).disabled(busy)
                 }
-                .padding(.top, 6)
             }
-            .padding(22)
+            .padding(20)
         }
-        .macSheetFrame(minWidth: 460, minHeight: 600)
-    }
-
-    private func privacyRow(_ icon: String, _ title: String, _ text: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: icon).font(.title3).foregroundStyle(Color.lagoon).frame(width: 30)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title).font(.headline)
-                Text(text).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-            }
-        }
+        .presentationDetents([.height(330), .large])
+        .macSheetFrame(minWidth: 420, minHeight: 300)
     }
 
     private func choose(_ accept: Bool) {
