@@ -681,9 +681,9 @@ private struct InteractiveExperiment: View {
             }
             actions
             if checked && !freePlay {
-                if let earnedStars {
-                    GameOverCard(title: "Misioni u arrit!", score: earnedStars * 10, unit: "pikë laboratori",
-                                 stars: earnedStars, color: experiment.subject.color) {
+                if let stars = earnedStars {
+                    GameOverCard(title: "Misioni u arrit!", score: stars * 10, unit: "pikë laboratori",
+                                 stars: stars, color: experiment.subject.color) {
                         Text(attempts == 1 ? "Me provën e parë! 🚀" : "Me \(attempts) prova").font(.headline)
                         Button("Provo përsëri për 3 yje") { checked = false; earnedStars = nil; attempts = 0 }.buttonStyle(.bordered)
                     }
