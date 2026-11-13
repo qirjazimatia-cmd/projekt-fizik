@@ -131,8 +131,8 @@ struct HomeHeader: View {
         }
         .onAppear { withAnimation(.spring(response: 1.0, dampingFraction: 0.8).delay(0.2)) { ring = max(0.02, level.progress) } }
         .onChange(of: stats.xp) { _ in withAnimation(.spring()) { ring = max(0.02, stats.level.progress) } }
-        .sheet(isPresented: $editing) { AvatarEditor().frame(minWidth: 420, minHeight: 560) }
-        .sheet(isPresented: $showBadges) { NavigationStack { BadgeShelf() }.frame(minWidth: 420, minHeight: 560) }
+        .sheet(isPresented: $editing) { AvatarEditor().macSheetFrame(minWidth: 420, minHeight: 560) }
+        .sheet(isPresented: $showBadges) { NavigationStack { BadgeShelf() }.macSheetFrame(minWidth: 420, minHeight: 560) }
         .modifier(LevelUpWatcher(level: level.number, earned: stats.badges.filter(\.earned)))
     }
 }
@@ -330,7 +330,7 @@ struct GlobalSearchField: View {
         Button { open = true } label: {
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass").font(.headline)
-                Text("Kërko mësime, ushtrime, laboratorë…").foregroundStyle(.secondary)
+                Text("Kërko mësime, ushtrime, laboratorë…").foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.8)
                 Spacer()
                 #if os(macOS)
                 Text("⌘K").font(.caption.bold()).padding(.horizontal, 6).padding(.vertical, 2).glassCapsule()
@@ -342,7 +342,7 @@ struct GlobalSearchField: View {
         .buttonStyle(.springy)
         .keyboardShortcut("k", modifiers: .command)
         .accessibilityLabel("Kërko")
-        .sheet(isPresented: $open) { GlobalSearch().frame(minWidth: 520, minHeight: 620) }
+        .sheet(isPresented: $open) { GlobalSearch().macSheetFrame(minWidth: 520, minHeight: 620) }
     }
 }
 
@@ -370,7 +370,7 @@ struct GlobalSearch: View {
             Page {
                 HStack(spacing: 10) {
                     Image(systemName: "magnifyingglass").font(.headline).foregroundStyle(Color.lagoon)
-                    TextField("Shkruaj p.sh. «fotosinteza», «forca», «ekuacion»", text: $query)
+                    TextField("Kërko p.sh. «fotosinteza»", text: $query)
                         .textFieldStyle(.plain)
                     if !query.isEmpty {
                         Button { withAnimation { query = "" } } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }.buttonStyle(.plain)
@@ -379,10 +379,12 @@ struct GlobalSearch: View {
                 .padding(.horizontal, 16).padding(.vertical, 13).glassCapsule()
                 if tokens.isEmpty {
                     Text("Provo:").font(.headline)
-                    HStack {
-                        ForEach(["qeliza", "shpejtësia", "acid", "thyesa"], id: \.self) { word in
-                            Button(word) { withAnimation(.spring()) { query = word } }.buttonStyle(.liquid)
-                        }
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack {
+                            ForEach(["qeliza", "shpejtësia", "acid", "thyesa"], id: \.self) { word in
+                                Button(word) { withAnimation(.spring()) { query = word } }.buttonStyle(.liquid)
+                            }
+                        }.padding(.vertical, 4)
                     }
                 } else if lessons.isEmpty && exercises.isEmpty && labs.isEmpty {
                     Label("Nuk gjeta asgjë për «\(query)». Provo një fjalë tjetër.", systemImage: "questionmark.circle").foregroundStyle(.secondary)

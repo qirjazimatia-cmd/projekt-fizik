@@ -152,3 +152,15 @@ struct ScrollFade: ViewModifier {
         }
     }
 }
+
+extension View {
+    /// Madhësia minimale e dritareve (sheet) vlen vetëm në Mac. Në iPhone/iPad dritarja përshtatet me ekranin,
+    /// përndryshe del e prerë në gjysmë.
+    @ViewBuilder func macSheetFrame(minWidth: CGFloat, minHeight: CGFloat) -> some View {
+        #if os(macOS)
+        self.frame(minWidth: minWidth, minHeight: minHeight)
+        #else
+        self
+        #endif
+    }
+}
