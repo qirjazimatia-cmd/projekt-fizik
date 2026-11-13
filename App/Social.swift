@@ -294,7 +294,7 @@ struct FriendsView: View {
                         #if os(iOS)
                         .textInputAutocapitalization(.never)
                         #endif
-                    if !query.isEmpty { Button { query = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }.buttonStyle(.plain) }
+                    if !query.isEmpty { Button { query = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }.buttonStyle(.plain).accessibilityLabel("Fshi kërkimin") }
                 }
                 .padding(.horizontal, 16).padding(.vertical, 13).glassCapsule()
                 .task(id: query) {
@@ -324,7 +324,7 @@ struct FriendsView: View {
                     ForEach(social.incoming) { user in
                         row(user) {
                             HStack(spacing: 8) {
-                                Button { Task { await social.respond(user, accept: false) } } label: { Image(systemName: "xmark") }.buttonStyle(.liquid)
+                                Button { Task { await social.respond(user, accept: false) } } label: { Image(systemName: "xmark") }.buttonStyle(.liquid).accessibilityLabel("Refuzo ftesën e \(user.displayName)")
                                 Button { Task { await social.respond(user, accept: true) } } label: { Label("Prano", systemImage: "checkmark") }.buttonStyle(.liquidProminent)
                             }
                         }

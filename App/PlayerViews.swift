@@ -373,7 +373,7 @@ struct GlobalSearch: View {
                     TextField("Kërko p.sh. «fotosinteza»", text: $query)
                         .textFieldStyle(.plain)
                     if !query.isEmpty {
-                        Button { withAnimation { query = "" } } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }.buttonStyle(.plain)
+                        Button { withAnimation { query = "" } } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }.buttonStyle(.plain).accessibilityLabel("Fshi kërkimin")
                     }
                 }
                 .padding(.horizontal, 16).padding(.vertical, 13).glassCapsule()

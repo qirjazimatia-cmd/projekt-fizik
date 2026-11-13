@@ -11,8 +11,31 @@ struct GlassBackground<S: InsettableShape>: ViewModifier {
     var strength: Double = 0.18
     var interactive = false
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorSchemeContrast) private var contrast
 
     func body(content: Content) -> some View {
+        // Aksesueshmëri: me «Reduce Transparency» ose «Increase Contrast» xhami bëhet kartë e plotë, me buzë të dukshme,
+        // që teksti të lexohet mirë mbi çdo sfond.
+        if reduceTransparency || contrast == .increased {
+            solid(content)
+        } else {
+            glass(content)
+        }
+    }
+
+    private func solid(_ content: Content) -> some View {
+        content
+            .background {
+                ZStack {
+                    shape.fill(Color.card)
+                    shape.fill((tint ?? .clear).opacity(min(strength, 0.85) * 0.9))
+                }
+            }
+            .overlay { shape.strokeBorder(Color.ink.opacity(contrast == .increased ? 0.55 : 0.18), lineWidth: contrast == .increased ? 1.5 : 1) }
+    }
+
+    @ViewBuilder private func glass(_ content: Content) -> some View {
         #if compiler(>=6.2)
         if #available(iOS 26.0, macOS 26.0, *) {
             let glass = Glass.regular.tint(tint?.opacity(strength))

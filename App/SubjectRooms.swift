@@ -144,6 +144,8 @@ struct Dashboard: View {
     private func barItem(_ value: Destination, _ title: String, _ symbol: String) -> some View {
         Button { select(value) } label: { barLabel(title, symbol, selected: destination == value, color: nil) }
             .accessibilityLabel(title).accessibilityAddTraits(destination == value ? .isSelected : [])
+            // Teksti i skedave është i vogël: me tekst të madh, mbajtja e gishtit tregon emrin të zmadhuar.
+            .accessibilityShowsLargeContentViewer { Label(title, systemImage: symbol) }
     }
     private func barLabel(_ title: String, _ symbol: String, selected: Bool, color: Color?) -> some View {
         VStack(spacing: 3) {
