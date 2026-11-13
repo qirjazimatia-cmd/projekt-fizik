@@ -22,7 +22,8 @@ struct ProfileReply: Decodable {
     let avatarColor: Int?
 }
 
-private struct FriendsReply: Decodable { let friends: [PublicUser]; let incoming: [PublicUser]; let outgoing: [PublicUser] }
+/// `blocked`: arsyeja kur llogaria nuk mund të ketë shokë (vetëm nxënës të pranuar në një klasë; shih 20261113_2200_matia_shoket_vetem_nxenes.sql).
+private struct FriendsReply: Decodable { let friends: [PublicUser]; let incoming: [PublicUser]; let outgoing: [PublicUser]; let blocked: String? }
 private struct SearchReply: Decodable { let users: [PublicUser] }
 private struct AvailableReply: Decodable { let available: Bool }
 private struct RelationReply: Decodable { let ok: Bool?; let relation: String? }
@@ -37,6 +38,8 @@ final class SocialModel: ObservableObject {
     @Published var results: [PublicUser] = []
     @Published var message = ""
     @Published var busy = false
+    /// Kur serveri nuk lejon shokë për këtë llogari (prind, mësues, ose nxënës ende pa klasë), këtu vjen arsyeja.
+    @Published var blocked: String?
 
     var needsUsername: Bool { loadedProfile && (profile?.username ?? "").isEmpty }
 
@@ -71,6 +74,7 @@ final class SocialModel: ObservableObject {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
                 friends = reply.friends; incoming = reply.incoming; outgoing = reply.outgoing
             }
+            blocked = reply.blocked
             message = ""
         } catch { message = error.localizedDescription }
     }
@@ -273,6 +277,14 @@ struct FriendsView: View {
             if !account.isOnline {
                 Label("Shokët punojnë vetëm me llogari online. Hyr me emailin e shkollës.", systemImage: "wifi.slash")
                     .padding().glass(cornerRadius: 18)
+            } else if let blocked = social.blocked {
+                // Mbrojtja e nxënësve: shokët vetëm mes nxënësve të pranuar në klasë.
+                VStack(spacing: 10) {
+                    Image(systemName: "lock.shield.fill").font(.system(size: 44)).foregroundStyle(Color.lagoon)
+                    Text(blocked).font(.headline).multilineTextAlignment(.center)
+                    Text("Për sigurinë e nxënësve, shokët mund të shtohen vetëm mes nxënësve që mësuesi i ka pranuar në klasë.")
+                        .font(.callout).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                }.frame(maxWidth: .infinity).padding(24).glass(cornerRadius: 22)
             } else {
                 // Kërkimi me username.
                 HStack(spacing: 10) {
