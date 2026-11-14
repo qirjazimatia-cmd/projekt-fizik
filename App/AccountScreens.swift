@@ -167,6 +167,7 @@ struct CloudAccessScreen: View {
             }.buttonStyle(.liquidProminent).controlSize(.large)
             Text("ose hyr me email dhe fjalëkalim më poshtë").font(.footnote).foregroundStyle(.secondary)
         }
+        BrainSparkLogo(size: 88).frame(maxWidth: .infinity).padding(.bottom, 4)
         Text("Hyrja në shkollë").font(.title.bold())
         Picker("Hyrja", selection: $entry) { Text("Nxënës / Prind").tag(AccessEntry.studentParent); Text("Mësues").tag(AccessEntry.teacher) }.pickerStyle(.segmented)
         Text(entry == .teacher ? "Hyrje për mësuesit. Roli kontrollohet nga serveri në çdo kërkesë, jo nga ky ekran." : "Hyrje për nxënës dhe prindër. Një email është një llogari me një rol të vetëm; nëse je edhe prind edhe mësues, përdor dy emaile.").font(.footnote)

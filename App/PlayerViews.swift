@@ -463,12 +463,9 @@ struct PersonalizeSettings: View {
                     ForEach(AppIconChoice.allCases) { choice in
                         Button { setIcon(choice) } label: {
                             VStack(spacing: 6) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                        .fill(LinearGradient(colors: [choice.colors[0], choice.colors[0].opacity(0.8)], startPoint: .top, endPoint: .bottom))
-                                    Image(systemName: "atom").font(.system(size: 30, weight: .bold)).foregroundStyle(choice.colors[1])
-                                }
+                                Image("IconPreview-" + choice.rawValue).resizable().scaledToFill()
                                 .frame(width: 64, height: 64)
+                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                                 .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Color.lagoon, lineWidth: iconChoice == choice.rawValue ? 3 : 0))
                                 .scaleEffect(iconChoice == choice.rawValue ? 1.06 : 1)
                                 Text(choice.title).font(.caption)

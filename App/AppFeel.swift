@@ -220,10 +220,15 @@ struct Onboarding: View {
                     if page < slides.count - 1 { Button("Kapërce") { done() }.foregroundStyle(.white.opacity(0.85)) }
                 }
                 Spacer()
-                Image(systemName: slide.symbol)
-                    .font(.system(size: 84, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .shadow(color: .black.opacity(0.25), radius: 12, y: 6)
+                Group {
+                    if page == 0 { BrainSparkLogo(size: 150) }
+                    else {
+                        Image(systemName: slide.symbol)
+                            .font(.system(size: 84, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                }
+                .shadow(color: .black.opacity(0.25), radius: 12, y: 6)
                     .id("icon\(page)")
                     .transition(reduceMotion ? .opacity : .scale(scale: 0.5).combined(with: .opacity))
                 VStack(spacing: 12) {
@@ -263,4 +268,26 @@ struct Onboarding: View {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) { page = index }
     }
     private func done() { Haptics.success(); finish() }
+}
+
+
+/// Logoja e BrainSpark (e njëjta pamje si ikona: atom xhami gjysmë në ujë), që noton lehtë lart e poshtë.
+struct BrainSparkLogo: View {
+    var size: CGFloat = 120
+    @State private var bob = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    var body: some View {
+        Image("BrainSparkLogo").resizable().scaledToFit()
+            .frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: size * 0.225, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: size * 0.225, style: .continuous)
+                .strokeBorder(LinearGradient(colors: [.white.opacity(0.8), .white.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.2))
+            .shadow(color: Color(red: 0.55, green: 0.3, blue: 0.95).opacity(0.4), radius: size * 0.15, y: size * 0.08)
+            .offset(y: bob ? -size * 0.03 : size * 0.03)
+            .accessibilityLabel("BrainSpark")
+            .onAppear {
+                guard !reduceMotion else { return }
+                withAnimation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true)) { bob = true }
+            }
+    }
 }
