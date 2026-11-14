@@ -82,6 +82,8 @@ struct Dashboard: View {
                 }
             }
             .animation(.spring(response: 0.5, dampingFraction: 0.85), value: social.needsUsername)
+            // Live Activity: ora e mësimit në ekranin e kyçur / Dynamic Island.
+            .modifier(LiveActivitySync())
             .task(id: account.isOnline) {
                 guard account.isOnline else { return }
                 await social.loadProfile()

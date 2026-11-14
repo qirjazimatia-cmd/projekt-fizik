@@ -200,6 +200,7 @@ struct HomePage: View {
             if role == .student {
                 DailyChallengeCard().appearIn(1)
                 LeaderboardCard().appearIn(2)
+                FocusTimerCard().appearIn(3)
             }
             GlobalSearchField().appearIn(1)
             if let last = StudyLesson.all.first(where: { $0.id == lastID && (learnerLevel == nil || $0.level == learnerLevel?.rawValue) }) {
