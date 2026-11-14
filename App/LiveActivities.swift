@@ -31,8 +31,8 @@ enum LiveActivities {
 
     #if os(iOS)
     @available(iOS 16.2, *)
-    private static func activities(_ kind: String) -> [Activity<BrainSparkActivity>] {
-        Activity<BrainSparkActivity>.activities.filter { $0.attributes.kind == kind }
+    private static func activities(_ kind: String) -> [ActivityKit.Activity<BrainSparkActivity>] {
+        ActivityKit.Activity<BrainSparkActivity>.activities.filter { $0.attributes.kind == kind }
     }
 
     /// Fillon, përditëson ose mbyll Live Activity e orës së mësimit sipas orarit.
@@ -50,7 +50,7 @@ enum LiveActivities {
         if let current = activities("class").first {
             if current.content.state != state { await current.update(content) }
         } else {
-            _ = try? Activity.request(attributes: BrainSparkActivity(kind: "class"), content: content, pushType: nil)
+            _ = try? ActivityKit.Activity.request(attributes: BrainSparkActivity(kind: "class"), content: content, pushType: nil)
         }
     }
 
@@ -65,7 +65,7 @@ enum LiveActivities {
         let state = BrainSparkActivity.ContentState(title: "Fokus", subtitle: "Mëso pa shpërqendrime · \(minutes) min",
                                                     start: now, end: now.addingTimeInterval(Double(minutes) * 60),
                                                     symbol: "brain.head.profile", colorIndex: 5)
-        _ = try? Activity.request(attributes: BrainSparkActivity(kind: "focus"),
+        _ = try? ActivityKit.Activity.request(attributes: BrainSparkActivity(kind: "focus"),
                                   content: ActivityContent(state: state, staleDate: state.end), pushType: nil)
     }
 
