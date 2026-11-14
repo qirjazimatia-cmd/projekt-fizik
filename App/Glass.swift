@@ -38,8 +38,9 @@ struct GlassBackground<S: InsettableShape>: ViewModifier {
     @ViewBuilder private func glass(_ content: Content) -> some View {
         #if compiler(>=6.2)
         if #available(iOS 26.0, macOS 26.0, *) {
-            let glass = Glass.regular.tint(tint?.opacity(strength))
-            content.glassEffect(interactive ? glass.interactive() : glass, in: shape)
+            // Pa `.interactive()`: xhami ndodhet brenda butonave dhe lidhjeve, dhe në iOS 26 xhami interaktiv
+            // mund ta marrë prekjen para butonit. Butoni vetë jep reagimin (shtypje + valëzim).
+            content.glassEffect(Glass.regular.tint(tint?.opacity(strength)), in: shape)
         } else {
             liquid(content)
         }
@@ -108,7 +109,7 @@ struct LiquidButtonStyle: ButtonStyle {
                 .scaleEffect(x: configuration.isPressed ? 1.04 : 1, y: configuration.isPressed ? 0.94 : 1)
                 .brightness(configuration.isPressed ? 0.06 : 0)
                 .opacity(enabled ? 1 : 0.45)
-                .liquidRipple(prominent ? .white : color, cornerRadius: 40)
+                .overlay { PressRipple(pressed: configuration.isPressed, color: prominent ? .white : color, cornerRadius: 40) }
                 .animation(.spring(response: 0.28, dampingFraction: 0.55), value: configuration.isPressed)
         }
     }
@@ -231,51 +232,47 @@ struct LiquidWaves: View {
     }
 }
 
-/// Valëzim uji nga pika ku prek (kartat dhe butonat prej xhami).
-struct LiquidRipple: ViewModifier {
+/// Valëzim uji kur shtypet një buton ose kartë. Niset nga gjendja «i shtypur» e butonit (jo nga një gjest më vete),
+/// kështu që nuk ia merr kurrë prekjen butonit.
+struct PressRipple: View {
+    let pressed: Bool
     var color: Color = .white
     var cornerRadius: CGFloat = 22
-    @State private var ripples: [Ripple] = []
+    @State private var waves: [UUID] = []
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    private struct Ripple: Identifiable { let id = UUID(); let point: CGPoint; var grown = false }
 
-    func body(content: Content) -> some View {
-        content
-            .overlay {
-                GeometryReader { geometry in
-                    ZStack {
-                        ForEach(ripples) { ripple in
-                            let size = max(geometry.size.width, geometry.size.height) * 2.2
-                            Circle()
-                                .fill(RadialGradient(colors: [color.opacity(0.0), color.opacity(0.22), color.opacity(0.0)],
-                                                     center: .center, startRadius: size * 0.25, endRadius: size * 0.5))
-                                .frame(width: size, height: size)
-                                .scaleEffect(ripple.grown ? 1 : 0.02)
-                                .opacity(ripple.grown ? 0 : 1)
-                                .position(ripple.point)
-                        }
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-                }
-                .allowsHitTesting(false)
+    var body: some View {
+        GeometryReader { geometry in
+            let size = max(geometry.size.width, geometry.size.height) * 1.6
+            ZStack {
+                ForEach(waves, id: \.self) { id in RippleWave(color: color, size: size) }
             }
-            .simultaneousGesture(SpatialTapGesture().onEnded { value in
-                guard !reduceMotion else { return }
-                let ripple = Ripple(point: value.location)
-                ripples.append(ripple)
-                DispatchQueue.main.async {
-                    withAnimation(.easeOut(duration: 0.7)) {
-                        if let index = ripples.firstIndex(where: { $0.id == ripple.id }) { ripples[index].grown = true }
-                    }
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { ripples.removeAll { $0.id == ripple.id } }
-            })
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+        .onChange(of: pressed) { now in
+            guard now, !reduceMotion else { return }
+            let id = UUID()
+            waves.append(id)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { waves.removeAll { $0 == id } }
+        }
     }
 }
 
-extension View {
-    func liquidRipple(_ color: Color = .white, cornerRadius: CGFloat = 22) -> some View {
-        modifier(LiquidRipple(color: color, cornerRadius: cornerRadius))
+private struct RippleWave: View {
+    let color: Color
+    let size: CGFloat
+    @State private var grown = false
+    var body: some View {
+        Circle()
+            .fill(RadialGradient(colors: [color.opacity(0.0), color.opacity(0.25), color.opacity(0.0)],
+                                 center: .center, startRadius: size * 0.2, endRadius: size * 0.5))
+            .frame(width: size, height: size)
+            .scaleEffect(grown ? 1 : 0.05)
+            .opacity(grown ? 0 : 1)
+            .onAppear { withAnimation(.easeOut(duration: 0.7)) { grown = true } }
     }
 }
 

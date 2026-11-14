@@ -59,6 +59,7 @@ enum Haptics {
 struct SpringyButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .overlay { PressRipple(pressed: configuration.isPressed, color: .lagoon) }
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .brightness(configuration.isPressed ? -0.03 : 0)
             .animation(.spring(response: 0.25, dampingFraction: 0.6), value: configuration.isPressed)
