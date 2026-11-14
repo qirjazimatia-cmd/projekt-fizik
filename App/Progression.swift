@@ -13,6 +13,7 @@ struct PlayerStats: DynamicProperty {
     @AppStorage("labStars.v1") var labStars = ""
     @AppStorage("labPredictions.v1") var predictions = 0
     @AppStorage("studyActivity.v1") var activity = ""
+    @AppStorage("daily.v1") var daily = ""
 
     private func count(_ list: String) -> Int { Set(list.split(separator: "|").filter { !$0.isEmpty }).count }
     var lessonsRead: Int { count(readIDs) }
@@ -27,6 +28,7 @@ struct PlayerStats: DynamicProperty {
     var xp: Int {
         lessonsRead * 20 + checksPassed * 15 + exercisesMastered * 10 + labsDone * 30 + labStarTotal * 10
             + predictions * 5 + activeDays * 25 + min(answers, 2000) * 2
+            + DailyChallenge.correctCount(daily) * 40 + (DailyChallenge.answeredCount(daily) - DailyChallenge.correctCount(daily)) * 10
     }
     var level: PlayerLevel { PlayerLevel(xp: xp) }
 }
@@ -77,6 +79,7 @@ extension PlayerStats {
             Badge(id: "streak-3", emoji: "🔥", title: "3 ditë radhazi", detail: "Mëso 3 ditë pa ndërprerje", earned: streak >= 3),
             Badge(id: "streak-7", emoji: "⚡️", title: "Java e plotë", detail: "Mëso 7 ditë radhazi", earned: streak >= 7),
             Badge(id: "level-5", emoji: "🚀", title: "Niveli 5", detail: "Arrij nivelin 5", earned: level.number >= 5),
+            Badge(id: "daily-7", emoji: "⚡", title: "7 sfida të ditës", detail: "Zgjidh saktë 7 sfida të ditës", earned: DailyChallenge.correctCount(daily) >= 7),
         ]
     }
 }

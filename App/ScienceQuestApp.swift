@@ -197,6 +197,10 @@ struct HomePage: View {
         Page {
             HomeHeader(role: role).appearIn(0)
             TodaySection(role: role)
+            if role == .student {
+                DailyChallengeCard().appearIn(1)
+                LeaderboardCard().appearIn(2)
+            }
             GlobalSearchField().appearIn(1)
             if let last = StudyLesson.all.first(where: { $0.id == lastID && (learnerLevel == nil || $0.level == learnerLevel?.rawValue) }) {
                 ContinueCard(lesson: last, readIDs: readIDs).appearIn(2)
