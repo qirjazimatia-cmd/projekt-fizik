@@ -155,6 +155,7 @@ struct Tile: View {
         }
         .padding(15).glass(cornerRadius: 22, tint: subject?.color, interactive: true).contentShape(Rectangle())
         .modifier(ScrollFade())
+        .liquidRipple(subject?.color ?? .lagoon)
         .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { shown = true } }
     }
 }

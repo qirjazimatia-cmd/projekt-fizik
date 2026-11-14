@@ -108,6 +108,7 @@ struct LiquidButtonStyle: ButtonStyle {
                 .scaleEffect(x: configuration.isPressed ? 1.04 : 1, y: configuration.isPressed ? 0.94 : 1)
                 .brightness(configuration.isPressed ? 0.06 : 0)
                 .opacity(enabled ? 1 : 0.45)
+                .liquidRipple(prominent ? .white : color, cornerRadius: 40)
                 .animation(.spring(response: 0.28, dampingFraction: 0.55), value: configuration.isPressed)
         }
     }
@@ -185,5 +186,140 @@ extension View {
         #else
         self
         #endif
+    }
+}
+
+// MARK: - «Si uji»: valë, valëzim kur prek, pika që zgjatet dhe kalime të buta (Juri)
+
+/// Valë uji që lëvizin ngadalë poshtë faqes (pas xhamit). Ndalen me «Reduce Motion».
+struct LiquidWaves: View {
+    var color: Color
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var scheme
+    var body: some View {
+        if reduceMotion {
+            wave(phase: 0)
+        } else {
+            TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
+                wave(phase: timeline.date.timeIntervalSinceReferenceDate)
+            }
+        }
+    }
+    private func wave(phase: Double) -> some View {
+        Canvas { context, size in
+            let layers: [(amp: Double, length: Double, speed: Double, height: Double, alpha: Double)] = [
+                (14, 1.6, 0.35, 0.80, scheme == .dark ? 0.10 : 0.08),
+                (10, 1.1, -0.5, 0.85, scheme == .dark ? 0.08 : 0.07),
+                (7, 0.8, 0.7, 0.90, scheme == .dark ? 0.07 : 0.06),
+            ]
+            for layer in layers {
+                var path = Path()
+                let base = size.height * layer.height
+                path.move(to: CGPoint(x: 0, y: size.height))
+                stride(from: 0.0, through: size.width, by: 6).forEach { x in
+                    let y = base + sin(x / size.width * .pi * 2 * layer.length + phase * layer.speed * 2) * layer.amp
+                    path.addLine(to: CGPoint(x: x, y: y))
+                }
+                path.addLine(to: CGPoint(x: size.width, y: size.height))
+                path.closeSubpath()
+                context.fill(path, with: .linearGradient(Gradient(colors: [color.opacity(layer.alpha * 1.6), color.opacity(layer.alpha * 0.4)]),
+                                                         startPoint: CGPoint(x: 0, y: base), endPoint: CGPoint(x: 0, y: size.height)))
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+/// Valëzim uji nga pika ku prek (kartat dhe butonat prej xhami).
+struct LiquidRipple: ViewModifier {
+    var color: Color = .white
+    var cornerRadius: CGFloat = 22
+    @State private var ripples: [Ripple] = []
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private struct Ripple: Identifiable { let id = UUID(); let point: CGPoint; var grown = false }
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                GeometryReader { geometry in
+                    ZStack {
+                        ForEach(ripples) { ripple in
+                            let size = max(geometry.size.width, geometry.size.height) * 2.2
+                            Circle()
+                                .fill(RadialGradient(colors: [color.opacity(0.0), color.opacity(0.22), color.opacity(0.0)],
+                                                     center: .center, startRadius: size * 0.25, endRadius: size * 0.5))
+                                .frame(width: size, height: size)
+                                .scaleEffect(ripple.grown ? 1 : 0.02)
+                                .opacity(ripple.grown ? 0 : 1)
+                                .position(ripple.point)
+                        }
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                }
+                .allowsHitTesting(false)
+            }
+            .simultaneousGesture(SpatialTapGesture().onEnded { value in
+                guard !reduceMotion else { return }
+                let ripple = Ripple(point: value.location)
+                ripples.append(ripple)
+                DispatchQueue.main.async {
+                    withAnimation(.easeOut(duration: 0.7)) {
+                        if let index = ripples.firstIndex(where: { $0.id == ripple.id }) { ripples[index].grown = true }
+                    }
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { ripples.removeAll { $0.id == ripple.id } }
+            })
+    }
+}
+
+extension View {
+    func liquidRipple(_ color: Color = .white, cornerRadius: CGFloat = 22) -> some View {
+        modifier(LiquidRipple(color: color, cornerRadius: cornerRadius))
+    }
+}
+
+/// Kalimi «si lëng» midis faqeve: zbehje, turbullim i lehtë, pak zmadhim dhe rrëshqitje.
+struct LiquidTransitionModifier: ViewModifier {
+    let progress: Double
+    func body(content: Content) -> some View {
+        content
+            .opacity(progress)
+            .blur(radius: (1 - progress) * 10)
+            .scaleEffect(0.965 + 0.035 * progress)
+            .offset(y: (1 - progress) * 16)
+    }
+}
+
+extension AnyTransition {
+    static var liquid: AnyTransition {
+        .modifier(active: LiquidTransitionModifier(progress: 0), identity: LiquidTransitionModifier(progress: 1))
+    }
+}
+
+extension Animation {
+    /// Spring i butë si uji, i përdorur në gjithë app-in për kalimet kryesore.
+    static var liquid: Animation { .spring(response: 0.55, dampingFraction: 0.82, blendDuration: 0.25) }
+    static var liquidBounce: Animation { .spring(response: 0.42, dampingFraction: 0.58) }
+}
+
+/// Treguesi i skedës së zgjedhur: një «pikë» xhami që rrëshqet te skeda e re, zgjatet dhe kthehet si lëng.
+struct LiquidSelection: View {
+    let color: Color
+    let namespace: Namespace.ID
+    @State private var squash = true
+    var body: some View {
+        Capsule()
+            .fill(color.opacity(0.20))
+            .overlay(Capsule().strokeBorder(LinearGradient(colors: [.white.opacity(0.85), .white.opacity(0.1), color.opacity(0.5)],
+                                                           startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 0.9))
+            .overlay(alignment: .top) {
+                Capsule().fill(LinearGradient(colors: [.white.opacity(0.55), .clear], startPoint: .top, endPoint: .bottom))
+                    .frame(height: 12).padding(.horizontal, 8).padding(.top, 2)
+            }
+            .shadow(color: color.opacity(0.35), radius: 8, y: 3)
+            .matchedGeometryEffect(id: "liquid-selection", in: namespace)
+            .scaleEffect(x: squash ? 1.22 : 1, y: squash ? 0.84 : 1)
+            .onAppear { withAnimation(.liquidBounce.delay(0.05)) { squash = false } }
     }
 }

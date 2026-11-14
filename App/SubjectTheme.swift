@@ -93,12 +93,14 @@ struct PageBackground: View {
             ZStack {
                 subject.paper
                 AmbientBlobs(colors: [subject.color, subject.deep, .sun, subject.color])
+                LiquidWaves(color: subject.color)
                 GlyphField(subject: subject, opacity: 0.06)
             }
         } else {
             ZStack {
                 Color.paper
                 AmbientBlobs(colors: [.lagoon, .pink, .cyan, .sun])
+                LiquidWaves(color: .lagoon)
             }
         }
     }

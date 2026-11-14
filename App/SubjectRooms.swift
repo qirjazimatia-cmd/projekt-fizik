@@ -115,7 +115,7 @@ struct Dashboard: View {
         .environment(\.subjectTheme, currentSubject)
         .tint(currentSubject?.color ?? .lagoon)
         .id(destination).frame(maxWidth: .infinity, maxHeight: .infinity)
-        .transition(.opacity.combined(with: .scale(scale: 0.985)))
+        .transition(.liquid)
     }
 
     /// Shiriti i skedave prej xhami që noton poshtë (iPhone).
@@ -150,7 +150,7 @@ struct Dashboard: View {
         .padding(6)
         .glassCapsule(tint: currentSubject?.color, strength: 0.10)
         .padding(.horizontal, 12).padding(.bottom, 6)
-        .animation(.spring(response: 0.4, dampingFraction: 0.78), value: destination)
+        .animation(.liquidBounce, value: destination)
     }
     private func barItem(_ value: Destination, _ title: String, _ symbol: String) -> some View {
         Button { select(value) } label: { barLabel(title, symbol, selected: destination == value, color: nil) }
@@ -168,11 +168,7 @@ struct Dashboard: View {
         .foregroundStyle(selected ? (color ?? Color.lagoon) : Color.ink.opacity(0.75))
         .frame(maxWidth: .infinity, minHeight: 48)
         .background {
-            if selected {
-                Capsule().fill((color ?? Color.lagoon).opacity(0.18))
-                    .overlay(Capsule().strokeBorder(.white.opacity(0.5), lineWidth: 0.8))
-                    .matchedGeometryEffect(id: "bar", in: railSelection)
-            }
+            if selected { LiquidSelection(color: color ?? Color.lagoon, namespace: railSelection) }
         }
         .contentShape(Capsule())
     }
@@ -206,7 +202,7 @@ struct Dashboard: View {
     }
     private func select(_ value: Destination) {
         if value != destination { Haptics.tap() }
-        withAnimation(.spring(response: 0.42, dampingFraction: 0.82)) { destination = value; drawer = false }
+        withAnimation(.liquid) { destination = value; drawer = false }
     }
     private func rail(expanded: Bool, canToggle: Bool) -> some View {
         ScrollView(showsIndicators: false) {
