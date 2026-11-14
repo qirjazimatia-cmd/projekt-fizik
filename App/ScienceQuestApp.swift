@@ -15,7 +15,7 @@ struct ScienceQuestApp: App {
                 } else if account.restoring {
                     // Hapja e llogarisë së ruajtur: pa ekranin e hyrjes.
                     VStack(spacing: 16) {
-                        Image(systemName: "atom").font(.system(size: 64, weight: .bold)).foregroundStyle(Color.lagoon)
+                        BrainSparkLogo(size: 110)
                         ProgressView("Po hapet llogaria…")
                     }.frame(maxWidth: .infinity, maxHeight: .infinity).background(Color.paper.ignoresSafeArea())
                 } else { AccessScreen() }
