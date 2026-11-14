@@ -19,6 +19,7 @@ Statuset: ✅ gati · 🟡 pjesërisht · ❌ mungon · ➖ nuk vlen
 | Llogari demo për App Review | 2.1 | ❌ | #68 · Nxënës + mësues; mësuesi ka kod me email → duhet zgjidhje për rishikuesin |
 | Përmbajtje nga përdoruesit (shokët, emrat publikë): filtër, «Blloko», «Raporto», kontakt | 1.2 | ❌ | #69 · zona e Jurit (Shokët) |
 | Bisedat (grupi i klasës, prind↔mësues, shok↔shok): filtër, «Blloko», «Raporto», mësues↔nxënës privat i dukshëm për prindin (#82) | 1.2 | 🟡 | #80, #82 · gati në app; **mungon personi/roli që shqyrton raportet** (`app.message_reports`) |
+| Renditja javore me XP (emrat publikë të nxënësve) dhe Sfida e ditës | 1.2 / 5.1.1 | 🟡 | #84 (Juri) · shfaqen vetëm nxënës të pranuar në klasë (username, emër, avatar, XP); XP dhe përgjigjet ruhen në server (`app.player_xp`, `app.daily_answers`) → «Product Interaction» te etiketat dhe Data safety; renditja hyn te «Raporto/Blloko» e emrave publikë (#69) |
 | Raportimi i përgjigjeve të papërshtatshme të AI | 1.2 / Play AI | ✅ | #70 · «Raporto përgjigjen» te flluska; raportet te `app.ai_reports` · buton te flluska e Bosko AI |
 | Vlerësimi i moshës (pyetësori i ri: AI chatbot, përmbajtje përdoruesish, biseda mes përdoruesve) | 2.3.6 | ❌ | Mos zgjidhni kategorinë «Kids»: ajo ndalon dërgimin e të dhënave te palë të treta |
 | Etiketat e privatësisë në App Store Connect | 5.1.1 | ❌ | Të përputhen me `PrivacyInfo.xcprivacy` dhe me AI-në |

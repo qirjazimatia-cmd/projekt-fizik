@@ -188,7 +188,7 @@ struct BadgeShelf: View {
                 Text("\(stats.xp) XP gjithsej · \(level.xpForLevel - level.xpIntoLevel) XP deri te niveli tjetër").font(.caption).foregroundStyle(.secondary)
             }.frame(maxWidth: .infinity).padding().glass(cornerRadius: 24)
             Text("Si fiton XP").font(.headline)
-            Text("Mësim i lexuar +20 · Pyetje kontrolli +15 · Ushtrim i saktë +10 · Mision laboratori +30 · Çdo yll +10 · Parashikim i saktë +5 · Çdo ditë që mëson +25")
+            Text("Mësim i lexuar +20 · Pyetje kontrolli +15 · Ushtrim i saktë +10 · Mision laboratori +30 · Çdo yll +10 · Parashikim i saktë +5 · Çdo ditë që mëson +25 · Sfida e ditës +40 (ose +10 për provën)")
                 .font(.callout).foregroundStyle(.secondary)
             Text("Medaljet").font(.title2.bold())
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), spacing: 12)], spacing: 12) {
