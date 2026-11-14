@@ -297,7 +297,6 @@ private struct SubjectRoom: View {
                     .zoomSource(tab.rawValue, in: zoom)
                 }
                 .buttonStyle(.springy)
-                .simultaneousGesture(TapGesture().onEnded { Haptics.tap() })
                 .appearIn(index)
             }
         }.buttonStyle(.plain)

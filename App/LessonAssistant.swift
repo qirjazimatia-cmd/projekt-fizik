@@ -658,8 +658,6 @@ struct TutorChat: View {
                     .animation(.spring(response: 0.35, dampingFraction: 0.8), value: thinking)
                 }
                 .scrollDismissesKeyboard(.interactively)
-                // Prek bisedën për ta mbyllur tastierën.
-                .simultaneousGesture(TapGesture().onEnded { typing = false })
                 .onChange(of: lines.count) { _ in
                     if let last = lines.last { withAnimation { proxy.scrollTo(last.id, anchor: .bottom) } }
                 }
