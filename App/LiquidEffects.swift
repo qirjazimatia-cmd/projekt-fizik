@@ -255,6 +255,17 @@ struct SplashIntro: View {
 @available(iOS 18.0, macOS 15.0, *)
 struct FlowingMesh: View {
     let colors: [Color]
+    private static func points(_ t: Float) -> [SIMD2<Float>] {
+        let top: Float = 0.5 + 0.12 * sin(t * 0.3)
+        let left: Float = 0.5 + 0.1 * cos(t * 0.25)
+        let midX: Float = 0.5 + 0.15 * sin(t * 0.21)
+        let midY: Float = 0.5 + 0.15 * cos(t * 0.17)
+        let right: Float = 0.5 + 0.1 * sin(t * 0.27)
+        let bottom: Float = 0.5 + 0.12 * cos(t * 0.23)
+        return [SIMD2(0, 0), SIMD2(top, 0), SIMD2(1, 0),
+                SIMD2(0, left), SIMD2(midX, midY), SIMD2(1, right),
+                SIMD2(0, 1), SIMD2(bottom, 1), SIMD2(1, 1)]
+    }
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var body: some View {
@@ -262,11 +273,7 @@ struct FlowingMesh: View {
             let t = Float(timeline.date.timeIntervalSinceReferenceDate)
             let c = colors.count >= 4 ? colors : colors + [.clear, .clear, .clear, .clear]
             let base = scheme == .dark ? Color.black.opacity(0.0) : Color.white.opacity(0.0)
-            MeshGradient(width: 3, height: 3, points: [
-                [0, 0], [0.5 + 0.12 * sin(t * 0.3), 0], [1, 0],
-                [0, 0.5 + 0.1 * cos(t * 0.25)], [0.5 + 0.15 * sin(t * 0.21), 0.5 + 0.15 * cos(t * 0.17)], [1, 0.5 + 0.1 * sin(t * 0.27)],
-                [0, 1], [0.5 + 0.12 * cos(t * 0.23), 1], [1, 1],
-            ], colors: [
+            MeshGradient(width: 3, height: 3, points: Self.points(t), colors: [
                 c[0].opacity(0.30), base, c[1].opacity(0.25),
                 base, c[2].opacity(0.22), base,
                 c[3].opacity(0.25), base, c[0].opacity(0.22),
@@ -345,9 +352,15 @@ struct BubbleField: View {
     var color: Color = .lagoon
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private struct Bubble { let x: Double; let size: Double; let speed: Double; let offset: Double; let sway: Double }
-    private let bubbles: [Bubble] = (0..<14).map { i in
-        Bubble(x: Double((i * 37) % 100) / 100, size: 8 + Double((i * 53) % 22), speed: 0.035 + Double((i * 29) % 40) / 1000,
-               offset: Double((i * 71) % 100) / 100, sway: 6 + Double((i * 13) % 14))
+    private let bubbles: [Bubble] = (0..<14).map(BubbleField.makeBubble)
+
+    private static func makeBubble(_ i: Int) -> Bubble {
+        let x: Double = Double((i * 37) % 100) / 100
+        let size: Double = 8 + Double((i * 53) % 22)
+        let speed: Double = 0.035 + Double((i * 29) % 40) / 1000
+        let offset: Double = Double((i * 71) % 100) / 100
+        let sway: Double = 6 + Double((i * 13) % 14)
+        return Bubble(x: x, size: size, speed: speed, offset: offset, sway: sway)
     }
     var body: some View {
         if !reduceMotion {
