@@ -7,6 +7,7 @@ struct ScienceQuestApp: App {
     @AppStorage(AppAppearance.textSizeKey) private var textSize = 2
     @AppStorage(Onboarding.doneKey) private var onboardingDone = false
     @AppStorage(AppAccent.key) private var accent = 0
+    @State private var splash = true
     var body: some Scene {
         WindowGroup {
             Group {
@@ -25,6 +26,8 @@ struct ScienceQuestApp: App {
             .dynamicTypeSize(AppAppearance.textSize(textSize))
             .task { await account.restore() }
             .modifier(FirstLaunch(done: $onboardingDone))
+            // Hapja: atomi bie në ujë (AppFeel.swift). Nuk merr prekje dhe zhduket pas ~1.5 s.
+            .overlay { if splash { SplashIntro { withAnimation { splash = false } } } }
             .task(id:account.identity) {
                 guard account.isOnline else { return }
                 while !Task.isCancelled {

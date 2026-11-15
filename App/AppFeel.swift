@@ -291,3 +291,50 @@ struct BrainSparkLogo: View {
             }
     }
 }
+
+// MARK: - Hapja me spërkatje (atomi bie në ujë)
+
+/// Atomi (logoja) bie në ujë, bën valë rrethore dhe app-i shfaqet. ~1.5 s, një herë për çdo hapje; me «Reduce Motion» kalohet.
+struct SplashIntro: View {
+    let done: () -> Void
+    @State private var dropped = false
+    @State private var rings = false
+    @State private var fade = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        GeometryReader { geometry in
+            let water = geometry.size.height * 0.56
+            ZStack {
+                LinearGradient(colors: [Color(red: 0.38, green: 0.27, blue: 1.0), Color(red: 0.84, green: 0.25, blue: 0.9), Color(red: 1.0, green: 0.5, blue: 0.36)],
+                               startPoint: .topLeading, endPoint: .bottomTrailing)
+                // Uji.
+                Rectangle().fill(LinearGradient(colors: [Color.cyan.opacity(0.45), Color.indigo.opacity(0.7)], startPoint: .top, endPoint: .bottom))
+                    .frame(height: geometry.size.height - water)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+                    .overlay(alignment: .top) { Capsule().fill(.white.opacity(0.8)).frame(height: 3) }
+                ForEach(0..<3, id: \.self) { i in
+                    Ellipse().strokeBorder(.white.opacity(rings ? 0 : 0.8), lineWidth: 3)
+                        .frame(width: rings ? 360 + CGFloat(i) * 120 : 40, height: rings ? 60 + CGFloat(i) * 22 : 8)
+                        .position(x: geometry.size.width / 2, y: water)
+                        .animation(.easeOut(duration: 1.0).delay(Double(i) * 0.12), value: rings)
+                }
+                BrainSparkLogo(size: 130)
+                    .position(x: geometry.size.width / 2, y: dropped ? water : -120)
+            }
+            .ignoresSafeArea()
+        }
+        .opacity(fade ? 0 : 1)
+        .scaleEffect(fade ? 1.15 : 1)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+        .onAppear {
+            guard !reduceMotion else { done(); return }
+            withAnimation(.spring(response: 0.55, dampingFraction: 0.62)) { dropped = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.42) { rings = true; Haptics.tap() }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.15) { withAnimation(.easeInOut(duration: 0.4)) { fade = true } }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) { done() }
+        }
+    }
+}
+
