@@ -7,7 +7,6 @@ struct ScienceQuestApp: App {
     @AppStorage(AppAppearance.textSizeKey) private var textSize = 2
     @AppStorage(Onboarding.doneKey) private var onboardingDone = false
     @AppStorage(AppAccent.key) private var accent = 0
-    @State private var splash = true
     var body: some Scene {
         WindowGroup {
             Group {
@@ -26,8 +25,6 @@ struct ScienceQuestApp: App {
             .dynamicTypeSize(AppAppearance.textSize(textSize))
             .task { await account.restore() }
             .modifier(FirstLaunch(done: $onboardingDone))
-            // Hapja: atomi bie në ujë (LiquidEffects.swift). Nuk merr prekje dhe zhduket pas ~1.5 s.
-            .overlay { if splash { SplashIntro { withAnimation { splash = false } } } }
             .task(id:account.identity) {
                 guard account.isOnline else { return }
                 while !Task.isCancelled {
@@ -110,7 +107,6 @@ struct AppearanceSettings: View {
 
 struct Page<Content: View>: View {
     let content: Content
-    @State private var pull: CGFloat = 0
     init(@ViewBuilder content: () -> Content) { self.content = content() }
     var body: some View {
         ScrollView {
@@ -118,26 +114,7 @@ struct Page<Content: View>: View {
                 .frame(maxWidth: 720, alignment: .leading)
                 .padding(20).frame(maxWidth: .infinity)
         }
-        .modifier(PullTracker(pull: $pull))
-        .overlay(alignment: .top) { PullDroplet(pull: pull) }
         .background { PageBackground().ignoresSafeArea() }.foregroundStyle(Color.ink)
-    }
-}
-
-/// Sa po tërhiqet faqja poshtë nga maja (iOS 18+), për pikën e ujit (LiquidEffects.swift).
-private struct PullTracker: ViewModifier {
-    @Binding var pull: CGFloat
-    func body(content: Content) -> some View {
-        if #available(iOS 18.0, macOS 15.0, *) {
-            content.onScrollGeometryChange(for: CGFloat.self) { geometry in
-                -(geometry.contentOffset.y + geometry.contentInsets.top)
-            } action: { _, value in
-                let clamped = max(0, value)
-                if abs(clamped - pull) > 1 || (clamped == 0 && pull != 0) { pull = clamped }
-            }
-        } else {
-            content
-        }
     }
 }
 
@@ -241,9 +218,8 @@ struct HomePage: View {
             }
             let readingPool = StudyLesson.all.filter { learnerLevel == nil || $0.level == learnerLevel?.rawValue }
             let count = readingPool.filter { readIDs.split(separator: "|").contains(Substring($0.id)) }.count
-            VStack(alignment: .leading, spacing: 6) {
+            ProgressView(value: Double(count), total: Double(max(1, readingPool.count))) {
                 Text("Mësime të lexuara · \(count)/\(readingPool.count)").font(.subheadline.bold())
-                LiquidBar(value: Double(count) / Double(max(1, readingPool.count)))
             }
             Group {
                 NavigationLink { StudySubjects() } label: { Tile(icon: "books.vertical.fill", title: "Mësime sipas kapitujve", detail: "\(StudyLesson.all.count) mësime · Pesë nivele") }
@@ -256,7 +232,6 @@ struct HomePage: View {
                 AccountControls()
             }
         }.buttonStyle(.plain)
-        .environment(\.pageBubbles, true)
     }
 }
 

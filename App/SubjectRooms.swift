@@ -119,21 +119,7 @@ struct Dashboard: View {
     }
 
     /// Shiriti i skedave prej xhami që noton poshtë (iPhone).
-    /// Pozicioni i skedës së zgjedhur në shiritin poshtë (0…6), për treguesin «goo».
-    private var tabIndex: Int {
-        switch destination {
-        case .home: return 0
-        case .subject: return 1
-        case .lab: return 2
-        case .assistant: return 3
-        case .chats: return 4
-        case .desk: return 5
-        default: return 6
-        }
-    }
-
     private var tabBar: some View {
-        LiquidTabContainer {
         HStack(spacing: 2) {
             barItem(.home, "Krye", "house.fill")
             Menu {
@@ -162,13 +148,6 @@ struct Dashboard: View {
         }
         .buttonStyle(.plain)
         .padding(6)
-        .background {
-            // Para iOS 26: pika «goo» që shtrihet si ujë nga një skedë te tjetra. Në iOS 26: Liquid Glass origjinal (më poshtë).
-            if !LiquidTabContainer<EmptyView>.native {
-                GooeyTabIndicator(index: tabIndex, count: 7, color: currentSubject?.color ?? Color.lagoon).padding(6)
-            }
-        }
-        }
         .glassCapsule(tint: currentSubject?.color, strength: 0.10)
         .padding(.horizontal, 12).padding(.bottom, 6)
         .animation(.liquidBounce, value: destination)
@@ -189,9 +168,7 @@ struct Dashboard: View {
         .foregroundStyle(selected ? (color ?? Color.lagoon) : Color.ink.opacity(0.75))
         .frame(maxWidth: .infinity, minHeight: 48)
         .background {
-            if selected && LiquidTabContainer<EmptyView>.native {
-                NativeGlassSelection(color: color ?? Color.lagoon, namespace: railSelection)
-            }
+            if selected { LiquidSelection(color: color ?? Color.lagoon, namespace: railSelection) }
         }
         .contentShape(Capsule())
     }
@@ -912,43 +889,4 @@ final class KeyboardWatcher: ObservableObject {
         #endif
     }
     deinit { tokens.forEach(NotificationCenter.default.removeObserver) }
-}
-
-
-/// iOS 26: shiriti i skedave brenda `GlassEffectContainer`, që xhami i skedës së zgjedhur të «derdhet» (morph) nga
-/// njëra skedë te tjetra me efektin origjinal të Apple-it. Në versionet e tjera thjesht shfaq përmbajtjen.
-struct LiquidTabContainer<Content: View>: View {
-    @ViewBuilder var content: () -> Content
-    static var native: Bool {
-        #if compiler(>=6.2)
-        if #available(iOS 26.0, macOS 26.0, *) { return true }
-        #endif
-        return false
-    }
-    var body: some View {
-        #if compiler(>=6.2)
-        if #available(iOS 26.0, macOS 26.0, *) {
-            GlassEffectContainer(spacing: 18) { content() }
-        } else {
-            content()
-        }
-        #else
-        content()
-        #endif
-    }
-}
-
-/// Xhami origjinal i skedës së zgjedhur (iOS 26), me ID që Apple ta animojë si lëng kur ndërron skedë.
-struct NativeGlassSelection: View {
-    let color: Color
-    let namespace: Namespace.ID
-    var body: some View {
-        #if compiler(>=6.2)
-        if #available(iOS 26.0, macOS 26.0, *) {
-            Capsule().fill(.clear)
-                .glassEffect(Glass.regular.tint(color.opacity(0.35)), in: Capsule())
-                .glassEffectID("tab-selection", in: namespace)
-        }
-        #endif
-    }
 }

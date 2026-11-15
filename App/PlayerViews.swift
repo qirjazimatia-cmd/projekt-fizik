@@ -105,7 +105,8 @@ struct HomeHeader: View {
                                 Spacer()
                                 CountingText(stats.xp, format: { "\($0) XP" }).font(.subheadline.bold()).foregroundStyle(Color.lagoon)
                             }
-                            LiquidBar(value: ring, height: 12)
+                            ProgressView(value: ring, total: 1)
+                                .tint(Color.lagoon)
                             Text("\(level.xpForLevel - level.xpIntoLevel) XP deri te niveli \(level.number + 1)").font(.caption).foregroundStyle(.secondary)
                         }
                         Divider().frame(height: 50)
@@ -128,7 +129,6 @@ struct HomeHeader: View {
                 .buttonStyle(.springy)
             }
         }
-        .modifier(HeaderMelt())
         .onAppear { withAnimation(.spring(response: 1.0, dampingFraction: 0.8).delay(0.2)) { ring = max(0.02, level.progress) } }
         .onChange(of: stats.xp) { _ in withAnimation(.spring()) { ring = max(0.02, stats.level.progress) } }
         .sheet(isPresented: $editing) { AvatarEditor().macSheetFrame(minWidth: 420, minHeight: 560) }
@@ -150,9 +150,11 @@ struct ContinueCard: View {
             StudyReader(lesson: lesson).zoomDestination("continue", in: zoom)
         } label: {
             HStack(spacing: 14) {
-                LiquidOrb(value: max(progress, 0.08), color: .white.opacity(0.75)) {
-                    Image(systemName: "play.fill").font(.title3).foregroundStyle(lesson.schoolSubject.color)
-                }.frame(width: 56, height: 56)
+                ZStack {
+                    Circle().stroke(.white.opacity(0.3), lineWidth: 5)
+                    Circle().trim(from: 0, to: progress).stroke(.white, style: StrokeStyle(lineWidth: 5, lineCap: .round)).rotationEffect(.degrees(-90))
+                    Image(systemName: "play.fill").font(.title3)
+                }.frame(width: 54, height: 54)
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Vazhdo ku e le").font(.caption.bold()).opacity(0.85)
                     Text(lesson.title).font(.headline).lineLimit(2).multilineTextAlignment(.leading)

@@ -41,7 +41,6 @@ struct GlassBackground<S: InsettableShape>: ViewModifier {
             // Pa `.interactive()`: xhami ndodhet brenda butonave dhe lidhjeve, dhe në iOS 26 xhami interaktiv
             // mund ta marrë prekjen para butonit. Butoni vetë jep reagimin (shtypje + valëzim).
             content.glassEffect(Glass.regular.tint(tint?.opacity(strength)), in: shape)
-                .overlay { TiltSpecular(shape: shape) }
         } else {
             liquid(content)
         }
@@ -83,7 +82,6 @@ struct GlassBackground<S: InsettableShape>: ViewModifier {
             .overlay {
                 shape.inset(by: 1.2).strokeBorder(.white.opacity(dark ? 0.06 : 0.25), lineWidth: 0.6)
             }
-            .overlay { TiltSpecular(shape: shape) }
             .shadow(color: .black.opacity(dark ? 0.40 : 0.10), radius: 18, y: 8)
             .shadow(color: (tint ?? .black).opacity(dark ? 0.15 : 0.06), radius: 3, y: 1)
     }
@@ -141,14 +139,6 @@ struct AmbientBlobs: View {
     @State private var move = false
 
     var body: some View {
-        if #available(iOS 18.0, macOS 15.0, *) {
-            FlowingMesh(colors: colors)
-        } else {
-            blobs
-        }
-    }
-
-    private var blobs: some View {
         GeometryReader { geometry in
             let w = geometry.size.width, h = max(geometry.size.height, 600)
             ZStack {
@@ -181,8 +171,6 @@ struct ScrollFade: ViewModifier {
                 view.opacity(phase.isIdentity ? 1 : 0.55)
                     .scaleEffect(phase.isIdentity ? 1 : 0.94)
                     .blur(radius: phase.isIdentity ? 0 : 1.5)
-                    // Përkulen pak si fletë mbi ujë kur hyjnë/dalin nga ekrani.
-                    .rotation3DEffect(.degrees(phase.value * -10), axis: (x: 1, y: 0, z: 0), anchor: phase.value < 0 ? .bottom : .top, perspective: 0.6)
             }
         } else {
             content
