@@ -88,14 +88,7 @@ extension Subject {
 /// Sfondi i faqeve: brenda një lënde merr nuancën dhe simbolet e saj; jashtë lëndëve mbetet si më parë.
 struct PageBackground: View {
     @Environment(\.subjectTheme) private var subject
-    @Environment(\.pageBubbles) private var bubbles
     var body: some View {
-        ZStack {
-            layers
-            if bubbles { BubbleField(color: subject?.color ?? .lagoon) }
-        }
-    }
-    @ViewBuilder private var layers: some View {
         if let subject {
             ZStack {
                 subject.paper
