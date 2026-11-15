@@ -100,6 +100,7 @@ struct LiveActivitySync: ViewModifier {
 /// Kohëmatësi i fokusit te Krye: 25 minuta mësim; numërimi shfaqet edhe në ekranin e kyçur / Dynamic Island.
 struct FocusTimerCard: View {
     @AppStorage("focus.endsAt.v1", store: .standard) private var endsAt: Double = 0
+    @AppStorage("focus.total.v1", store: .standard) private var total: Double = 1500
     @State private var minutes = 25
     var body: some View {
         let running = endsAt > Date().timeIntervalSince1970
@@ -114,6 +115,10 @@ struct FocusTimerCard: View {
                 if running {
                     Text(timerInterval: Date()...Date(timeIntervalSince1970: endsAt), countsDown: true)
                         .font(.title3.monospacedDigit().bold()).foregroundStyle(Color.lagoon)
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        let left = max(0, endsAt - context.date.timeIntervalSince1970)
+                        LiquidBar(value: 1 - left / max(total, 1), height: 10)
+                    }
                 } else {
                     Text("\(minutes) min mësim pa shpërqendrime. Numërimi del edhe në ekranin e kyçur.").font(.caption).foregroundStyle(.secondary)
                 }
@@ -137,6 +142,7 @@ struct FocusTimerCard: View {
     }
     private func start(_ value: Int) {
         minutes = value
+        total = Double(value) * 60
         Haptics.success()
         withAnimation(.spring()) { endsAt = Date().addingTimeInterval(Double(value) * 60).timeIntervalSince1970 }
         Task { await LiveActivities.stopFocus(); LiveActivities.startFocus(minutes: value) }
