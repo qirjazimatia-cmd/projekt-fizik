@@ -92,15 +92,14 @@ struct PageBackground: View {
         if let subject {
             ZStack {
                 subject.paper
-                AmbientBlobs(colors: [subject.color, subject.deep, .sun, subject.color])
-                LiquidWaves(color: subject.color)
-                GlyphField(subject: subject, opacity: 0.06)
+                WaterBackground(colors: [subject.color, subject.deep, AppAccent.color, .sun],
+                                glyphs: subject.glyphs, glyphColor: subject.color, glyphOpacity: 0.07)
             }
         } else {
+            // Jashtë lëndëve: ujë me nuancën e ngjyrës që zgjodhe te Cilësimet.
             ZStack {
                 Color.paper
-                AmbientBlobs(colors: [.lagoon, .pink, .cyan, .sun])
-                LiquidWaves(color: .lagoon)
+                WaterBackground(colors: [.lagoon, .cyan, .lagoon, .pink])
             }
         }
     }
@@ -125,12 +124,14 @@ struct GlyphField: View {
                 let x = (Double(column) + 0.25 + 0.5 * seed) / Double(columns) * geometry.size.width
                 let y = (Double(row) + 0.2 + 0.6 * Double((index * 53) % 89) / 89) / Double(rows) * geometry.size.height
                 glyphView(glyphs[index % glyphs.count], size: 22 + 18 * seed)
-                    .rotationEffect(.degrees(-20 + 40 * seed + (drift ? 8 : 0)))
-                    .offset(y: drift ? -6 + 12 * seed : 0)
+                    .rotationEffect(.degrees(-20 + 40 * seed))
                     .position(x: x, y: y)
             }
         }
         .foregroundStyle(tint ?? subject.color)
+        // Vizatohet një herë si një shtresë e vetme dhe lëviz e gjitha bashkë (më e lehtë se çdo simbol veç e veç).
+        .drawingGroup()
+        .offset(y: drift ? -5 : 5)
         .opacity(opacity)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
