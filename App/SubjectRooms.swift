@@ -70,7 +70,8 @@ struct Dashboard: View {
             .background {
                 ZStack {
                     Color.paper
-                    AmbientBlobs(colors: currentSubject.map { [$0.color, $0.deep, .sun, $0.color] } ?? [.lagoon, .pink, .cyan, .sun])
+                    // I qetë: faqet kanë sfondin e tyre të gjallë, kështu nuk vizatohen dy sfonde që lëvizin njëkohësisht.
+                    AmbientBlobs(colors: currentSubject.map { [$0.color, $0.deep, .sun, $0.color] } ?? [.lagoon, .pink, .cyan, .sun], animated: false)
                 }.ignoresSafeArea()
             }
             // Pas regjistrimit: krijo username-in unik dhe emrin e shfaqur.
