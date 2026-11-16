@@ -139,6 +139,7 @@ struct CloudAccessScreen: View {
     @State private var newPassword = ""
     @State private var busy = false
     @State private var message = ""
+    @State private var visitorInfo = false
     var body: some View {
         Page {
             QuestCover()
@@ -152,6 +153,7 @@ struct CloudAccessScreen: View {
             case .recoveryCode(let mail): recoveryView(mail)
             case .existingAccount(let mail): existingAccountView(mail)
             case .roleMismatch(let real): roleMismatchView(real)
+            case .activation: StudentActivationView()
             }
             if busy { ProgressView() }
             if !message.isEmpty { Text(message).foregroundStyle(Color.red) }
@@ -169,6 +171,21 @@ struct CloudAccessScreen: View {
         }
         BrainSparkLogo(size: 88).frame(maxWidth: .infinity).padding(.bottom, 4)
         Text("Hyrja në shkollë").font(.title.bold())
+        // Dy pjesë: vizitorët (pa llogari) shohin Info; nxënësit, mësuesit dhe prindërit hyjnë më poshtë.
+        Button { visitorInfo = true } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "info.circle.fill").font(.title2)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Je vizitor?").font(.headline)
+                    Text("Info për shkollën dhe mësime prove, pa llogari.").font(.footnote).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").foregroundStyle(.secondary)
+            }.padding(12).frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.lagoon.opacity(0.12)))
+        }
+        .buttonStyle(.plain)
+        .sheet(isPresented: $visitorInfo) { VisitorInfoView() }
         Picker("Hyrja", selection: $entry) { Text("Nxënës / Prind").tag(AccessEntry.studentParent); Text("Mësues").tag(AccessEntry.teacher) }.pickerStyle(.segmented)
         Text(entry == .teacher ? "Hyrje për mësuesit. Roli kontrollohet nga serveri në çdo kërkesë, jo nga ky ekran." : "Hyrje për nxënës dhe prindër. Një email është një llogari me një rol të vetëm; nëse je edhe prind edhe mësues, përdor dy emaile.").font(.footnote)
         Picker("Llogaria", selection: $signup) { Text("Hyr").tag(false); Text("Regjistrohu").tag(true) }.pickerStyle(.segmented)
@@ -181,7 +198,9 @@ struct CloudAccessScreen: View {
         if signup {
             if entry == .studentParent {
                 Picker("Roli", selection: $role) { Text("Nxënës").tag(SchoolRole.student); Text("Prind").tag(SchoolRole.parent) }.pickerStyle(.segmented)
-                Text("Roli zgjidhet një herë dhe nuk ndryshohet nga aplikacioni.").font(.footnote)
+                Text(role == .student
+                     ? "Nxënësit: pas konfirmimit të emailit mund të kërkohet kodi personal që jep sekretaria e shkollës. Roli nuk ndryshohet nga aplikacioni."
+                     : "Prindi lidhet me fëmijën vetëm me kodin që i jep fëmija nga llogaria e tij. Roli nuk ndryshohet nga aplikacioni.").font(.footnote)
             } else {
                 SecureField("Kodi 5-shifror i mësuesit", text: $teacherCode)
                     #if os(iOS)
