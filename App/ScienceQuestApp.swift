@@ -11,7 +11,10 @@ struct ScienceQuestApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if let role = account.role {
+                if account.isGuest {
+                    // Vizitori sheh vetëm mësimet (#102).
+                    GuestLessonsView().defaultAppStorage(account.storage)
+                } else if let role = account.role {
                     Dashboard(role: role).defaultAppStorage(account.storage).id("\(account.identity)|\(accent)")
                 } else if account.restoring {
                     // Hapja e llogarisë së ruajtur: pa ekranin e hyrjes.

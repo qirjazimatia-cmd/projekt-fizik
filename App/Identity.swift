@@ -56,6 +56,34 @@ struct StudentActivationView: View {
     }
 }
 
+// MARK: - Mënyra vizitor: vetëm mësimet
+
+struct GuestLessonsView: View {
+    @EnvironmentObject private var account: Account
+    var body: some View {
+        NavigationStack {
+            StudySubjects()
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button { account.leaveGuest() } label: { Label("Hyr", systemImage: "person.crop.circle") }
+                    }
+                }
+        }
+        .safeAreaInset(edge: .bottom) {
+            HStack(spacing: 10) {
+                Image(systemName: "eye").accessibilityHidden(true)
+                Text("Mënyra vizitor: vetëm mësimet. Klasa, bisedat dhe Bosko AI janë për anëtarët e shkollës.")
+                    .font(.footnote).fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 4)
+                Button("Hyr") { account.leaveGuest() }.buttonStyle(.liquidProminent)
+            }
+            .padding(12)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .padding(.horizontal, 12).padding(.bottom, 6)
+        }
+    }
+}
+
 // MARK: - Info për vizitorët (pa llogari)
 
 struct VisitorInfoView: View {

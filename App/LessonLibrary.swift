@@ -211,6 +211,7 @@ struct StudySubjects: View {
 
 struct StudyReader: View {
     let lesson: StudyLesson
+    @EnvironmentObject private var account: Account
     @AppStorage("studyReadIDs.v1") private var readIDs = ""
     @AppStorage(ActivityLog.storageKey) private var activity = ""
     @AppStorage("studyBookmarks.v1") private var bookmarks = ""
@@ -250,9 +251,11 @@ struct StudyReader: View {
                         Button("Përmbledhje dhe vetëkontroll") { jump(200, proxy) }
                     }
                 }
-                NavigationLink { TutorChat(startingLesson: lesson) } label: {
-                    Label("Pyet " + LessonTutor.name + " për këtë temë", systemImage: "sparkles")
-                }.buttonStyle(.liquid)
+                if !account.isGuest {
+                    NavigationLink { TutorChat(startingLesson: lesson) } label: {
+                        Label("Pyet " + LessonTutor.name + " për këtë temë", systemImage: "sparkles")
+                    }.buttonStyle(.liquid)
+                }
                 introduction
                 LessonDiagramView(lesson:lesson)
                 ForEach(lesson.sections.indices, id: \.self) { index in

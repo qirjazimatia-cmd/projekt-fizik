@@ -323,6 +323,10 @@ final class Account: ObservableObject {
         role = SchoolRole(rawValue:record.role) ?? .student
     }
     func guest() { identity = "guest-v7"; email = ""; token = ""; isOnline = false; role = .student }
+    /// Mënyra vizitor: vetëm mësimet, pa llogari, pa klasa, biseda, cilësime apo Bosko AI.
+    var isGuest: Bool { identity == "guest-v7" }
+    /// Del nga mënyra vizitor pa prekur seancën e ruajtur (Face ID) të llogarisë së vërtetë.
+    func leaveGuest() { guard isGuest else { return }; role = nil; identity = ""; stage = .entry }
     func logout() {
         let old = token
         if cloud { Task { await SupabaseAuth.shared.logout() } }
