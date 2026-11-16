@@ -51,7 +51,7 @@ import SwiftUI
 import CoreImage
 import CoreImage.CIFilterBuiltins
 
-enum AuthStage: Equatable { case entry, emailCode(String), emailLogin(String), mfa(String), mfaSetup, role, recoveryCode(String), existingAccount(String), roleMismatch(SchoolRole) }
+enum AuthStage: Equatable { case entry, emailCode(String), emailLogin(String), mfa(String), mfaSetup, role, recoveryCode(String), existingAccount(String), roleMismatch(SchoolRole), activation }
 enum AccessEntry: String { case studentParent, teacher }
 
 struct AuthFailure: LocalizedError {
@@ -70,6 +70,10 @@ final class Account: ObservableObject {
     @Published var cloudMessage = ""
     /// Kodi i rikuperimit u pranua; mbetet vetëm fjalëkalimi i ri (p.sh. pas një fjalëkalimi të dobët).
     @Published private(set) var recoveryVerified = false
+    /// Sekretaria e shkollës (#102): mësues aktiv me të drejtë mbi regjistrin e nxënësve.
+    @Published private(set) var schoolAdmin = false
+    /// Shkolla kërkon kodin personal të sekretarisë për çdo nxënës.
+    private(set) var studentCodeRequired = false
     private var recoveryEmail = ""
     // Vetëm në memorie; kurrë në disk. Përdoren pas konfirmimit të emailit.
     var pendingRole: SchoolRole?
@@ -153,7 +157,14 @@ final class Account: ObservableObject {
     func cloudResendLoginCode() async throws { try await SupabaseAuth.shared.sendLoginCode() }
     func cloudChooseRole(_ chosen: SchoolRole) async throws {
         guard chosen != .teacher else { return }
+        // Nxënësi nuk e zgjedh vetë rolin kur shkolla kërkon verifikim: roli vjen nga kodi i sekretarisë.
+        if chosen == .student && studentCodeRequired { stage = .activation; return }
         let _: OKReply = try await SchoolAPI.call("chooseRole", body: ["role": chosen == .student ? "student" : "parent"])
+        try await finishSignIn()
+    }
+    /// Aktivizimi i nxënësit me kodin personal nga sekretaria (një përdorim). Serveri lidh llogarinë me regjistrin.
+    func cloudActivateStudent(_ code: String) async throws {
+        let _: OKReply = try await SchoolAPI.call("studentActivate", body: ["code": code.trimmingCharacters(in: .whitespacesAndNewlines)])
         try await finishSignIn()
     }
     func cloudRedeemTeacher(_ code: String) async throws {
@@ -267,6 +278,11 @@ final class Account: ObservableObject {
                 }
             } else if !me.mfaEnrolled { email = me.email; stage = .mfaSetup; return }
         }
+        studentCodeRequired = me.studentCodeRequired ?? false
+        schoolAdmin = me.schoolAdmin ?? false
+        if me.role == "student" && studentCodeRequired && !(me.studentVerified ?? false) {
+            email = me.email; pendingRole = nil; stage = .activation; return
+        }
         if me.role == "unassigned" {
             email = me.email
             // Llogari pa rol ende: roli që provoi në regjistrim përdoret si zgjedhje e parë (serveri e vendos një herë).
@@ -312,6 +328,7 @@ final class Account: ObservableObject {
         if cloud { Task { await SupabaseAuth.shared.logout() } }
         else if !old.isEmpty { Task { let _: OKReply? = try? await SchoolAPI.call("logout",token:old) } }
         pendingRole = nil; attemptedRole = nil; pendingTeacherCode = ""; pendingNewPassword = nil; recoveryVerified = false; recoveryEmail = ""; stage = .entry; cloudMessage = ""; lockedSession = false
+        schoolAdmin = false; studentCodeRequired = false
         UserDefaults.standard.removeObject(forKey: Self.lastAccountKey)
         SessionVault.clear(); role = nil; identity = ""; email = ""; token = ""; isOnline = false; baseline = [:]; recoveryNotice = ""; syncMessage = ""
     }

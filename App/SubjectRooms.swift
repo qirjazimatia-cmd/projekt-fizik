@@ -14,7 +14,7 @@ extension Subject {
 }
 
 private enum Destination: Hashable {
-    case home, lab, events, assistant, desk, friends, chats, settings, subject(Subject)
+    case home, lab, events, assistant, desk, friends, chats, settings, secretariat, subject(Subject)
 }
 
 struct Dashboard: View {
@@ -109,6 +109,7 @@ struct Dashboard: View {
             case .friends: FriendsView(social: social)
             case .chats: ChatsView(store: chats, social: social)
             case .settings: SettingsView(social: social)
+            case .secretariat: SecretariatView()
             case .subject(let subject): SubjectRoom(subject: subject)
             }
         }.environment(\.learnerLevel, role == .student ? SchoolLevel(rawValue: selectedLevel) : nil)
@@ -141,10 +142,13 @@ struct Dashboard: View {
                 Button { select(.settings) } label: { Label("Cilësimet", systemImage: "gearshape.fill") }
                 Button { select(.events) } label: { Label("Eventet", systemImage: "calendar") }
                 Button { select(.friends) } label: { Label(social.incoming.isEmpty ? "Shokët" : "Shokët · \(social.incoming.count) ftesa", systemImage: "person.2.fill") }
+                if account.schoolAdmin {
+                    Button { select(.secretariat) } label: { Label("Sekretaria", systemImage: "building.columns.fill") }
+                }
             } label: {
                 barLabel(destination == .settings ? "Cilësimet" : destination == .events ? "Eventet" : destination == .friends ? "Shokët" : "Më shumë",
                          destination == .settings ? "gearshape.fill" : destination == .events ? "calendar" : destination == .friends ? "person.2.fill" : "ellipsis.circle.fill",
-                         selected: destination == .settings || destination == .events || destination == .friends, color: nil)
+                         selected: destination == .settings || destination == .events || destination == .friends || destination == .secretariat, color: nil)
             }
         }
         .buttonStyle(.plain)
@@ -229,6 +233,9 @@ struct Dashboard: View {
                 tab(.friends, social.incoming.isEmpty ? "Shokët" : "Shokët · \(social.incoming.count) ftesa", "Shokët", "person.2.fill", expanded)
                     .overlay(alignment: .topTrailing) { inviteBadge.offset(x: expanded ? -6 : -2, y: 2) }
                 tab(.settings, "Cilësimet", "Cilësimet", "gearshape.fill", expanded)
+                if account.schoolAdmin {
+                    tab(.secretariat, "Sekretaria", "Sekretaria", "building.columns.fill", expanded)
+                }
             }.padding(.horizontal, expanded ? 12 : 4).padding(.vertical, 12)
         }.frame(width: expanded ? 198 : 58).frame(maxHeight: .infinity)
         .foregroundStyle(.white)

@@ -12,11 +12,12 @@ Statuset: ✅ gati · 🟡 pjesërisht · ❌ mungon · ➖ nuk vlen
 | Fshirja e llogarisë brenda app-it | 5.1.1(v) | ✅ | Cilësimet → «Fshi llogarinë» (`api_deleteAccount`) |
 | Leje e qartë para dërgimit te AI i palës së tretë | 5.1.2(i) | ✅ | #62, #64: fleta e lejes, e kontrolluar në server, e tërheqshme |
 | Tekstet e lejeve të sakta (kamera, mikrofon, Face ID) | 5.1.1(ii) | ✅ | Thonë saktë kur dërgohet fotoja/zëri |
-| Privacy manifest (`PrivacyInfo.xcprivacy`) | 5.1.1 | ✅ | Email, ID, emri, foto, zë, përmbajtje, ndërveprim; pa tracking |
+| Privacy manifest (`PrivacyInfo.xcprivacy`) | 5.1.1 | ✅ | Email, ID, emri, foto, zë, përmbajtje, ndërveprim; pa tracking. #102: regjistri i shkollës (emri, klasa, nr. i Amzës, viti i lindjes) futet nga sekretaria, jo nga nxënësi; viti i lindjes deklarohet si «Other User Content/Other Data» në etiketat e App Store Connect dhe Data safety |
 | Deklarata e enkriptimit | Export compliance | ✅ | `ITSAppUsesNonExemptEncryption = false` (vetëm HTTPS) |
 | Politika e privatësisë: URL publik + lidhje në app | 5.1.1(i) | ❌ | #67 · duhet edhe për Google Play |
 | URL mbështetjeje (kontakt) | 1.5 | ❌ | #67 |
-| Llogari demo për App Review | 2.1 | ❌ | #68 · Nxënës + mësues; mësuesi ka kod me email → duhet zgjidhje për rishikuesin |
+| Llogari demo për App Review | 2.1 | ❌ | #68 · Nxënës + mësues; mësuesi ka kod me email → duhet zgjidhje për rishikuesin. Me #102: nxënësi demo duhet të jetë **i aktivizuar paraprakisht** në regjistër (rresht prove) dhe në «Notes for Review» shpjegohet që hyrja si nxënës kërkon kodin e shkollës; vizitorët shohin «Info» dhe mësimet pa llogari |
+| Hyrje e kufizuar te anëtarët e shkollës (nxënës me kod sekretarie) | 2.1 / 3.1.3(f)-ngjashëm | 🟡 | #102 · Apple pranon app-e për institucione me llogari të krijuara nga shkolla, por rishikuesi duhet të ketë llogari demo; pjesa pa llogari (Info + mësime prove) e bën app-in të dobishëm edhe për vizitorët |
 | Përmbajtje nga përdoruesit (shokët, emrat publikë): filtër, «Blloko», «Raporto», kontakt | 1.2 | ❌ | #69 · zona e Jurit (Shokët) |
 | Bisedat (grupi i klasës, prind↔mësues, shok↔shok): filtër, «Blloko», «Raporto», mësues↔nxënës privat i dukshëm për prindin (#82) | 1.2 | 🟡 | #80, #82 · gati në app; **mungon personi/roli që shqyrton raportet** (`app.message_reports`) |
 | Renditja javore me XP (emrat publikë të nxënësve) dhe Sfida e ditës | 1.2 / 5.1.1 | 🟡 | #84 (Juri) · shfaqen vetëm nxënës të pranuar në klasë (username, emër, avatar, XP); XP dhe përgjigjet ruhen në server (`app.player_xp`, `app.daily_answers`) → «Product Interaction» te etiketat dhe Data safety; renditja hyn te «Raporto/Blloko» e emrave publikë (#69) |

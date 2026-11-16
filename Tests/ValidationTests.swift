@@ -254,4 +254,16 @@ final class ValidationTests: XCTestCase {
         XCTAssertTrue(StudyPlanner.looksLikeExam("PROVIMI i kimisë"))
         XCTAssertFalse(StudyPlanner.looksLikeExam("Ekskursion në muze"))
     }
+
+    func testRosterCSVParsesExcelExportsAndSkipsHeader() throws {
+        let text = "Nr. Amzës;Emri;Mbiemri;Klasa;Viti\r\n1201;Ana;Kola;11a;2009\r\n1202;\"Ben, Jr\";Dushku;XI B;\n;;;;\n1203;Eri;Leka;11A;09\n"
+        let parsed = RosterCSV.parse(text)
+        XCTAssertEqual(parsed.rows.count, 2)
+        XCTAssertEqual(parsed.rows[0], RosterInput(amza: "1201", firstName: "Ana", lastName: "Kola", className: "11A", birthYear: "2009"))
+        XCTAssertEqual(parsed.rows[1].firstName, "Ben, Jr")
+        XCTAssertEqual(parsed.rows[1].birthYear, "")
+        XCTAssertEqual(parsed.bad, [4, 5])
+        let tabs = RosterCSV.parse("77\tDea\tMeta\t10B")
+        XCTAssertEqual(tabs.rows.first?.className, "10B")
+    }
 }

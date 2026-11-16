@@ -236,7 +236,9 @@ struct GoTrueEnroll: Decodable { let id: String; let totp: GoTrueTotp }
 struct GoTrueChallenge: Decodable { let id: String }
 struct GoTrueFault: Decodable { let error_code: String?; let msg: String?; let message: String?; let error_description: String? }
 struct PostgrestFault: Decodable { let code: String?; let message: String? }
-struct MeReply: Decodable { let id, email, role, teacherStatus: String; let mfaEnrolled: Bool; let aal: String; let mfaRequired: Bool?; let mfaMethod: String?; let secondFactorOk: Bool? }
+struct MeReply: Decodable { let id, email, role, teacherStatus: String; let mfaEnrolled: Bool; let aal: String; let mfaRequired: Bool?; let mfaMethod: String?; let secondFactorOk: Bool?
+    /// Identiteti (#102): a kërkohet kodi i sekretarisë për nxënësit, a është verifikuar ky nxënës, a është sekretari.
+    let studentCodeRequired: Bool?; let studentVerified: Bool?; let schoolAdmin: Bool? }
 
 @MainActor
 final class SupabaseAuth {
