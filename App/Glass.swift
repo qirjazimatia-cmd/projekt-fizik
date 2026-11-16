@@ -274,13 +274,13 @@ struct LiquidSelection: View {
 
 // MARK: - Sfondi «ujë dhe xham» (Juri, nëntor 2026)
 
-/// Sfondi i gjallë i faqeve: njolla ngjyrash të buta, shirita xhami që përdreden si ujë (si foto e Juri-t),
-/// flluska që ngjiten dhe valë poshtë. Gjithçka vizatohet në një `Canvas` të vetëm me 30 kuadro/s, pa turbullime,
+/// Sfondi i gjallë i faqeve: njolla ngjyrash të buta lart dhe ujë poshtë, me valë që rrotullohen, dritë brenda ujit,
+/// flluska dhe një spërkatje herë pas here (pika që kërcejnë dhe rrathë valësh). Gjithçka vizatohet në një `Canvas` të vetëm me 30 kuadro/s, pa turbullime,
 /// që të mos rëndojë. Ndalet kur app-i nuk është në ekran, me «Reduce Motion» ose me «Low Power Mode».
 struct WaterBackground: View {
     var colors: [Color]
     var animated = true
-    var ribbons = true
+    var ribbons = false // hequr (Juri): sfondi tani është ujë me valë
     var bubbles = true
     var waves = true
     var blobs = true
@@ -314,10 +314,12 @@ struct WaterBackground: View {
         guard size.width > 1, size.height > 1, !colors.isEmpty else { return }
         let dark = scheme == .dark
         if blobs { drawBlobs(&context, size: size, t: t, dark: dark) }
-        if ribbons { drawRibbons(&context, size: size, t: t, dark: dark) }
         if !glyphs.isEmpty { drawGlyphs(&context, size: size, t: t) }
-        if bubbles { drawBubbles(&context, size: size, t: t, dark: dark) }
-        if waves { drawWaves(&context, size: size, t: t, dark: dark) }
+        if waves {
+            drawWaves(&context, size: size, t: t, dark: dark)
+            if bubbles { drawBubbles(&context, size: size, t: t, dark: dark) }
+            drawSplash(&context, size: size, t: t, dark: dark)
+        }
     }
 
     /// Njolla të mëdha me gradient të butë (në vend të `.blur(70)`, që ishte shumë i rëndë).
@@ -332,50 +334,6 @@ struct WaterBackground: View {
             context.fill(Path(ellipseIn: rect),
                          with: .radialGradient(Gradient(colors: [color.opacity(dark ? 0.30 : 0.22), color.opacity(0)]),
                                                center: CGPoint(x: cx, y: cy), startRadius: 0, endRadius: r))
-        }
-    }
-
-    /// Shirita xhami që përdreden ngadalë: trup i tejdukshëm, shkëlqim lart dhe buzë me ngjyrë poshtë.
-    private func drawRibbons(_ context: inout GraphicsContext, size: CGSize, t: Double, dark: Bool) {
-        for k in 0..<3 {
-            let f = Double(k)
-            let color = colors[k % colors.count]
-            let yBase = size.height * (0.16 + 0.30 * f)
-            let amp = min(size.height * 0.06, 60) * (1 + 0.3 * f)
-            let length = 1.1 + 0.4 * f
-            let speed = 0.22 * (k % 2 == 0 ? 1 : -1)
-            var path = Path()
-            for x in stride(from: -40.0, through: size.width + 40, by: 10) {
-                let u = x / size.width * .pi * 2
-                let y = yBase + sin(u * length + t * speed + f) * amp + sin(u * 2.4 + t * 0.13 + f * 2) * amp * 0.3
-                if x == -40 { path.move(to: CGPoint(x: x, y: y)) } else { path.addLine(to: CGPoint(x: x, y: y)) }
-            }
-            let w = 34.0 + 14 * f
-            let round = StrokeStyle(lineWidth: w, lineCap: .round, lineJoin: .round)
-            context.stroke(path, with: .color(color.opacity(dark ? 0.12 : 0.08)), style: round)
-            context.stroke(path, with: .color(.white.opacity(dark ? 0.05 : 0.16)),
-                           style: StrokeStyle(lineWidth: w * 0.45, lineCap: .round, lineJoin: .round))
-            context.stroke(path.offsetBy(dx: 0, dy: -w * 0.42), with: .color(.white.opacity(dark ? 0.32 : 0.70)), lineWidth: 1.2)
-            context.stroke(path.offsetBy(dx: 0, dy: w * 0.42), with: .color(color.opacity(dark ? 0.45 : 0.32)), lineWidth: 1.4)
-            context.stroke(path.offsetBy(dx: 0, dy: w * 0.30), with: .color(Color.cyan.opacity(dark ? 0.16 : 0.14)), lineWidth: 0.8)
-        }
-    }
-
-    /// Flluska që ngjiten dhe lëkunden pak, me një pikë drite.
-    private func drawBubbles(_ context: inout GraphicsContext, size: CGSize, t: Double, dark: Bool) {
-        let travel = size.height + 60
-        for b in 0..<12 {
-            let f = Double(b)
-            let seed = (f * 0.618 + 0.13).truncatingRemainder(dividingBy: 1)
-            let speed = 14 + 20 * seed
-            let y = size.height + 30 - (t * speed + seed * travel).truncatingRemainder(dividingBy: travel)
-            let x = size.width * (0.05 + 0.9 * (f * 0.381 + 0.07).truncatingRemainder(dividingBy: 1)) + sin(t * 1.1 + f) * 8
-            let r = 3 + 8 * seed
-            let circle = Path(ellipseIn: CGRect(x: x - r, y: y - r, width: r * 2, height: r * 2))
-            context.fill(circle, with: .color(.white.opacity(dark ? 0.04 : 0.12)))
-            context.stroke(circle, with: .color(.white.opacity(dark ? 0.28 : 0.55)), lineWidth: 0.8)
-            context.fill(Path(ellipseIn: CGRect(x: x - r * 0.55, y: y - r * 0.6, width: r * 0.5, height: r * 0.35)),
-                         with: .color(.white.opacity(dark ? 0.5 : 0.8)))
         }
     }
 
@@ -401,31 +359,138 @@ struct WaterBackground: View {
         }
     }
 
-    private func drawWaves(_ context: inout GraphicsContext, size: CGSize, t: Double, dark: Bool) {
-        let color = colors[0]
-        let layers: [(amp: Double, length: Double, speed: Double, height: Double, alpha: Double)] = [
-            (14, 1.6, 0.35, 0.82, dark ? 0.10 : 0.08),
-            (10, 1.1, -0.5, 0.87, dark ? 0.08 : 0.07),
-            (7, 0.8, 0.7, 0.92, dark ? 0.07 : 0.06),
-        ]
-        for layer in layers {
-            var path = Path()
-            let base = size.height * layer.height
-            path.move(to: CGPoint(x: 0, y: size.height))
-            for x in stride(from: 0.0, through: size.width + 8, by: 8) {
-                path.addLine(to: CGPoint(x: x, y: base + sin(x / size.width * .pi * 2 * layer.length + t * layer.speed * 2) * layer.amp))
-            }
-            path.addLine(to: CGPoint(x: size.width, y: size.height))
+    // MARK: Uji: valë që rrotullohen dhe spërkatin
+
+    /// Niveli i ujit (pjesë e lartësisë së ekranit) për shtresën `k` (0 = mbrapa, 3 = përpara).
+    private func waterLevel(_ k: Int, _ size: CGSize) -> Double {
+        size.height * (0.58 + 0.055 * Double(k))
+    }
+
+    /// Lartësia e sipërfaqes në pikën x: tri valë sinusoidale të mbivendosura, si ujë i vërtetë.
+    private func surface(_ x: Double, k: Int, size: CGSize, t: Double) -> Double {
+        let f = Double(k)
+        let u = x / size.width * .pi * 2
+        let amp = min(size.height * 0.022, 20) * (1 - 0.1 * f)
+        let dir = k % 2 == 0 ? 1.0 : -1.0
+        let a = sin(u * 1.3 + t * 0.9 * dir + f) * 0.6
+        let b = sin(u * 2.7 - t * 1.4 + f * 2) * 0.3
+        let c = sin(u * 0.6 + t * 0.5 + f * 0.7) * 0.5
+        var y = waterLevel(k, size) + amp * (a + b + c)
+        if k == 3 { y += splashBump(x, size: size, t: t) }
+        return y
+    }
+
+    /// Spërkatja e radhës: ku ndodh dhe sa kohë ka kaluar (një çdo 3.2 s, në vend të rastësishëm).
+    private func splash(size: CGSize, t: Double) -> (x: Double, phase: Double) {
+        let period = 3.2
+        let cycle = (t / period).rounded(.down)
+        let noise = abs(sin(cycle * 12.9898) * 43758.5453).truncatingRemainder(dividingBy: 1)
+        return (size.width * (0.15 + 0.7 * noise), t - cycle * period)
+    }
+
+    /// Kurora e spërkatjes dhe rrathët e valëve që hapen anash.
+    private func splashBump(_ x: Double, size: CGSize, t: Double) -> Double {
+        let s = splash(size: size, t: t)
+        guard s.phase < 2.4 else { return 0 }
+        let dx = abs(x - s.x)
+        let rise = s.phase < 0.22 ? s.phase / 0.22 : exp(-(s.phase - 0.22) * 4)
+        let crown = -26 * exp(-(dx / 28) * (dx / 28)) * rise
+        let front = s.phase * 190
+        let ring = dx < front ? 6 * sin(dx / 13 - s.phase * 9) * exp(-dx / 170) * exp(-s.phase * 1.4) : 0
+        return crown + ring
+    }
+
+    private func wavePath(k: Int, size: CGSize, t: Double, closed: Bool) -> Path {
+        var path = Path()
+        var first = true
+        for x in stride(from: -6.0, through: size.width + 6, by: 6) {
+            let p = CGPoint(x: x, y: surface(x, k: k, size: size, t: t))
+            if first { path.move(to: p); first = false } else { path.addLine(to: p) }
+        }
+        if closed {
+            path.addLine(to: CGPoint(x: size.width + 6, y: size.height))
+            path.addLine(to: CGPoint(x: -6, y: size.height))
             path.closeSubpath()
-            context.fill(path, with: .linearGradient(Gradient(colors: [color.opacity(layer.alpha * 1.6), color.opacity(layer.alpha * 0.4)]),
-                                                     startPoint: CGPoint(x: 0, y: base), endPoint: CGPoint(x: 0, y: size.height)))
-            // Vija e shkëlqyer mbi valë.
-            var crest = Path()
-            for x in stride(from: 0.0, through: size.width + 8, by: 8) {
-                let p = CGPoint(x: x, y: base + sin(x / size.width * .pi * 2 * layer.length + t * layer.speed * 2) * layer.amp)
-                if x == 0 { crest.move(to: p) } else { crest.addLine(to: p) }
+        }
+        return path
+    }
+
+    private func drawWaves(_ context: inout GraphicsContext, size: CGSize, t: Double, dark: Bool) {
+        let water = colors[0]
+        for k in 0..<4 {
+            let f = Double(k)
+            let top = waterLevel(k, size) - 30
+            let alpha = (dark ? 0.12 : 0.09) + 0.03 * f
+            let body = Gradient(colors: [water.opacity(alpha * 1.5), water.opacity(alpha * 0.9), colors[min(1, colors.count - 1)].opacity(alpha * 0.8)])
+            context.fill(wavePath(k: k, size: size, t: t, closed: true),
+                         with: .linearGradient(body, startPoint: CGPoint(x: 0, y: top), endPoint: CGPoint(x: 0, y: size.height)))
+            let crest = wavePath(k: k, size: size, t: t, closed: false)
+            // Brezi i ndritshëm nën kreshtë (drita që kalon nëpër ujë) dhe vija e shkëlqyer sipër.
+            context.stroke(crest.offsetBy(dx: 0, dy: 5), with: .color(.white.opacity(dark ? 0.06 : 0.16)), lineWidth: 5)
+            context.stroke(crest, with: .color(.white.opacity((dark ? 0.18 : 0.45) + 0.08 * f)), lineWidth: 1.2)
+        }
+        drawCaustics(&context, size: size, t: t, dark: dark)
+    }
+
+    /// Rrjeti i dritës brenda ujit (si dielli në fund të pishinës).
+    private func drawCaustics(_ context: inout GraphicsContext, size: CGSize, t: Double, dark: Bool) {
+        let start = waterLevel(3, size) + 34
+        for j in 0..<4 {
+            let fj = Double(j)
+            var path = Path()
+            for x in stride(from: 0.0, through: size.width + 10, by: 10) {
+                let u = x / size.width * .pi * 2
+                let y = start + fj * 26 + sin(u * 3 + t * 1.1 + fj) * 7 + sin(u * 5.3 - t * 0.8 + fj * 3) * 3
+                if x == 0 { path.move(to: CGPoint(x: x, y: y)) } else { path.addLine(to: CGPoint(x: x, y: y)) }
             }
-            context.stroke(crest, with: .color(.white.opacity(dark ? 0.12 : 0.35)), lineWidth: 1)
+            context.stroke(path, with: .color(.white.opacity(dark ? 0.05 : 0.13)), lineWidth: 1.6)
+        }
+    }
+
+    /// Pikat e spërkatjes: kërcejnë lart nga kurora, lënë një bisht të shkurtër dhe bien prapë në ujë.
+    private func drawSplash(_ context: inout GraphicsContext, size: CGSize, t: Double, dark: Bool) {
+        let s = splash(size: size, t: t)
+        let tau = s.phase - 0.08
+        guard tau > 0, tau < 1.6 else { return }
+        let y0 = waterLevel(3, size) - 8
+        let gravity = 430.0
+        for i in 0..<10 {
+            let fi = Double(i)
+            let jitter = abs(sin(fi * 7.31 + s.x)).truncatingRemainder(dividingBy: 1)
+            let angle = -Double.pi / 2 + (fi / 9 - 0.5) * 1.7 + (jitter - 0.5) * 0.25
+            let speed = 150 + 110 * jitter
+            let vx = cos(angle) * speed * 0.65, vy = sin(angle) * speed
+            func at(_ time: Double) -> CGPoint {
+                CGPoint(x: s.x + vx * time, y: y0 + vy * time + 0.5 * gravity * time * time)
+            }
+            let p = at(tau)
+            guard p.y < y0 + 14 || tau < 0.2 else { continue }
+            let r = 2.2 + 3 * jitter
+            var tail = Path()
+            tail.move(to: at(max(0, tau - 0.05)))
+            tail.addLine(to: p)
+            context.stroke(tail, with: .color(colors[0].opacity(dark ? 0.35 : 0.30)), style: StrokeStyle(lineWidth: r * 1.4, lineCap: .round))
+            context.fill(Path(ellipseIn: CGRect(x: p.x - r, y: p.y - r, width: r * 2, height: r * 2)),
+                         with: .color(.white.opacity(dark ? 0.45 : 0.75)))
+            context.fill(Path(ellipseIn: CGRect(x: p.x - r * 0.5, y: p.y - r * 0.6, width: r * 0.6, height: r * 0.45)),
+                         with: .color(.white))
+        }
+    }
+
+    /// Flluska të vogla që ngjiten brenda ujit deri te sipërfaqja.
+    private func drawBubbles(_ context: inout GraphicsContext, size: CGSize, t: Double, dark: Bool) {
+        let top = waterLevel(3, size) + 12
+        let depth = max(size.height - top, 40)
+        for b in 0..<9 {
+            let f = Double(b)
+            let seed = (f * 0.618 + 0.13).truncatingRemainder(dividingBy: 1)
+            let y = size.height - (t * (12 + 16 * seed) + seed * depth).truncatingRemainder(dividingBy: depth)
+            let x = size.width * (0.05 + 0.9 * (f * 0.381 + 0.07).truncatingRemainder(dividingBy: 1)) + sin(t * 1.3 + f) * 6
+            let r = 2 + 4 * seed
+            let circle = Path(ellipseIn: CGRect(x: x - r, y: y - r, width: r * 2, height: r * 2))
+            context.stroke(circle, with: .color(.white.opacity(dark ? 0.25 : 0.5)), lineWidth: 0.8)
+            context.fill(Path(ellipseIn: CGRect(x: x - r * 0.5, y: y - r * 0.6, width: r * 0.5, height: r * 0.4)),
+                         with: .color(.white.opacity(0.7)))
         }
     }
 
