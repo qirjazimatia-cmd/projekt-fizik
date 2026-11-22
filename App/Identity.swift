@@ -56,6 +56,24 @@ struct StudentActivationView: View {
     }
 }
 
+// MARK: - Lidhjet publike (#67): politika e privatësisë, mbështetja, fshirja nga web-i
+
+enum PublicPages {
+    static let base = "https://qirjazimatia-cmd.github.io/projekt-fizik/"
+    static let privacy = URL(string: base + "privatesia.html")!
+    static let support = URL(string: base)!
+    static let deleteAccount = URL(string: base + "fshi-llogarine.html")!
+}
+
+struct PrivacyLinks: View {
+    var body: some View {
+        HStack(spacing: 16) {
+            Link("Politika e privatësisë", destination: PublicPages.privacy)
+            Link("Mbështetja", destination: PublicPages.support)
+        }.font(.footnote)
+    }
+}
+
 // MARK: - Mënyra vizitor: vetëm mësimet
 
 struct GuestLessonsView: View {
@@ -118,6 +136,7 @@ struct VisitorInfoView: View {
                     infoCard("Kontakt", "building.columns", [
                         "Për kodin e aktivizimit ose për informacion mbi shkollën, drejtohu sekretarisë së shkollës."
                     ])
+                    PrivacyLinks()
                     Button {
                         dismiss(); account.guest()
                     } label: {
@@ -164,7 +183,11 @@ struct RosterRow: Decodable, Identifiable, Hashable {
     let codeExpires: String?
     var name: String { firstName + " " + lastName }
 }
-private struct RosterReply: Decodable { let required: Bool; let codeDays: Int; let rows: [RosterRow]; let unverifiedStudents: Int }
+private struct RosterReply: Decodable { let required: Bool; let codeDays: Int; let rows: [RosterRow]; let unverifiedStudents: Int; let exempt: [SchoolAccount]? }
+/// Llogari e thjeshtë (përjashtim nga kodi ose sekretar).
+struct SchoolAccount: Decodable, Identifiable, Hashable { let id: String; let email: String?; let name: String?; let me: Bool? }
+private struct AdminsReply: Decodable { let admins: [SchoolAccount] }
+private struct CountReply: Decodable { let count: Int }
 private struct RosterImportError: Decodable { let row: Int; let amza: String }
 private struct RosterImportReply: Decodable { let added: Int; let changed: Int; let errors: [RosterImportError] }
 struct IssuedCode: Decodable, Identifiable, Hashable { let id, amza, name, className, code: String }
@@ -179,6 +202,8 @@ final class RosterStore: ObservableObject {
     @Published var required = false
     @Published var codeDays = 30
     @Published var unverified = 0
+    @Published var exempt: [SchoolAccount] = []
+    @Published var admins: [SchoolAccount] = []
     @Published var loading = false
     @Published var message = ""
     @Published var error = ""
@@ -186,7 +211,36 @@ final class RosterStore: ObservableObject {
         loading = true; defer { loading = false }
         do {
             let reply: RosterReply = try await SchoolAPI.call("adminRoster")
-            rows = reply.rows; required = reply.required; codeDays = reply.codeDays; unverified = reply.unverifiedStudents; error = ""
+            rows = reply.rows; required = reply.required; codeDays = reply.codeDays; unverified = reply.unverifiedStudents
+            exempt = reply.exempt ?? []; error = ""
+            let list: AdminsReply = try await SchoolAPI.call("adminAdmins", body: ["action": "list"])
+            admins = list.admins
+        } catch { self.error = error.localizedDescription }
+    }
+    /// Llogaritë e nxënësve që ekzistojnë sot (p.sh. llogaritë e provës) vazhdojnë të hyjnë pa kod.
+    func exemptExisting() async {
+        do {
+            let reply: CountReply = try await SchoolAPI.call("adminExempt", body: ["action": "existing"])
+            message = reply.count == 0 ? "Nuk ka llogari të reja për të lejuar." : "\(reply.count) llogari nxënësish do të hyjnë pa kod."
+            error = ""; await load()
+        } catch { self.error = error.localizedDescription }
+    }
+    func removeExempt(_ account: SchoolAccount) async {
+        do {
+            let _: CountReply = try await SchoolAPI.call("adminExempt", body: ["action": "remove", "userId": account.id])
+            error = ""; await load()
+        } catch { self.error = error.localizedDescription }
+    }
+    func addAdmin(_ email: String) async -> Bool {
+        do {
+            let reply: AdminsReply = try await SchoolAPI.call("adminAdmins", body: ["action": "add", "email": email.trimmingCharacters(in: .whitespacesAndNewlines)])
+            admins = reply.admins; error = ""; message = "Sekretari u shtua."; return true
+        } catch { self.error = error.localizedDescription; return false }
+    }
+    func removeAdmin(_ account: SchoolAccount) async {
+        do {
+            let reply: AdminsReply = try await SchoolAPI.call("adminAdmins", body: ["action": "remove", "userId": account.id])
+            admins = reply.admins; error = ""
         } catch { self.error = error.localizedDescription }
     }
     func upload(_ input: [RosterInput], badLines: [Int]) async {
@@ -234,6 +288,7 @@ struct SecretariatView: View {
     @State private var confirmRequired = false
     @State private var batch: IssuedBatch?
     @State private var busy = false
+    @State private var newAdmin = ""
     private var classes: [String] { Array(Set(store.rows.map(\.className))).sorted { $0.localizedStandardCompare($1) == .orderedAscending } }
     private var visible: [RosterRow] {
         store.rows.filter { row in
@@ -249,6 +304,7 @@ struct SecretariatView: View {
                 .font(.callout).foregroundStyle(.secondary)
             stats
             verificationCard
+            accountsCard
             importCard
             if !store.message.isEmpty { Label(store.message, systemImage: "checkmark.circle.fill").foregroundStyle(.green).font(.callout) }
             if !store.error.isEmpty { Label(store.error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red).font(.callout) }
@@ -321,6 +377,57 @@ struct SecretariatView: View {
             }
         }
         .padding(14).frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.lagoon.opacity(0.08)))
+    }
+    /// Llogaritë e provës që hyjnë pa kod dhe sekretarët e shkollës.
+    private var accountsCard: some View {
+        DisclosureGroup {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Llogaritë që lejohen pa kod").font(.subheadline.bold())
+                Text("P.sh. llogaritë e provës. Llogaritë e reja të nxënësve do ta kërkojnë gjithmonë kodin kur detyrimi është i ndezur.")
+                    .font(.footnote).foregroundStyle(.secondary)
+                Button { work { await store.exemptExisting() } } label: {
+                    Label(store.unverified > 0 ? "Lejo pa kod llogaritë që ekzistojnë sot (\(store.unverified))" : "Të gjitha llogaritë ekzistuese janë në regjistër ose të lejuara",
+                          systemImage: "person.crop.circle.badge.checkmark")
+                }.disabled(store.unverified == 0)
+                ForEach(store.exempt) { account in
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(account.name ?? account.email ?? "Llogari").font(.callout)
+                            if let email = account.email { Text(email).font(.caption).foregroundStyle(.secondary) }
+                        }
+                        Spacer()
+                        Button("Kërko kodin") { work { await store.removeExempt(account) } }.font(.caption)
+                    }
+                }
+                Divider()
+                Text("Sekretarët").font(.subheadline.bold())
+                ForEach(store.admins) { admin in
+                    HStack {
+                        Label((admin.name ?? admin.email ?? "Sekretar") + (admin.me == true ? " (ti)" : ""), systemImage: "building.columns")
+                            .font(.callout)
+                        Spacer()
+                        if store.admins.count > 1 {
+                            Button("Hiq", role: .destructive) { work { await store.removeAdmin(admin) } }.font(.caption)
+                        }
+                    }
+                }
+                HStack {
+                    TextField("Email i një mësuesi", text: $newAdmin)
+                        .textFieldStyle(.roundedBorder).autocorrectionDisabled()
+                        #if os(iOS)
+                        .textInputAutocapitalization(.never).keyboardType(.emailAddress)
+                        #endif
+                    Button("Shto") { work { if await store.addAdmin(newAdmin) { newAdmin = "" } } }
+                        .disabled(!newAdmin.contains("@"))
+                }
+                Text("Vetëm mësues me llogari aktive mund të bëhen sekretarë; ata hyjnë me kodin e dytë me email.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }.padding(.top, 8)
+        } label: {
+            Label("Llogaritë e provës dhe sekretarët", systemImage: "person.2.badge.gearshape").font(.headline)
+        }
+        .padding(14)
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.lagoon.opacity(0.08)))
     }
     private var importCard: some View {
