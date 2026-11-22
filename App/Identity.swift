@@ -85,12 +85,16 @@ struct GuestLessonsView: View {
                     ToolbarItem(placement: .primaryAction) {
                         Button { account.leaveGuest() } label: { Label("Hyr", systemImage: "person.crop.circle") }
                     }
+                    // Modeli 3D i shkollës është publik: e shohin edhe vizitorët.
+                    ToolbarItem(placement: .navigation) {
+                        NavigationLink { School3DView() } label: { Label("Shkolla 3D", systemImage: "cube.transparent") }
+                    }
                 }
         }
         .safeAreaInset(edge: .bottom) {
             HStack(spacing: 10) {
                 Image(systemName: "eye").accessibilityHidden(true)
-                Text("Mënyra vizitor: vetëm mësimet. Klasa, bisedat dhe Bosko AI janë për anëtarët e shkollës.")
+                Text("Mënyra vizitor: mësimet dhe shkolla në 3D. Klasa, bisedat dhe Bosko AI janë për anëtarët e shkollës.")
                     .font(.footnote).fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 4)
                 Button("Hyr") { account.leaveGuest() }.buttonStyle(.liquidProminent)
