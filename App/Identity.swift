@@ -118,6 +118,10 @@ struct VisitorInfoView: View {
                             Text("App-i i shkollës Don Bosko për shkencat").font(.callout).foregroundStyle(.secondary)
                         }
                     }
+                    NavigationLink { School3DView() } label: {
+                        Label("Shiko shkollën në 3D", systemImage: "cube.transparent").frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.liquid).controlSize(.large)
                     infoCard("Çfarë ka brenda", "sparkles", [
                         "\(StudyLesson.all.count) mësime në matematikë, fizikë, kimi dhe biologji, në pesë nivele.",
                         "Laboratorë interaktivë dhe lojëra me ushtrime.",

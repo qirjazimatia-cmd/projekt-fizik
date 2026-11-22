@@ -14,7 +14,7 @@ extension Subject {
 }
 
 private enum Destination: Hashable {
-    case home, lab, events, assistant, desk, friends, chats, settings, secretariat, subject(Subject)
+    case home, lab, events, assistant, desk, friends, chats, settings, secretariat, school3D, subject(Subject)
 }
 
 struct Dashboard: View {
@@ -110,6 +110,7 @@ struct Dashboard: View {
             case .chats: ChatsView(store: chats, social: social)
             case .settings: SettingsView(social: social)
             case .secretariat: SecretariatView()
+            case .school3D: School3DView()
             case .subject(let subject): SubjectRoom(subject: subject)
             }
         }.environment(\.learnerLevel, role == .student ? SchoolLevel(rawValue: selectedLevel) : nil)
@@ -142,13 +143,14 @@ struct Dashboard: View {
                 Button { select(.settings) } label: { Label("Cilësimet", systemImage: "gearshape.fill") }
                 Button { select(.events) } label: { Label("Eventet", systemImage: "calendar") }
                 Button { select(.friends) } label: { Label(social.incoming.isEmpty ? "Shokët" : "Shokët · \(social.incoming.count) ftesa", systemImage: "person.2.fill") }
+                Button { select(.school3D) } label: { Label("Shkolla në 3D", systemImage: "cube.transparent") }
                 if account.schoolAdmin {
                     Button { select(.secretariat) } label: { Label("Sekretaria", systemImage: "building.columns.fill") }
                 }
             } label: {
                 barLabel(destination == .settings ? "Cilësimet" : destination == .events ? "Eventet" : destination == .friends ? "Shokët" : "Më shumë",
                          destination == .settings ? "gearshape.fill" : destination == .events ? "calendar" : destination == .friends ? "person.2.fill" : "ellipsis.circle.fill",
-                         selected: destination == .settings || destination == .events || destination == .friends || destination == .secretariat, color: nil)
+                         selected: destination == .settings || destination == .events || destination == .friends || destination == .secretariat || destination == .school3D, color: nil)
             }
         }
         .buttonStyle(.plain)
@@ -233,6 +235,7 @@ struct Dashboard: View {
                 tab(.friends, social.incoming.isEmpty ? "Shokët" : "Shokët · \(social.incoming.count) ftesa", "Shokët", "person.2.fill", expanded)
                     .overlay(alignment: .topTrailing) { inviteBadge.offset(x: expanded ? -6 : -2, y: 2) }
                 tab(.settings, "Cilësimet", "Cilësimet", "gearshape.fill", expanded)
+                tab(.school3D, "Shkolla 3D", "Shkolla 3D", "cube.transparent", expanded)
                 if account.schoolAdmin {
                     tab(.secretariat, "Sekretaria", "Sekretaria", "building.columns.fill", expanded)
                 }
