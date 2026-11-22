@@ -13,7 +13,7 @@ import SceneKit
 //    kambanorja e lartë e bardhë me trarë në formë A dhe kryq, salla me çati të harkuar të bardhë dhe mure të verdha;
 //  · oratori: fusha e madhe me bar dhe porta, fusha me dhè, fusha me bar sintetik dhe rrjeta të larta,
 //    fusha e basketbollit me pllaka gjashtëkëndore dhe stola blu, ndërtesa bezhë me shkallë dhe ballkone, shtigje me pemë.
-// Vendosja e ndërtesave është përafërsisht, jo nga planimetria: përmirësohet kur të vijnë foto nga sipër.
+// Vendosja ndjek pamjen satelitore të Google Maps (përafërsisht, pa rrotullimin e rrjetit të rrugëve).
 
 #if os(macOS)
 private typealias PlatformColor = NSColor
@@ -37,7 +37,7 @@ enum SchoolSpot: String, CaseIterable, Identifiable {
     case entrance = "Hyrja"
     case statue = "Statuja"
     case gate = "Porta"
-    case court = "Basketbolli"
+    case court = "Oratori · basketbolli"
     case field = "Oratori · fushat"
     case church = "Kisha"
     case beige = "Ndërtesa bezhë"
@@ -58,15 +58,15 @@ enum SchoolSpot: String, CaseIterable, Identifiable {
     /// Pozicioni i kamerës dhe pika ku shikon (metra).
     var camera: (eye: SCNVector3, target: SCNVector3) {
         switch self {
-        case .overview: return (SCNVector3(-90.0, 95.0, 105.0), SCNVector3(0.0, 0.0, -45.0))
-        case .main: return (SCNVector3(-30.0, 12.0, 36.0), SCNVector3(-8.0, 4.0, -2.0))
-        case .entrance: return (SCNVector3(-6.0, 4.0, 18.0), SCNVector3(-8.0, 3.0, 6.0))
-        case .statue: return (SCNVector3(30.0, 5.0, 26.0), SCNVector3(22.0, 2.0, 12.0))
-        case .gate: return (SCNVector3(4.0, 3.0, 52.0), SCNVector3(4.0, 1.5, 34.0))
-        case .court: return (SCNVector3(48.0, 16.0, -8.0), SCNVector3(26.0, 0.0, -24.0))
-        case .church: return (SCNVector3(10.0, 14.0, -60.0), SCNVector3(50.0, 12.0, -113.0))
-        case .field: return (SCNVector3(-30.0, 34.0, -20.0), SCNVector3(-20.0, 0.0, -75.0))
-        case .beige: return (SCNVector3(-52.0, 8.0, 28.0), SCNVector3(-58.0, 4.0, 6.0))
+        case .overview: return (SCNVector3(-110.0, 110.0, 130.0), SCNVector3(10.0, 0.0, -5.0))
+        case .main: return (SCNVector3(28.0, 12.0, 62.0), SCNVector3(52.0, 4.0, 28.0))
+        case .entrance: return (SCNVector3(54.0, 4.0, 52.0), SCNVector3(52.0, 3.0, 36.0))
+        case .statue: return (SCNVector3(64.0, 5.0, 94.0), SCNVector3(60.0, 2.0, 78.0))
+        case .gate: return (SCNVector3(126.0, 3.0, 30.0), SCNVector3(102.0, 1.5, 30.0))
+        case .court: return (SCNVector3(22.0, 16.0, 24.0), SCNVector3(0.0, 0.0, 0.0))
+        case .church: return (SCNVector3(-6.0, 16.0, -48.0), SCNVector3(24.0, 12.0, -87.0))
+        case .field: return (SCNVector3(-20.0, 40.0, 24.0), SCNVector3(-52.0, 0.0, -28.0))
+        case .beige: return (SCNVector3(-4.0, 8.0, 92.0), SCNVector3(-14.0, 4.0, 66.0))
         }
     }
 }
@@ -156,43 +156,49 @@ enum SchoolScene {
         ambient.light = SCNLight(); ambient.light?.type = .ambient; ambient.light?.intensity = 420
         root.addChildNode(ambient)
 
-        // Toka: lëndina dhe shtigjet
-        root.addChildNode(box(190, 0.2, 200, lawn, at: (0, -0.1, -40)))
-        root.addChildNode(box(150, 0.05, 8, paving, at: (0, 0.03, 40)))      // trotuari para gardhit
-        root.addChildNode(box(10, 0.05, 30, paving, at: (-8, 0.03, 22)))      // shtegu te hyrja
-        root.addChildNode(box(50, 0.05, 6, paving, at: (14, 0.03, 4)))        // shtegu para ndërtesës së dytë
+        // Vendosja sipas pamjes satelitore (Google Maps, shkalla 50 m): origjina = fusha e basketbollit e oratorit.
+        // x = lindje, z = jug (veriu = −z). Rruga Don Bosko kalon në lindje të kompleksit.
+        root.addChildNode(box(230, 0.2, 200, lawn, at: (10, -0.1, -10)))
+        root.addChildNode(box(10, 0.04, 200, PlatformColor(hex: 0x55585C), at: (116, 0.02, -10)))   // Rruga Don Bosko
+        root.addChildNode(box(8, 0.05, 200, paving, at: (107, 0.03, -10)))                           // trotuari
+        root.addChildNode(box(28, 0.05, 6, paving, at: (88, 0.03, 30)))       // nga porta te ndërtesa kryesore
+        root.addChildNode(box(10, 0.05, 22, paving, at: (52, 0.03, 45)))      // para hyrjes
+        root.addChildNode(box(40, 0.05, 6, paving, at: (40, 0.03, 8)))        // drejt oratorit
+        root.addChildNode(box(6, 0.05, 80, paving, at: (14, 0.03, -45)))      // drejt kishës
 
-        root.addChildNode(mainBuilding(at: (-8, 0, -2)))
-        root.addChildNode(tallBuilding(at: (26, 0, -2)))
-        root.addChildNode(statue(at: (22, 0, 14)))
-        root.addChildNode(fence(z: 34))
-        root.addChildNode(court(at: (26, 0, -26)))
-        root.addChildNode(box(8, 0.05, 70, paving, at: (40, 0.03, -70)))     // shtegu drejt kishës
-        root.addChildNode(church(at: (50, 0, -113)))
-        root.addChildNode(grassField(at: (0, 0, -80)))
-        root.addChildNode(dirtField(at: (-58, 0, -78)))
-        root.addChildNode(turfField(at: (-52, 0, -36)))
-        root.addChildNode(beigeBuilding(at: (-58, 0, 2)))
-        for z in stride(from: -18.0, through: 22.0, by: 8.0) { root.addChildNode(smallTree(at: (-40, 0, z))) }   // shtegu me pemë
-        root.addChildNode(compass(at: (-70, 0, 30)))
+        root.addChildNode(court(at: (0, 0, 0)))
+        root.addChildNode(dirtField(at: (-36, 0, -31)))
+        let grass = grassField(at: (-82, 0, -28)); grass.eulerAngles = SCNVector3(0.0, Double.pi / 2, 0.0)
+        root.addChildNode(grass)
+        root.addChildNode(church(at: (24, 0, -87)))
+        root.addChildNode(mainBuilding(at: (52, 0, 28)))
+        root.addChildNode(tallBuilding(at: (66, 0, 60)))
+        root.addChildNode(statue(at: (60, 0, 78)))
+        let gate = fence(z: 0); gate.eulerAngles = SCNVector3(0.0, Double.pi / 2, 0.0); gate.position = SCNVector3(102.0, 0.0, 30.0)
+        root.addChildNode(gate)
+        root.addChildNode(turfField(at: (-40, 0, 36)))
+        root.addChildNode(beigeBuilding(at: (-14, 0, 66)))
+        for z in stride(from: 10.0, through: 74.0, by: 8.0) { root.addChildNode(smallTree(at: (-64, 0, z))) }   // shtegu me pemë
+        root.addChildNode(compass(at: (-92, 0, 74)))
 
         // Pemët: selvia pranë portës, ullinj dhe pemë të vogla në lëndinë
-        root.addChildNode(cypress(at: (14, 0, 30), height: 13))
-        for p in [(-34.0, 26.0), (-22.0, 28.0), (32.0, 28.0), (40.0, 18.0), (8.0, 20.0)] {
+        root.addChildNode(cypress(at: (94, 0, 12), height: 13))
+        for p in [(84.0, 50.0), (90.0, 70.0), (40.0, 60.0), (30.0, 84.0), (78.0, 4.0)] {
             root.addChildNode(olive(at: (p.0, 0, p.1)))
         }
-        for p in [(-40.0, 10.0), (-40.0, -12.0), (44.0, 6.0)] { root.addChildNode(smallTree(at: (p.0, 0, p.1))) }
+        for p in [(20.0, 30.0), (-10.0, 20.0), (40.0, -20.0), (-60.0, -70.0)] { root.addChildNode(smallTree(at: (p.0, 0, p.1))) }
 
         // Etiketat
-        root.addChildNode(label("Ndërtesa kryesore", at: (-8, 11.5, -2)))
-        root.addChildNode(label("Ndërtesa me 4 kate", at: (26, 17.5, -2)))
-        root.addChildNode(label("Statuja", at: (22, 7, 14)))
-        root.addChildNode(label("Basketbolli", at: (26, 6, -26)))
-        root.addChildNode(label("Kisha e Zojës Ndihmëtare", at: (50, 33, -113)))
-        root.addChildNode(label("Oratori · fusha me bar", at: (0, 5, -80)))
-        root.addChildNode(label("Fusha me dhè", at: (-58, 4, -78)))
-        root.addChildNode(label("Fusha sintetike", at: (-52, 8, -36)))
-        root.addChildNode(label("Ndërtesa bezhë", at: (-58, 11, 2)))
+        root.addChildNode(label("Ndërtesa kryesore", at: (52, 11.5, 28)))
+        root.addChildNode(label("Ndërtesa me 4 kate", at: (66, 17.5, 60)))
+        root.addChildNode(label("Statuja", at: (60, 7, 78)))
+        root.addChildNode(label("Oratori · basketbolli", at: (0, 6, 0)))
+        root.addChildNode(label("Kisha e Zojës Ndihmëtare", at: (24, 33, -87)))
+        root.addChildNode(label("Oratori · fusha me dhè", at: (-36, 4, -31)))
+        root.addChildNode(label("Fusha me bar", at: (-82, 5, -28)))
+        root.addChildNode(label("Fusha sintetike", at: (-40, 8, 36)))
+        root.addChildNode(label("Ndërtesa bezhë", at: (-14, 11, 66)))
+        root.addChildNode(label("Rruga Don Bosko", at: (116, 3, -40)))
 
         setNight(false, in: scene)
         return scene
@@ -403,16 +409,16 @@ enum SchoolScene {
     /// Fusha e madhe me bar e oratorit, me dy porta.
     private static func grassField(at p: (Double, Double, Double)) -> SCNNode {
         let node = SCNNode(); node.position = SCNVector3(p.0, p.1, p.2)
-        node.addChildNode(box(60, 0.06, 36, PlatformColor(hex: 0x7DB54E), at: (0, 0.03, 0)))
-        for x in [-29.0, 29.0] { node.addChildNode(goal(at: (x, 0, 0), width: 5, height: 2.2, alongZ: true)) }
+        node.addChildNode(box(40, 0.06, 28, PlatformColor(hex: 0x7DB54E), at: (0, 0.03, 0)))
+        for x in [-19.0, 19.0] { node.addChildNode(goal(at: (x, 0, 0), width: 5, height: 2.2, alongZ: true)) }
         return node
     }
 
     /// Fusha me dhè (lojë futbolli pa bar).
     private static func dirtField(at p: (Double, Double, Double)) -> SCNNode {
         let node = SCNNode(); node.position = SCNVector3(p.0, p.1, p.2)
-        node.addChildNode(box(44, 0.06, 28, PlatformColor(hex: 0xC9AE86), at: (0, 0.03, 0)))
-        for x in [-21.0, 21.0] { node.addChildNode(goal(at: (x, 0, 0), width: 3, height: 2, alongZ: true)) }
+        node.addChildNode(box(60, 0.06, 46, PlatformColor(hex: 0xC9AE86), at: (0, 0.03, 0)))
+        for x in [-29.0, 29.0] { node.addChildNode(goal(at: (x, 0, 0), width: 3, height: 2, alongZ: true)) }
         return node
     }
 
