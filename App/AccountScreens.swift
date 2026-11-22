@@ -187,9 +187,16 @@ struct CloudAccessScreen: View {
         }
         .buttonStyle(.plain)
         .sheet(isPresented: $visitorInfo) { VisitorInfoView() }
-        Picker("Hyrja", selection: $entry) { Text("Nxënës / Prind").tag(AccessEntry.studentParent); Text("Mësues").tag(AccessEntry.teacher) }.pickerStyle(.segmented)
-        Text(entry == .teacher ? "Hyrje për mësuesit. Roli kontrollohet nga serveri në çdo kërkesë, jo nga ky ekran." : "Hyrje për nxënës dhe prindër. Një email është një llogari me një rol të vetëm; nëse je edhe prind edhe mësues, përdor dy emaile.").font(.footnote)
-        Picker("Llogaria", selection: $signup) { Text("Hyr").tag(false); Text("Regjistrohu").tag(true) }.pickerStyle(.segmented)
+        Picker("Hyrja", selection: $entry) {
+            Text("Nxënës / Prind").tag(AccessEntry.studentParent); Text("Mësues").tag(AccessEntry.teacher); Text("Sekretaria").tag(AccessEntry.secretariat)
+        }.pickerStyle(.segmented)
+        .onChange(of: entry) { if $0 == .secretariat { signup = false } }
+        Text(entry == .teacher ? "Hyrje për mësuesit. Roli kontrollohet nga serveri në çdo kërkesë, jo nga ky ekran."
+             : entry == .secretariat ? "Hyrje vetëm për sekretarinë e shkollës. Llogaria e sekretarisë caktohet nga shkolla; nuk ka regjistrim këtu. Çdo hyrje konfirmohet me kod me email."
+             : "Hyrje për nxënës dhe prindër. Një email është një llogari me një rol të vetëm; nëse je edhe prind edhe mësues, përdor dy emaile.").font(.footnote)
+        if entry != .secretariat {
+            Picker("Llogaria", selection: $signup) { Text("Hyr").tag(false); Text("Regjistrohu").tag(true) }.pickerStyle(.segmented)
+        }
         TextField("Email", text: $email).autocorrectionDisabled()
             #if os(iOS)
             .keyboardType(.emailAddress).textInputAutocapitalization(.never)
@@ -232,7 +239,10 @@ struct CloudAccessScreen: View {
                 } else { account.pendingRole = role; account.pendingTeacherCode = "" }
                 try await account.cloudSignUp(email: mail, password: password)
                 teacherCode = ""
-            } else { try await account.cloudSignIn(email: mail, password: password) }
+            } else {
+                account.expectSecretariat = entry == .secretariat
+                try await account.cloudSignIn(email: mail, password: password)
+            }
         }
     }
     /// Rasti A: emaili ka tashmë llogari. Asnjë llogari e re nuk krijohet; roli nuk zbulohet para hyrjes.

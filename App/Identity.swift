@@ -312,6 +312,7 @@ struct SecretariatView: View {
                 .font(.callout).foregroundStyle(.secondary)
             stats
             verificationCard
+            HomeroomAdminSection()
             accountsCard
             importCard
             if !store.message.isEmpty { Label(store.message, systemImage: "checkmark.circle.fill").foregroundStyle(.green).font(.callout) }
@@ -533,6 +534,89 @@ struct SecretariatView: View {
     private func work(_ job: @escaping () async -> Void) {
         guard !busy else { return }; busy = true; store.message = ""
         Task { await job(); busy = false }
+    }
+}
+
+// MARK: - Klasat dhe kujdestarët (#116)
+
+struct AdminClassRow: Decodable, Identifiable, Hashable {
+    let className: String
+    let classID: String?
+    let homeroomID: String?
+    let homeroomName: String?
+    let rosterStudents: Int
+    let activeStudents: Int
+    let members: Int
+    let teachers: Int
+    var id: String { className }
+}
+private struct AdminClassesReply: Decodable { let classes: [AdminClassRow]; let teachers: [DirectoryTeacher] }
+private struct HomeroomReply: Decodable { let studentsAdded: Int? }
+
+/// Sekretaria cakton kujdestarin e çdo klase të regjistrit; klasa krijohet vetë dhe nxënësit e aktivizuar futen në të.
+struct HomeroomAdminSection: View {
+    @State private var classes: [AdminClassRow] = []
+    @State private var teachers: [DirectoryTeacher] = []
+    @State private var message = ""
+    @State private var error = ""
+    @State private var busy = false
+    var body: some View {
+        DisclosureGroup {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Për çdo klasë të regjistrit zgjidh mësuesin kujdestar. Kujdestari është administratori i grupit të klasës dhe fton mësuesit e lëndëve; nxënësit e aktivizuar futen vetë.")
+                    .font(.footnote).foregroundStyle(.secondary)
+                if !message.isEmpty { Label(message, systemImage: "checkmark.circle.fill").foregroundStyle(.green).font(.callout) }
+                if !error.isEmpty { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red).font(.callout) }
+                if classes.isEmpty { Text("Ngarko fillimisht regjistrin e nxënësve; klasat dalin këtu vetë.").font(.footnote).foregroundStyle(.secondary) }
+                ForEach(classes) { row in
+                    HStack(spacing: 10) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(row.className).font(.headline)
+                            Text("\(row.activeStudents)/\(row.rosterStudents) nxënës aktivë · \(row.teachers) mësues lëndësh")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Menu {
+                            ForEach(teachers) { teacher in
+                                Button(Self.title(teacher)) { assign(row, teacher) }
+                            }
+                        } label: {
+                            Label(row.homeroomName ?? "Cakto kujdestarin", systemImage: row.homeroomName == nil ? "person.badge.plus" : "star.circle.fill")
+                                .font(.subheadline.bold())
+                        }
+                        .disabled(busy || teachers.isEmpty)
+                    }
+                    .padding(10).background(RoundedRectangle(cornerRadius: 12).fill(Color.primary.opacity(0.04)))
+                }
+            }.padding(.top, 8)
+        } label: {
+            Label("Klasat dhe kujdestarët", systemImage: "star.circle").font(.headline)
+        }
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.lagoon.opacity(0.08)))
+        .task { await load() }
+    }
+    static func title(_ teacher: DirectoryTeacher) -> String {
+        let name: String = teacher.name ?? teacher.email ?? "Mësues"
+        let subjects: [String] = Array((teacher.subjects ?? []).prefix(2))
+        return subjects.isEmpty ? name : name + " · " + subjects.joined(separator: ", ")
+    }
+    private func load() async {
+        do {
+            let reply: AdminClassesReply = try await SchoolAPI.call("adminClasses", body: ["action": "list"])
+            classes = reply.classes; teachers = reply.teachers; error = ""
+        } catch { self.error = error.localizedDescription }
+    }
+    private func assign(_ row: AdminClassRow, _ teacher: DirectoryTeacher) {
+        busy = true; message = ""
+        Task { @MainActor in
+            defer { busy = false }
+            do {
+                let reply: HomeroomReply = try await SchoolAPI.call("adminClasses", body: ["action": "homeroom", "className": row.className, "teacherID": teacher.id])
+                message = (teacher.name ?? "Mësuesi") + " është kujdestar i " + row.className + ". U futën \(reply.studentsAdded ?? 0) nxënës."
+                error = ""; await load()
+            } catch { self.error = error.localizedDescription }
+        }
     }
 }
 

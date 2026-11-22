@@ -14,10 +14,15 @@ struct RemoteUser: Codable { let id, email, role: String }
 struct LoginReply: Decodable { let token: String; let user: RemoteUser; let recovery: String? }
 struct OKReply: Decodable { let ok: Bool?; let recovery: String?; let code: String? }
 struct ServiceError: Decodable { let error: String }
-struct SchoolClass: Decodable, Identifiable { let id, name, owner, code: String; let level: Int; let approved: Bool }
+struct SchoolClass: Decodable, Identifiable { let id, name, owner, code: String; let level: Int; let approved: Bool
+    /// #116: kujdestari (admin i grupit) dhe lënda që jep mësuesi në këtë klasë.
+    var homeroom: Bool? = nil; var official: Bool? = nil; var mySubject: String? = nil }
 struct ClassMember: Decodable, Identifiable { let id, email, classID: String; let approved: Bool }
 struct SchoolExam: Decodable, Identifiable { let id, classID, title, subject: String; let minutes, count: Int; let status: String? }
-struct RemoteEvent: Decodable, Identifiable { let id, classID, owner, title, note: String; let date: Double; let subject: String?; let examID: String? }
+struct RemoteEvent: Decodable, Identifiable { let id, classID, owner, title, note: String; let date: Double; let subject: String?; let examID: String?
+    /// "event" ose "parent_meeting" (mbledhje me prindër, #116).
+    var kind: String? = nil
+    var isParentMeeting: Bool { kind == "parent_meeting" } }
 struct FamilyMember: Decodable, Identifiable { let id, email: String }
 struct ExamQuestion: Decodable, Identifiable {
     let id, prompt, kind, unit: String
@@ -238,7 +243,9 @@ struct GoTrueFault: Decodable { let error_code: String?; let msg: String?; let m
 struct PostgrestFault: Decodable { let code: String?; let message: String? }
 struct MeReply: Decodable { let id, email, role, teacherStatus: String; let mfaEnrolled: Bool; let aal: String; let mfaRequired: Bool?; let mfaMethod: String?; let secondFactorOk: Bool?
     /// Identiteti (#102): a kërkohet kodi i sekretarisë për nxënësit, a është verifikuar ky nxënës, a është sekretari.
-    let studentCodeRequired: Bool?; let studentVerified: Bool?; let schoolAdmin: Bool? }
+    let studentCodeRequired: Bool?; let studentVerified: Bool?; let schoolAdmin: Bool?
+    /// Lëndët e mësuesit (#116).
+    let subjects: [String]? }
 
 @MainActor
 final class SupabaseAuth {

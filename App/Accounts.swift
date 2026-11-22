@@ -52,7 +52,7 @@ import CoreImage
 import CoreImage.CIFilterBuiltins
 
 enum AuthStage: Equatable { case entry, emailCode(String), emailLogin(String), mfa(String), mfaSetup, role, recoveryCode(String), existingAccount(String), roleMismatch(SchoolRole), activation }
-enum AccessEntry: String { case studentParent, teacher }
+enum AccessEntry: String { case studentParent, teacher, secretariat }
 
 struct AuthFailure: LocalizedError {
     let message: String
@@ -74,6 +74,11 @@ final class Account: ObservableObject {
     @Published private(set) var schoolAdmin = false
     /// Shkolla kërkon kodin personal të sekretarisë për çdo nxënës.
     private(set) var studentCodeRequired = false
+    /// Lëndët që jep mësuesi (#116). Lëndët shkencore hapin bibliotekën e mësimeve.
+    @Published var teacherSubjects: [String] = []
+    var teacherSciences: [Subject] { Subject.allCases.filter { teacherSubjects.contains($0.rawValue) } }
+    /// Hyrja u bë nga «Sekretaria»: llogaria duhet të jetë e sekretarisë.
+    var expectSecretariat = false
     private var recoveryEmail = ""
     // Vetëm në memorie; kurrë në disk. Përdoren pas konfirmimit të emailit.
     var pendingRole: SchoolRole?
@@ -280,6 +285,12 @@ final class Account: ObservableObject {
         }
         studentCodeRequired = me.studentCodeRequired ?? false
         schoolAdmin = me.schoolAdmin ?? false
+        teacherSubjects = me.subjects ?? []
+        if expectSecretariat && me.role != "unassigned" && !schoolAdmin {
+            expectSecretariat = false
+            await SupabaseAuth.shared.logout(); stage = .entry
+            throw AuthFailure(message: "Kjo llogari nuk është e sekretarisë. Hyr te «Mësues» ose «Nxënës / Prind».")
+        }
         if me.role == "student" && studentCodeRequired && !(me.studentVerified ?? false) {
             email = me.email; pendingRole = nil; stage = .activation; return
         }
@@ -332,7 +343,7 @@ final class Account: ObservableObject {
         if cloud { Task { await SupabaseAuth.shared.logout() } }
         else if !old.isEmpty { Task { let _: OKReply? = try? await SchoolAPI.call("logout",token:old) } }
         pendingRole = nil; attemptedRole = nil; pendingTeacherCode = ""; pendingNewPassword = nil; recoveryVerified = false; recoveryEmail = ""; stage = .entry; cloudMessage = ""; lockedSession = false
-        schoolAdmin = false; studentCodeRequired = false
+        schoolAdmin = false; studentCodeRequired = false; teacherSubjects = []; expectSecretariat = false
         UserDefaults.standard.removeObject(forKey: Self.lastAccountKey)
         SessionVault.clear(); role = nil; identity = ""; email = ""; token = ""; isOnline = false; baseline = [:]; recoveryNotice = ""; syncMessage = ""
     }

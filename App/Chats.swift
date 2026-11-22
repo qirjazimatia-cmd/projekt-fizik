@@ -23,6 +23,7 @@ struct ChatSummary: Decodable, Identifiable, Equatable {
         case "class": return "person.3.fill"
         case "family": return "figure.and.child.holdinghands"
         case "tutor": return "graduationcap.fill"
+        case "office": return "building.columns.fill"
         default: return "bubble.left.fill"
         }
     }
@@ -167,7 +168,7 @@ struct ChatsView: View {
             HStack(spacing: 12) {
                 Image(systemName: chat.icon).font(.headline).foregroundStyle(.white)
                     .frame(width: 46, height: 46)
-                    .background(Circle().fill(chat.kind == "class" ? Color.lagoon : chat.kind == "family" ? Color.orange : chat.kind == "tutor" ? Color.indigo : Color.pink))
+                    .background(Circle().fill(chat.kind == "class" ? Color.lagoon : chat.kind == "family" ? Color.orange : chat.kind == "tutor" ? Color.indigo : chat.kind == "office" ? Color.teal : Color.pink))
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
@@ -240,7 +241,8 @@ private struct NewChatSheet: View {
 private extension NewChatSheet {
     struct ContactSection { let title: String; let contacts: [ChatContact] }
     var sections: [ContactSection] {
-        let titles: [(String, String)] = [("tutor", account.role == .teacher ? "Nxënësit e klasave të mia" : "Mësuesit e mi"),
+        let titles: [(String, String)] = [("office", "Shkolla"),
+                                          ("tutor", account.role == .teacher ? "Nxënësit e klasave të mia" : "Mësuesit e mi"),
                                           ("family", account.role == .teacher ? "Prindërit e nxënësve" : "Mësuesit e fëmijës"),
                                           ("friend", "Shokët e mi")]
         return titles.compactMap { kind, title in
