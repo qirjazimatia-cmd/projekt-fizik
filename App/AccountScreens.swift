@@ -99,6 +99,7 @@ struct AccountControls: View {
                 PasswordInput(title: "Fjalëkalimi aktual", text: $password)
                 Button("Fshi llogarinë",role:.destructive) { confirm = true }
             }
+            PrivacyLinks()
             if !message.isEmpty { Text(message) }
         }.buttonStyle(.liquid)
         .alert("Ta fshish llogarinë dhe të dhënat e saj?",isPresented:$confirm) {

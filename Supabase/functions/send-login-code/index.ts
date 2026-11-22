@@ -1,12 +1,18 @@
-// ScienceQuest · Edge Function `send-login-code`
+// BrainSpark · Edge Function `send-login-code`
 // Dërgon kodin 6-shifror të hyrjes te emaili i llogarisë së kyçur (faktori i dytë). Kodi gjenerohet dhe ruhet (si hash) nga baza e të dhënave;
 // kjo funksion vetëm e dërgon. Të dhënat e Gmail ruhen si SECRETS te Supabase (Edge Functions → Secrets), jo këtu dhe jo në Git.
 // Secrets të nevojshme: SMTP_USER (adresa Gmail), SMTP_PASS (fjalëkalimi i aplikacionit të Google, 16 shkronja). Opsionale: SMTP_HOST (parazgjedhja smtp.gmail.com).
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
-const headers = { "Content-Type": "application/json" };
-const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers });
+// CORS vetëm për faqen web të fshirjes së llogarisë (GitHub Pages, #67). App-i iOS/macOS nuk ka nevojë për CORS.
+const webOrigin = "https://qirjazimatia-cmd.github.io";
+function corsHeaders(req: Request): Record<string, string> {
+  const base: Record<string, string> = { "Content-Type": "application/json" };
+  if (req.headers.get("Origin") !== webOrigin) return base;
+  return { ...base, "Access-Control-Allow-Origin": webOrigin, "Vary": "Origin",
+    "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info", "Access-Control-Allow-Methods": "POST, OPTIONS" };
+}
 
 function sessionId(jwt: string): string | null {
   try {
@@ -20,6 +26,9 @@ function sessionId(jwt: string): string | null {
 const clean = (v: string | undefined) => (v ?? "").trim().replace(/^["']+|["']+$/g, "").trim();
 
 Deno.serve(async (req) => {
+  const headers = corsHeaders(req);
+  const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers });
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers });
   if (req.method !== "POST") return reply({ error: "Metodë e palejuar." }, 405);
   const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
   if (!jwt) return reply({ error: "Seanca ka mbaruar. Hyr përsëri." }, 401);
@@ -57,11 +66,11 @@ Deno.serve(async (req) => {
   });
   try {
     await client.send({
-      from: `ScienceQuest <${smtpUser}>`,
+      from: `BrainSpark <${smtpUser}>`,
       to: user.email,
-      subject: "Kodi i hyrjes ScienceQuest",
+      subject: "Kodi i hyrjes BrainSpark",
       content: `Kodi yt i hyrjes është: ${code}\nVlen 10 minuta. Nëse nuk po hyn ti, injoroje këtë email dhe ndrysho fjalëkalimin.`,
-      html: `<h2>Kodi i hyrjes</h2><p>Kodi yt për ScienceQuest është:</p><p style="font-size:28px;font-weight:bold;letter-spacing:4px">${code}</p><p>Vlen 10 minuta. Nëse nuk po hyn ti, injoroje këtë email dhe ndrysho fjalëkalimin.</p>`,
+      html: `<h2>Kodi i hyrjes</h2><p>Kodi yt për BrainSpark është:</p><p style="font-size:28px;font-weight:bold;letter-spacing:4px">${code}</p><p>Vlen 10 minuta. Nëse nuk po hyn ti, injoroje këtë email dhe ndrysho fjalëkalimin.</p>`,
     });
   } catch (e) {
     // Diagnozë pa zbuluar sekretin: adresa e maskuar, gjatësia e fjalëkalimit dhe nëse ka formën e fjalëkalimit të aplikacionit (16 shkronja a-z).

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BrainSpark · Fshi llogarinë / Delete account</title>
+<link rel="stylesheet" href="stil.css">
+</head>
+<body>
+<main>
+  <header><div class="logo">B</div><strong>BrainSpark</strong></header>
+  <h1>Fshi llogarinë</h1>
+  <p class="muted">Delete your BrainSpark account · <a href="privatesia.html">Privatësia</a> · <a href="privacy.html">Privacy</a></p>
+
+  <div class="card">
+    <p><strong>Në app:</strong> Cilësimet → Fshi llogarinë. <strong>Ose këtu:</strong> hyr me emailin dhe fjalëkalimin e llogarisë dhe konfirmo fshirjen.</p>
+    <p class="muted">In the app: Settings → Delete account. Or here: sign in with your email and password and confirm.</p>
+    <p class="muted">Fshihen llogaria, profili, progresi, anëtarësitë në klasa dhe mesazhet. Veprimi nuk kthehet pas. · The account, profile, progress, class memberships and messages are deleted. This cannot be undone.</p>
+  </div>
+
+  <div class="card" id="step-login">
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="username" required>
+    <label for="password">Fjalëkalimi · Password</label>
+    <input id="password" type="password" autocomplete="current-password" required>
+    <button class="btn primary" id="login">Hyr · Sign in</button>
+    <div id="msg-login"></div>
+  </div>
+
+  <div class="card" id="step-code" hidden>
+    <p>Llogaria e mësuesit kërkon kodin që të vjen me email. · Teacher accounts need the code sent by email.</p>
+    <button class="btn" id="send-code">Dërgo kodin · Send code</button>
+    <label for="code">Kodi · Code</label>
+    <input id="code" inputmode="numeric" autocomplete="one-time-code">
+    <button class="btn primary" id="verify">Konfirmo · Confirm</button>
+    <div id="msg-code"></div>
+  </div>
+
+  <div class="card" id="step-confirm" hidden>
+    <p>Llogaria: <strong id="who"></strong></p>
+    <label for="confirm">Shkruaj <strong>FSHI</strong> për të konfirmuar · Type <strong>FSHI</strong> to confirm</label>
+    <input id="confirm" autocomplete="off">
+    <button class="btn danger" id="delete">Fshi llogarinë përgjithmonë · Delete permanently</button>
+    <button class="btn" id="cancel">Anulo · Cancel</button>
+    <div id="msg-delete"></div>
+  </div>
+
+  <div class="card" id="step-done" hidden>
+    <p class="msg ok">Llogaria u fshi. · Your account has been deleted.</p>
+  </div>
+
+  <footer>Nëse nuk mund të hysh, kontakto sekretarinë e shkollës Don Bosko. · If you cannot sign in, contact the Don Bosko school office.</footer>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Vetëm çelësi publik (publishable). Serveri kontrollon gjithçka te public.api_deleteaccount.
+  const SUPABASE_URL = "https://bdebgetyyvirxuaivyly.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_Kbiv0ppf8i6RP8JfkbFi-g_okXTOXo4";
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
+  const $ = (id) => document.getElementById(id);
+  const show = (id) => ["step-login", "step-code", "step-confirm", "step-done"].forEach((s) => ($(s).hidden = s !== id));
+  const say = (id, text, ok) => { $(id).innerHTML = text ? `<div class="msg ${ok ? "ok" : "err"}"></div>` : ""; if (text) $(id).firstChild.textContent = text; };
+
+  async function rpc(name, body) {
+    const { data, error } = await client.rpc(name, { p_body: body || {} });
+    if (error) throw new Error(error.message);
+    if (data && data.error) { const e = new Error(data.error); e.data = data; throw e; }
+    return data;
+  }
+
+  $("login").onclick = async () => {
+    say("msg-login", "");
+    const { data, error } = await client.auth.signInWithPassword({ email: $("email").value.trim(), password: $("password").value });
+    if (error) return say("msg-login", "Emaili ose fjalëkalimi nuk është i saktë. · Wrong email or password.");
+    $("who").textContent = data.user.email;
+    try {
+      const me = await rpc("api_me");
+      if (me.role === "teacher" && me.mfaRequired && !me.secondFactorOk) return show("step-code");
+    } catch (_) { /* p.sh. llogari pa rol: fshirja lejohet gjithsesi */ }
+    show("step-confirm");
+  };
+
+  $("send-code").onclick = async () => {
+    const { data } = await client.auth.getSession();
+    const r = await fetch(SUPABASE_URL + "/functions/v1/send-login-code", {
+      method: "POST", headers: { Authorization: "Bearer " + data.session.access_token, apikey: SUPABASE_KEY, "Content-Type": "application/json" }, body: "{}"
+    });
+    say("msg-code", r.ok ? "Kodi u dërgua në email. · Code sent." : "Kodi nuk u dërgua. Provo përsëri. · Could not send the code.", r.ok);
+  };
+
+  $("verify").onclick = async () => {
+    try { await rpc("api_logincodeverify", { code: $("code").value.trim() }); show("step-confirm"); }
+    catch (e) { say("msg-code", e.message); }
+  };
+
+  $("delete").onclick = async () => {
+    if ($("confirm").value.trim().toUpperCase() !== "FSHI") return say("msg-delete", "Shkruaj FSHI për të konfirmuar. · Type FSHI to confirm.");
+    try { await rpc("api_deleteaccount"); await client.auth.signOut().catch(() => {}); show("step-done"); }
+    catch (e) { if (e.data && e.data.needsSecondFactor) { show("step-code"); say("msg-code", e.message); } else say("msg-delete", e.message); }
+  };
+
+  $("cancel").onclick = async () => { await client.auth.signOut().catch(() => {}); $("password").value = ""; show("step-login"); };
+</script>
+</body>
+</html>
