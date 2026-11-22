@@ -8,7 +8,9 @@ import SceneKit
 //  · ndërtesa 4-katëshe e verdhë me dritare jeshile pas lëndinës;
 //  · grupi i statujave mbi bazamentin e rrumbullakët prej guri dhe pllaka përkujtimore;
 //  · gardhi i zi me shkrimin «DON BOSKO», selvia dhe ullinjtë;
-//  · fusha e basketbollit me dy kosha dhe portë futbolli.
+//  · fusha e basketbollit me dy kosha dhe portë futbolli (oratori, ku fëmijët bëjnë sport pasdite);
+//  · Kisha e Zojës Ndihmëtare: vetëm vendndodhja (Google Maps: ~87 m në veri dhe ~24 m në lindje të Oratorit),
+//    si vëllim i tejdukshëm pa detaje, derisa të kemi foto të saj.
 // Vendosja e ndërtesave është përafërsisht, jo nga planimetria: përmirësohet kur të vijnë foto nga sipër.
 
 #if os(macOS)
@@ -33,7 +35,8 @@ enum SchoolSpot: String, CaseIterable, Identifiable {
     case entrance = "Hyrja"
     case statue = "Statuja"
     case gate = "Porta"
-    case court = "Fusha e basketbollit"
+    case court = "Oratori · fusha"
+    case church = "Kisha"
     var id: String { rawValue }
     var symbol: String {
         switch self {
@@ -43,17 +46,19 @@ enum SchoolSpot: String, CaseIterable, Identifiable {
         case .statue: return "figure.2.and.child.holdinghands"
         case .gate: return "signpost.right"
         case .court: return "basketball"
+        case .church: return "building.columns"
         }
     }
     /// Pozicioni i kamerës dhe pika ku shikon (metra).
     var camera: (eye: SCNVector3, target: SCNVector3) {
         switch self {
-        case .overview: return (SCNVector3(-55.0, 48.0, 78.0), SCNVector3(0.0, 0.0, 0.0))
+        case .overview: return (SCNVector3(-75.0, 80.0, 95.0), SCNVector3(8.0, 0.0, -35.0))
         case .main: return (SCNVector3(-30.0, 12.0, 36.0), SCNVector3(-8.0, 4.0, -2.0))
         case .entrance: return (SCNVector3(-6.0, 4.0, 18.0), SCNVector3(-8.0, 3.0, 6.0))
         case .statue: return (SCNVector3(30.0, 5.0, 26.0), SCNVector3(22.0, 2.0, 12.0))
         case .gate: return (SCNVector3(4.0, 3.0, 52.0), SCNVector3(4.0, 1.5, 34.0))
         case .court: return (SCNVector3(48.0, 16.0, -8.0), SCNVector3(26.0, 0.0, -24.0))
+        case .church: return (SCNVector3(20.0, 22.0, -70.0), SCNVector3(50.0, 4.0, -113.0))
         }
     }
 }
@@ -144,7 +149,7 @@ enum SchoolScene {
         root.addChildNode(ambient)
 
         // Toka: lëndina dhe shtigjet
-        root.addChildNode(box(150, 0.2, 110, lawn, at: (0, -0.1, 0)))
+        root.addChildNode(box(170, 0.2, 190, lawn, at: (0, -0.1, -35)))
         root.addChildNode(box(150, 0.05, 8, paving, at: (0, 0.03, 40)))      // trotuari para gardhit
         root.addChildNode(box(10, 0.05, 30, paving, at: (-8, 0.03, 22)))      // shtegu te hyrja
         root.addChildNode(box(50, 0.05, 6, paving, at: (14, 0.03, 4)))        // shtegu para ndërtesës së dytë
@@ -154,6 +159,9 @@ enum SchoolScene {
         root.addChildNode(statue(at: (22, 0, 14)))
         root.addChildNode(fence(z: 34))
         root.addChildNode(court(at: (26, 0, -26)))
+        root.addChildNode(box(8, 0.05, 70, paving, at: (40, 0.03, -70)))     // shtegu drejt kishës
+        root.addChildNode(church(at: (50, 0, -113)))
+        root.addChildNode(compass(at: (-70, 0, 30)))
 
         // Pemët: selvia pranë portës, ullinj dhe pemë të vogla në lëndinë
         root.addChildNode(cypress(at: (14, 0, 30), height: 13))
@@ -166,7 +174,8 @@ enum SchoolScene {
         root.addChildNode(label("Ndërtesa kryesore", at: (-8, 11.5, -2)))
         root.addChildNode(label("Ndërtesa me 4 kate", at: (26, 17.5, -2)))
         root.addChildNode(label("Statuja", at: (22, 7, 14)))
-        root.addChildNode(label("Fusha e basketbollit", at: (26, 6, -26)))
+        root.addChildNode(label("Oratori · fusha e sportit", at: (26, 6, -26)))
+        root.addChildNode(label("Kisha e Zojës Ndihmëtare", at: (50, 17, -113)))
 
         setNight(false, in: scene)
         return scene
@@ -337,6 +346,28 @@ enum SchoolScene {
         goal.addChildNode(box(0.1, 2.0, 0.1, white, at: (1.5, 1.0, 0)))
         goal.addChildNode(box(3.1, 0.1, 0.1, white, at: (0, 2.0, 0)))
         node.addChildNode(goal)
+        return node
+    }
+
+    /// Kisha e Zojës Ndihmëtare: vëllim i bardhë i tejdukshëm (vetëm vendndodhja; forma e vërtetë pret foto).
+    private static func church(at p: (Double, Double, Double)) -> SCNNode {
+        let node = SCNNode(); node.position = SCNVector3(p.0, p.1, p.2)
+        let body = box(20, 12, 30, PlatformColor(white: 0.97, alpha: 1), at: (0, 6, 0))
+        body.opacity = 0.45
+        node.addChildNode(body)
+        node.addChildNode(box(22, 0.1, 32, paving, at: (0, 0.06, 0)))
+        return node
+    }
+
+    /// Shigjeta e veriut (Veriu = −z).
+    private static func compass(at p: (Double, Double, Double)) -> SCNNode {
+        let node = SCNNode(); node.position = SCNVector3(p.0, p.1, p.2)
+        node.addChildNode(cylinder(3, 0.1, PlatformColor(white: 0.95, alpha: 1), at: (0, 0.06, 0)))
+        let arrow = SCNCone(topRadius: 0, bottomRadius: 0.8, height: 3.2)
+        arrow.firstMaterial?.diffuse.contents = PlatformColor(hex: 0xC0392B)
+        let tip = SCNNode(geometry: arrow); tip.position = SCNVector3(0.0, 0.3, -0.6); tip.eulerAngles = SCNVector3(-Double.pi / 2, 0.0, 0.0)
+        node.addChildNode(tip)
+        node.addChildNode(label("V", at: (0, 1.0, -3.6)))
         return node
     }
 
