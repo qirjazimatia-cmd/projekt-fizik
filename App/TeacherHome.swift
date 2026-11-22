@@ -54,7 +54,7 @@ final class TeacherHomeModel: ObservableObject {
         if let reply: DirectoryReply = try? await SchoolAPI.call("teacherDirectory") { directory = reply.teachers }
     }
     func invite(_ teacher: DirectoryTeacher, to info: TeacherClassInfo, subject: String) async -> Bool {
-        await run("classTeacherInvite", ["classID": info.id, "teacherID": teacher.id, "subject": subject], done: "Ftesa u dërgua te " + (teacher.name ?? "mësuesi") + ".")
+        await run("classTeacherInvite", ["classID": info.id, "teacherID": teacher.id, "subject": subject], done: "Ftesa u dërgua te \(teacher.name ?? "mësuesi").")
     }
     func remove(_ teacher: ClassTeacherInfo?, from info: TeacherClassInfo) async {
         var body: [String: Any] = ["classID": info.id]
@@ -130,8 +130,8 @@ struct TeacherHome: View {
             Label("Ftesa për klasa", systemImage: "envelope.badge.fill").font(.headline)
             ForEach(model.invites) { invite in
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Klasa " + invite.className + (invite.subject.map { " · " + $0 } ?? "")).font(.body.weight(.semibold))
-                    Text("Kujdestari: " + (invite.homeroomName ?? "—")).font(.caption).foregroundStyle(.secondary)
+                    Text(invite.subject == nil ? "Klasa \(invite.className)" : "Klasa \(invite.className) · \(invite.subject ?? "")").font(.body.weight(.semibold))
+                    Text("Kujdestari: \(invite.homeroomName ?? "—")").font(.caption).foregroundStyle(.secondary)
                     HStack {
                         Button("Prano") { Task { await model.respond(invite, accept: true) } }.buttonStyle(.liquidProminent)
                         Button("Refuzo", role: .destructive) { Task { await model.respond(invite, accept: false) } }
@@ -156,7 +156,7 @@ struct TeacherHome: View {
                             .font(.title2).foregroundStyle(info.homeroom ? Color.sun : Color.lagoon).frame(width: 36)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(info.name).font(.headline)
-                            Text((info.homeroom ? "Kujdestar" : (info.subject ?? "Mësues")) + " · \(info.students) nxënës")
+                            Text("\(info.homeroom ? "Kujdestar" : info.subject ?? "Mësues") · \(info.students) nxënës")
                                 .font(.caption).foregroundStyle(.secondary)
                         }
                         Spacer()
@@ -235,10 +235,16 @@ struct TeacherClassView: View {
     @State private var leave = false
     /// Gjendja e freskët (pas ftesave/heqjeve).
     private var current: TeacherClassInfo { model.classes.first(where: { $0.id == info.id }) ?? info }
+    private var classLine: String {
+        if current.homeroom { return "Je kujdestari i kësaj klase (administratori i grupit)." }
+        let subject: String = current.subject ?? "mësim"
+        let homeroom: String = current.homeroomName ?? "—"
+        return "Jep \(subject) në këtë klasë · kujdestar: \(homeroom)"
+    }
     var body: some View {
         Page {
             Text("Klasa " + current.name).font(.largeTitle.bold())
-            Text(current.homeroom ? "Je kujdestari i kësaj klase (administratori i grupit)." : "Jep " + (current.subject ?? "mësim") + " në këtë klasë · kujdestar: " + (current.homeroomName ?? "—"))
+            Text(classLine)
                 .font(.callout).foregroundStyle(.secondary)
             Text("\(current.students) nxënës").font(.headline)
             if !model.error.isEmpty { Label(model.error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red).font(.callout) }
@@ -286,7 +292,7 @@ struct TeacherClassView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(teacher.name ?? "Mësues").font(.body.weight(.semibold))
-                        Text((teacher.subject ?? "Pa lëndë") + (teacher.status == "invited" ? " · pret pranimin" : "")).font(.caption).foregroundStyle(.secondary)
+                        Text("\(teacher.subject ?? "Pa lëndë")\(teacher.status == "invited" ? " · pret pranimin" : "")").font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
                     Button("Hiq", role: .destructive) { Task { await model.remove(teacher, from: current) } }.font(.caption)

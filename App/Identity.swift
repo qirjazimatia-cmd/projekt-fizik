@@ -578,9 +578,7 @@ struct HomeroomAdminSection: View {
                         Spacer()
                         Menu {
                             ForEach(teachers) { teacher in
-                                Button((teacher.name ?? teacher.email ?? "Mësues") + ((teacher.subjects ?? []).isEmpty ? "" : " · " + (teacher.subjects ?? []).prefix(2).joined(separator: ", "))) {
-                                    assign(row, teacher)
-                                }
+                                Button(Self.title(teacher)) { assign(row, teacher) }
                             }
                         } label: {
                             Label(row.homeroomName ?? "Cakto kujdestarin", systemImage: row.homeroomName == nil ? "person.badge.plus" : "star.circle.fill")
@@ -597,6 +595,11 @@ struct HomeroomAdminSection: View {
         .padding(14)
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.lagoon.opacity(0.08)))
         .task { await load() }
+    }
+    static func title(_ teacher: DirectoryTeacher) -> String {
+        let name: String = teacher.name ?? teacher.email ?? "Mësues"
+        let subjects: [String] = Array((teacher.subjects ?? []).prefix(2))
+        return subjects.isEmpty ? name : name + " · " + subjects.joined(separator: ", ")
     }
     private func load() async {
         do {
