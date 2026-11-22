@@ -176,8 +176,10 @@ struct SharedSchoolCalendar: View {
         let isExam = !(event.examID ?? "").isEmpty
         return VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                Image(systemName: isExam ? "checkmark.seal.fill" : "calendar").foregroundStyle(isExam ? Color.orange : Color.lagoon)
+                Image(systemName: event.isParentMeeting ? "person.2.wave.2.fill" : isExam ? "checkmark.seal.fill" : "calendar")
+                    .foregroundStyle(event.isParentMeeting ? Color.pink : isExam ? Color.orange : Color.lagoon)
                 Text(event.title).font(.title3.bold())
+                if event.isParentMeeting { Text("Mbledhje me prindër").font(.caption.bold()).foregroundStyle(Color.pink) }
             }
             let className: String = model.data.classes.first(where: { $0.id == event.classID })?.name ?? ""
             let dateStyle: Date.FormatStyle.DateStyle = mode == .upcoming ? .abbreviated : .omitted

@@ -96,12 +96,21 @@ struct Dashboard: View {
             }
             }
         }.tint(.lagoon)
+        .onAppear {
+            // Hyrja nga «Sekretaria» hap drejtpërdrejt panelin e sekretarisë.
+            if account.schoolAdmin && UserDefaults.standard.string(forKey: "lastEntry.v8") == AccessEntry.secretariat.rawValue { destination = .secretariat }
+        }
     }
 
     private var content: some View {
         NavigationStack {
             switch destination {
-            case .home: HomePage(role: role) { select(.subject($0)) }
+            case .home:
+                switch role {
+                case .teacher: TeacherHome(chats: chats) { select(.subject($0)) }
+                case .parent: ParentHome(chats: chats) { select(.chats) }
+                case .student: HomePage(role: role) { select(.subject($0)) }
+                }
             case .desk: RoleDesk(role: role)
             case .events: if account.isOnline { SharedSchoolCalendar() } else { SchoolEventsView() }
             case .assistant: TutorChat(role: role)
@@ -125,16 +134,22 @@ struct Dashboard: View {
     private var tabBar: some View {
         HStack(spacing: 2) {
             barItem(.home, "Krye", "house.fill")
-            Menu {
-                ForEach([Subject.math, .physics, .chemistry, .biology]) { subject in
-                    Button { select(.subject(subject)) } label: { Label(subject.rawValue, systemImage: subject.icon) }
+            if !visibleSubjects.isEmpty {
+                Menu {
+                    ForEach(visibleSubjects) { subject in
+                        Button { select(.subject(subject)) } label: { Label(subject.rawValue, systemImage: subject.icon) }
+                    }
+                } label: {
+                    barLabel(currentSubject?.short ?? "Lëndët", currentSubject?.icon ?? "square.grid.2x2.fill",
+                             selected: currentSubject != nil, color: currentSubject?.color)
                 }
-            } label: {
-                barLabel(currentSubject?.short ?? "Lëndët", currentSubject?.icon ?? "square.grid.2x2.fill",
-                         selected: currentSubject != nil, color: currentSubject?.color)
             }
-            barItem(.lab, "Lab", "flask.fill")
-            barItem(.assistant, "Bosko", "sparkles")
+            if showsScienceTools {
+                barItem(.lab, "Lab", "flask.fill")
+                barItem(.assistant, "Bosko", "sparkles")
+            } else {
+                barItem(.events, role == .parent ? "Mbledhjet" : "Kalendari", "calendar")
+            }
             // Bisedat përfshijnë edhe Shokët (butoni sipër te Bisedat); rrethi i kuq = mesazhe të palexuara + ftesa.
             barItem(.chats, "Bisedat", "bubble.left.and.bubble.right.fill")
                 .overlay(alignment: .topTrailing) { chatBadge.offset(x: -6, y: 2) }
@@ -142,7 +157,9 @@ struct Dashboard: View {
             Menu {
                 Button { select(.settings) } label: { Label("Cilësimet", systemImage: "gearshape.fill") }
                 Button { select(.events) } label: { Label("Eventet", systemImage: "calendar") }
-                Button { select(.friends) } label: { Label(social.incoming.isEmpty ? "Shokët" : "Shokët · \(social.incoming.count) ftesa", systemImage: "person.2.fill") }
+                if role == .student {
+                    Button { select(.friends) } label: { Label(social.incoming.isEmpty ? "Shokët" : "Shokët · \(social.incoming.count) ftesa", systemImage: "person.2.fill") }
+                }
                 Button { select(.school3D) } label: { Label("Shkolla në 3D", systemImage: "cube.transparent") }
                 if account.schoolAdmin {
                     Button { select(.secretariat) } label: { Label("Sekretaria", systemImage: "building.columns.fill") }
@@ -203,6 +220,16 @@ struct Dashboard: View {
                 .accessibilityHidden(true)
         }
     }
+    /// #116: nxënësi sheh 4 shkencat; mësuesi vetëm shkencat që jep; prindi asnjë (ka këndin e vet).
+    private var visibleSubjects: [Subject] {
+        switch role {
+        case .student: return [.math, .physics, .chemistry, .biology]
+        case .teacher: return account.teacherSciences
+        case .parent: return []
+        }
+    }
+    /// Laboratori dhe Bosko AI: për nxënësit dhe për mësuesit e shkencave.
+    private var showsScienceTools: Bool { role == .student || (role == .teacher && !account.teacherSciences.isEmpty) }
     private var currentSubject: Subject? {
         if case .subject(let subject) = destination { return subject }
         return nil
@@ -221,19 +248,21 @@ struct Dashboard: View {
                 }
                 if expanded { Text("Brain\nSpark").font(.system(size: 30, weight: .black, design: .rounded)).padding(.bottom, 16) }
                 tab(.home, "Krye", "Krye", "house.fill", expanded)
-                ForEach([Subject.math, .physics, .chemistry, .biology]) { subject in
+                ForEach(visibleSubjects) { subject in
                     tab(.subject(subject), subject.rawValue, subject.short, subject.icon, expanded, highlight: subject.color)
                 }
                 Divider().background(.white.opacity(0.6)).padding(.vertical, 6)
-                tab(.lab, "Laboratori", "Lab", "flask.fill", expanded)
-                tab(.events, "Eventet", "Eventet", "calendar", expanded)
-                tab(.assistant, LessonTutor.name + " · asistenti", LessonTutor.name, "sparkles", expanded)
+                if showsScienceTools { tab(.lab, "Laboratori", "Lab", "flask.fill", expanded) }
+                tab(.events, role == .parent ? "Mbledhjet dhe kalendari" : "Eventet", "Eventet", "calendar", expanded)
+                if showsScienceTools { tab(.assistant, LessonTutor.name + " · asistenti", LessonTutor.name, "sparkles", expanded) }
                 tab(.desk, role.title, "Profili", "person.fill", expanded)
                 Divider().background(.white.opacity(0.6)).padding(.vertical, 6)
                 tab(.chats, chats.unread == 0 ? "Bisedat" : "Bisedat · \(chats.unread) të reja", "Bisedat", "bubble.left.and.bubble.right.fill", expanded)
                     .overlay(alignment: .topTrailing) { unreadBadge.offset(x: expanded ? -6 : -2, y: 2) }
-                tab(.friends, social.incoming.isEmpty ? "Shokët" : "Shokët · \(social.incoming.count) ftesa", "Shokët", "person.2.fill", expanded)
-                    .overlay(alignment: .topTrailing) { inviteBadge.offset(x: expanded ? -6 : -2, y: 2) }
+                if role == .student {
+                    tab(.friends, social.incoming.isEmpty ? "Shokët" : "Shokët · \(social.incoming.count) ftesa", "Shokët", "person.2.fill", expanded)
+                        .overlay(alignment: .topTrailing) { inviteBadge.offset(x: expanded ? -6 : -2, y: 2) }
+                }
                 tab(.settings, "Cilësimet", "Cilësimet", "gearshape.fill", expanded)
                 tab(.school3D, "Shkolla 3D", "Shkolla 3D", "cube.transparent", expanded)
                 if account.schoolAdmin {
