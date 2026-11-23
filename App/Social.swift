@@ -40,6 +40,8 @@ final class SocialModel: ObservableObject {
     @Published var busy = false
     /// Kur serveri nuk lejon shokë për këtë llogari (prind, mësues, ose nxënës ende pa klasë), këtu vjen arsyeja.
     @Published var blocked: String?
+    /// Përdoruesit që i ke bllokuar (#69).
+    @Published var blockedUsers: [PublicUser] = []
 
     var needsUsername: Bool { loadedProfile && (profile?.username ?? "").isEmpty }
 
@@ -110,6 +112,26 @@ final class SocialModel: ObservableObject {
         do {
             let _: OKReply = try await SchoolAPI.call("friendRemove", body: ["username": user.username])
             await loadFriends()
+        } catch { message = error.localizedDescription }
+    }
+
+    // MARK: Blloko dhe raporto (#69, Apple 1.2)
+    private struct UsersReply: Decodable { let users: [PublicUser] }
+    func loadBlocked() async {
+        if let reply: UsersReply = try? await SchoolAPI.call("userBlocks") { blockedUsers = reply.users }
+    }
+    func block(_ user: PublicUser, _ on: Bool = true) async {
+        do {
+            let _: OKReply = try await SchoolAPI.call("userBlock", body: ["username": user.username, "block": on])
+            message = on ? "\(user.displayName) u bllokua. Nuk do të të shohë më dhe nuk mund të të shkruajë." : "\(user.displayName) u zhbllokua."
+            await loadFriends(); await loadBlocked()
+            results.removeAll { $0.username == user.username }
+        } catch { message = error.localizedDescription }
+    }
+    func report(_ user: PublicUser, reason: String) async {
+        do {
+            let _: OKReply = try await SchoolAPI.call("userReport", body: ["username": user.username, "reason": reason])
+            message = "Faleminderit. Raporti shkoi te shkolla dhe do të shqyrtohet."
         } catch { message = error.localizedDescription }
     }
 
@@ -264,6 +286,8 @@ struct FriendsView: View {
     @EnvironmentObject private var account: Account
     @State private var query = ""
     @State private var removing: PublicUser?
+    @State private var reporting: PublicUser?
+    @State private var blocking: PublicUser?
 
     var body: some View {
         Page {
@@ -316,6 +340,7 @@ struct FriendsView: View {
                             default: Button { Task { await social.invite(user) } } label: { Label("Shto", systemImage: "person.badge.plus") }.buttonStyle(.liquidProminent)
                             }
                         }
+                        .contextMenu { safetyActions(user) }
                     }
                 }
                 // Ftesat që të kanë ardhur.
@@ -326,6 +351,8 @@ struct FriendsView: View {
                             HStack(spacing: 8) {
                                 Button { Task { await social.respond(user, accept: false) } } label: { Image(systemName: "xmark") }.buttonStyle(.liquid).accessibilityLabel("Refuzo ftesën e \(user.displayName)")
                                 Button { Task { await social.respond(user, accept: true) } } label: { Label("Prano", systemImage: "checkmark") }.buttonStyle(.liquidProminent)
+                                Menu { safetyActions(user) } label: { Image(systemName: "ellipsis.circle") }
+                                    .accessibilityLabel("Më shumë për \(user.displayName)")
                             }
                         }
                     }
@@ -341,6 +368,7 @@ struct FriendsView: View {
                     row(user) { Image(systemName: "chevron.right").foregroundStyle(.tertiary) }
                         .contextMenu {
                             Button(role: .destructive) { removing = user } label: { Label("Hiqe nga shokët", systemImage: "person.badge.minus") }
+                            safetyActions(user)
                         }
                         .appearIn(index)
                 }
@@ -350,16 +378,43 @@ struct FriendsView: View {
                         row(user) { Button("Anulo") { Task { await social.remove(user) } }.buttonStyle(.liquid) }
                     }
                 }
+                if !social.blockedUsers.isEmpty {
+                    DisclosureGroup {
+                        ForEach(social.blockedUsers) { user in
+                            row(user) { Button("Zhblloko") { Task { await social.block(user, false) } }.buttonStyle(.liquid) }
+                        }
+                    } label: {
+                        Label("Të bllokuarit (\(social.blockedUsers.count))", systemImage: "hand.raised.fill").font(.headline)
+                    }
+                    .padding(14).glass(cornerRadius: 18)
+                }
+                Text("Mbaj shtypur mbi një shok për ta bllokuar ose raportuar. Raportet i shqyrton shkolla.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
         }
         .navigationTitle("Shokët")
         .refreshable { await social.loadFriends() }
-        .task { if account.isOnline { await social.loadFriends(); if !social.loadedProfile { await social.loadProfile() } } }
+        .task { if account.isOnline { await social.loadFriends(); await social.loadBlocked(); if !social.loadedProfile { await social.loadProfile() } } }
+        .confirmationDialog("Pse po e raporton \(reporting?.displayName ?? "")?", isPresented: Binding(get: { reporting != nil }, set: { if !$0 { reporting = nil } }), titleVisibility: .visible) {
+            ForEach([("bullying", "Ngacmim ose bullizëm"), ("inappropriate", "Përmbajtje e papërshtatshme"), ("impersonation", "Hiqet si dikush tjetër"), ("spam", "Spam"), ("other", "Tjetër")], id: \.0) { reason in
+                Button(reason.1) { if let user = reporting { Task { await social.report(user, reason: reason.0) } }; reporting = nil }
+            }
+            Button("Anulo", role: .cancel) { reporting = nil }
+        }
+        .confirmationDialog("Ta bllokosh \(blocking?.displayName ?? "")?", isPresented: Binding(get: { blocking != nil }, set: { if !$0 { blocking = nil } }), titleVisibility: .visible) {
+            Button("Blloko", role: .destructive) { if let user = blocking { Task { await social.block(user) } }; blocking = nil }
+            Button("Anulo", role: .cancel) { blocking = nil }
+        } message: { Text("Hiqet nga shokët, nuk të gjen më në kërkim dhe nuk mund të të dërgojë ftesa ose mesazhe.") }
         .animation(.spring(response: 0.4, dampingFraction: 0.85), value: social.message)
         .confirmationDialog("Ta heqësh \(removing?.displayName ?? "") nga shokët?", isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } }), titleVisibility: .visible) {
             Button("Hiqe", role: .destructive) { if let user = removing { Task { await social.remove(user) } }; removing = nil }
             Button("Anulo", role: .cancel) { removing = nil }
         }
+    }
+
+    @ViewBuilder private func safetyActions(_ user: PublicUser) -> some View {
+        Button { reporting = user } label: { Label("Raporto", systemImage: "exclamationmark.bubble") }
+        Button(role: .destructive) { blocking = user } label: { Label("Blloko", systemImage: "hand.raised") }
     }
 
     private func sectionTitle(_ title: String, count: Int, icon: String) -> some View {
