@@ -32,6 +32,7 @@ Kodi Swift mund të lexohet në VS Code, por **vetëm Mac-u provon se kompilon**
 ```bash
 python3 Tests/check_content.py
 (cd Server && python3 -m unittest -v test_server.py)
+python3 -m unittest -v Tests/test_check_shqip.py   # roja e shqipes: asnjë tekst anglisht pa dashje, emri BrainSpark
 bash Tools/check_no_secrets.sh
 ```
 Në Mac shtohet: `bash VERIFY-ON-MAC.command` (kompilim + XCTest). Mos shkruaj në PR “u testua” nëse nuk e ke ekzekutuar.

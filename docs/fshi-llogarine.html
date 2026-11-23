@@ -3,50 +3,50 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BrainSpark · Fshi llogarinë / Delete account</title>
+<title>BrainSpark · Fshi llogarinë</title>
 <link rel="stylesheet" href="stil.css">
 </head>
 <body>
 <main>
   <header><div class="logo">B</div><strong>BrainSpark</strong></header>
   <h1>Fshi llogarinë</h1>
-  <p class="muted">Delete your BrainSpark account · <a href="privatesia.html">Privatësia</a> · <a href="privacy.html">Privacy</a></p>
+  <p class="muted"><span lang="en">Delete your BrainSpark account</span> · <a href="privatesia.html">Privatësia</a> · <a href="privacy.html" lang="en">Privacy</a></p>
 
   <div class="card">
     <p><strong>Në app:</strong> Cilësimet → Fshi llogarinë. <strong>Ose këtu:</strong> hyr me emailin dhe fjalëkalimin e llogarisë dhe konfirmo fshirjen.</p>
-    <p class="muted">In the app: Settings → Delete account. Or here: sign in with your email and password and confirm.</p>
-    <p class="muted">Fshihen llogaria, profili, progresi, anëtarësitë në klasa dhe mesazhet. Veprimi nuk kthehet pas. · The account, profile, progress, class memberships and messages are deleted. This cannot be undone.</p>
+    <p class="muted" lang="en">In the app: Settings → Delete account. Or here: sign in with your email and password and confirm.</p>
+    <p class="muted">Fshihen llogaria, profili, progresi, anëtarësitë në klasa dhe mesazhet. Veprimi nuk kthehet pas. · <span lang="en">The account, profile, progress, class memberships and messages are deleted. This cannot be undone.</span></p>
   </div>
 
   <div class="card" id="step-login">
     <label for="email">Email</label>
     <input id="email" type="email" autocomplete="username" required>
-    <label for="password">Fjalëkalimi · Password</label>
+    <label for="password">Fjalëkalimi · <span lang="en">Password</span></label>
     <input id="password" type="password" autocomplete="current-password" required>
-    <button class="btn primary" id="login">Hyr · Sign in</button>
+    <button class="btn primary" id="login">Hyr · <span lang="en">Sign in</span></button>
     <div id="msg-login"></div>
   </div>
 
   <div class="card" id="step-code" hidden>
-    <p>Llogaria e mësuesit kërkon kodin që të vjen me email. · Teacher accounts need the code sent by email.</p>
-    <button class="btn" id="send-code">Dërgo kodin · Send code</button>
-    <label for="code">Kodi · Code</label>
+    <p>Llogaria e mësuesit kërkon kodin që të vjen me email. · <span lang="en">Teacher accounts need the code sent by email.</span></p>
+    <button class="btn" id="send-code">Dërgo kodin · <span lang="en">Send code</span></button>
+    <label for="code">Kodi · <span lang="en">Code</span></label>
     <input id="code" inputmode="numeric" autocomplete="one-time-code">
-    <button class="btn primary" id="verify">Konfirmo · Confirm</button>
+    <button class="btn primary" id="verify">Konfirmo · <span lang="en">Confirm</span></button>
     <div id="msg-code"></div>
   </div>
 
   <div class="card" id="step-confirm" hidden>
     <p>Llogaria: <strong id="who"></strong></p>
-    <label for="confirm">Shkruaj <strong>FSHI</strong> për të konfirmuar · Type <strong>FSHI</strong> to confirm</label>
+    <label for="confirm">Shkruaj <strong>FSHI</strong> për të konfirmuar · <span lang="en">Type <strong>FSHI</strong> to confirm</span></label>
     <input id="confirm" autocomplete="off">
-    <button class="btn danger" id="delete">Fshi llogarinë përgjithmonë · Delete permanently</button>
-    <button class="btn" id="cancel">Anulo · Cancel</button>
+    <button class="btn danger" id="delete">Fshi llogarinë përgjithmonë · <span lang="en">Delete permanently</span></button>
+    <button class="btn" id="cancel">Anulo · <span lang="en">Cancel</span></button>
     <div id="msg-delete"></div>
   </div>
 
   <div class="card" id="step-done" hidden>
-    <p class="msg ok">Llogaria u fshi. · Your account has been deleted.</p>
+    <p class="msg ok">Llogaria u fshi. · <span lang="en">Your account has been deleted.</span></p>
   </div>
 
   <footer>Nëse nuk mund të hysh, kontakto sekretarinë e shkollës Don Bosko. · If you cannot sign in, contact the Don Bosko school office.</footer>
