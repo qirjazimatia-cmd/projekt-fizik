@@ -87,6 +87,12 @@ struct Dashboard: View {
             .modifier(LiveActivitySync())
             .task(id: account.isOnline) {
                 guard account.isOnline else { return }
+                // Një herë në ditë, kur hyn një mësues, pastrohen skedarët jetimë në Storage (#13).
+                let last = UserDefaults.standard.double(forKey: "storageCleanup.last")
+                if role == .teacher && SupabaseConfig.enabled && Date().timeIntervalSince1970 - last > 86_400 {
+                    UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: "storageCleanup.last")
+                    Task { await SupabaseAuth.shared.cleanupStorage() }
+                }
                 await social.loadProfile()
                 await social.loadFriends()
                 while !Task.isCancelled {

@@ -12,7 +12,11 @@ final class SchoolModel: ObservableObject {
     }
     func change(_ action: String, _ body: [String:Any], token: String) async {
         guard !busy else { return }; busy = true; defer { busy = false }
-        do { let _: OKReply = try await SchoolAPI.call(action,body:body,token:token); await refresh(token) }
+        do {
+            let _: OKReply = try await SchoolAPI.call(action,body:body,token:token); await refresh(token)
+            // Skedarët e dorëzimeve të testit/klasës së fshirë hiqen nga Storage (#13).
+            if SupabaseConfig.enabled && (action == "classDelete" || action == "examDelete") { Task { await SupabaseAuth.shared.cleanupStorage() } }
+        }
         catch { message = error.localizedDescription }
     }
 }
