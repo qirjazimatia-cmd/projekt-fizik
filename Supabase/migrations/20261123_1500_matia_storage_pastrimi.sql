@@ -1,9 +1,9 @@
 -- Fshirja e skedarëve jetimë në Storage (#13).
 -- Supabase nuk lejon fshirjen e skedarëve direkt nga SQL; prandaj SQL vetëm i gjen, dhe Edge Function `storage-cleanup`
--- (me service_role) i fshin përmes Storage API.
+-- (me çelësin e serverit) i fshin përmes Storage API.
 --  · submissions/<attempt_id>/<question_id>/<skedar>: jetim kur tentativa nuk ekziston më (testi, klasa ose llogaria u fshi).
 --  · projects/<team_id>/<version_id>/<skedar>: jetim kur versioni ose ekipi nuk ekziston më (projekti ose llogaria u fshi).
--- Funksioni nuk është i arritshëm nga app-i (vetëm service_role).
+-- Funksioni nuk është i arritshëm nga app-i (vetëm serveri).
 
 create or replace function public.internal_storage_orphans(p_limit int default 500)
 returns table(bucket text, name text)
@@ -22,4 +22,3 @@ language sql stable security definer set search_path = app, storage, pg_temp as 
 $$;
 
 revoke all on function public.internal_storage_orphans(int) from public, anon, authenticated;
-grant execute on function public.internal_storage_orphans(int) to service_role;

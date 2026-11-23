@@ -1,7 +1,7 @@
 // BrainSpark · Edge Function `storage-cleanup` (#13)
 // Fshin skedarët jetimë (dorëzime testesh dhe skedarë projektesh) që mbetën pasi u fshi klasa, testi, projekti ose llogaria.
 // Thirret nga app-i pas fshirjeve dhe një herë në ditë kur hyn një mësues. Kërkon një përdorues të kyçur, por nuk fshin kurrë
-// skedarë që i përkasin ende një teste/projekti ekzistues: lista vjen nga `internal_storage_orphans` (vetëm service_role).
+// skedarë që i përkasin ende një teste/projekti ekzistues: lista vjen nga `internal_storage_orphans` (vetëm serveri).
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const headers = { "Content-Type": "application/json" };
