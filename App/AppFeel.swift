@@ -338,3 +338,11 @@ struct SplashIntro: View {
     }
 }
 
+
+
+/// A është app-i në plan të parë (#ECIM 23 nëntor): pyetjet periodike te serveri (bisedat, progresi)
+/// ndalen kur app-i shkon në sfond ose dritarja nuk është aktive, që të kursehet bateria dhe kuota e serverit.
+@MainActor
+enum AppActivity {
+    static var active = true
+}

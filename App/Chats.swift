@@ -149,7 +149,7 @@ struct ChatsView: View {
             guard account.isOnline else { return }
             // Lista rifreskohet çdo 15 sekonda ndërsa është e hapur.
             while !Task.isCancelled {
-                await store.loadList()
+                if AppActivity.active { await store.loadList() }
                 try? await Task.sleep(nanoseconds: 15_000_000_000)
             }
         }
@@ -343,7 +343,7 @@ struct ChatThreadView: View {
         .task {
             // Rifreskim çdo 4 sekonda ndërsa biseda është e hapur.
             while !Task.isCancelled {
-                await load()
+                if AppActivity.active { await load() }
                 try? await Task.sleep(nanoseconds: 4_000_000_000)
             }
         }

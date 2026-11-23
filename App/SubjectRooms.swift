@@ -90,7 +90,7 @@ struct Dashboard: View {
                 await social.loadProfile()
                 await social.loadFriends()
                 while !Task.isCancelled {
-                    await chats.loadUnread()
+                    if AppActivity.active { await chats.loadUnread() }
                     try? await Task.sleep(nanoseconds: 30_000_000_000)
                 }
             }
