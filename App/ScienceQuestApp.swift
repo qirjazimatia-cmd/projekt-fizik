@@ -8,6 +8,7 @@ struct ScienceQuestApp: App {
     @AppStorage(Onboarding.doneKey) private var onboardingDone = false
     @AppStorage(AppAccent.key) private var accent = 0
     @State private var splash = true
+    @Environment(\.scenePhase) private var scenePhase
     var body: some Scene {
         WindowGroup {
             Group {
@@ -28,6 +29,11 @@ struct ScienceQuestApp: App {
             .preferredColorScheme(AppAppearance.scheme(appearance))
             .dynamicTypeSize(AppAppearance.textSize(textSize))
             .task { await account.restore() }
+            .onChange(of: scenePhase) { phase in
+                AppActivity.active = phase == .active
+                // Kur kthehesh në app, rifreskohet menjëherë (pa pritur ciklin e radhës).
+                if phase == .active && account.isOnline { Task { await account.synchronize() } }
+            }
             .modifier(FirstLaunch(done: $onboardingDone))
             // Hapja: atomi bie në ujë (AppFeel.swift). Nuk merr prekje dhe zhduket pas ~1.5 s.
             .overlay { if splash { SplashIntro { withAnimation { splash = false } } } }
@@ -35,7 +41,7 @@ struct ScienceQuestApp: App {
                 guard account.isOnline else { return }
                 while !Task.isCancelled {
                     do { try await Task.sleep(nanoseconds:30_000_000_000) } catch { return }
-                    await account.synchronize()
+                    if AppActivity.active { await account.synchronize() }
                 }
             }
             .sheet(isPresented:Binding(get:{ !account.recoveryNotice.isEmpty },set:{ if !$0 { account.recoveryNotice = "" } })) {
