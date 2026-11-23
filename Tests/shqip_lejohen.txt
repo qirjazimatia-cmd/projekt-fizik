@@ -1,0 +1,4 @@
+# Vargje që lejohen edhe pse duken anglisht (një për rresht, saktësisht si në kod).
+# Shto vetëm me arsye: emra të përveçëm, terma shkencorë ose tekste që kërkohen në anglisht.
+# Mesazh gabimi i Supabase Auth që krahasohet në kod; përdoruesi sheh tekstin shqip.
+saving new user

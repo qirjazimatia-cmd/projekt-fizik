@@ -15,6 +15,7 @@ jobs:
       - run: cd Server && python3 -m unittest -v test_server.py
       - run: python3 Tests/check_supabase_contract.py
       - run: bash Tools/check_no_secrets.sh
+      - run: python3 -m unittest -v Tests/test_check_shqip.py   # roja e shqipes: provat e kontrollit + repo-ja
   build-mac:                # kompilimi real me Xcode; nuk u ekzekutua nga autori i këtij skedari
     runs-on: macos-latest
     steps:

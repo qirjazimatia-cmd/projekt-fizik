@@ -27,6 +27,7 @@ Statuset: ✅ gati · 🟡 pjesërisht · ❌ mungon · ➖ nuk vlen
 | Asnjë funksion demo/i pakonfiguruar i shfaqur si real | 2.1 / 2.3.1 | 🟡 | Kontrollo para dërgimit |
 | Llogaria Apple Developer | – | ❌ | 99 USD/vit; shkollat e akredituara mund të kërkojnë përjashtim nga tarifa (Apple fee waiver) |
 | Pamjet (screenshots), përshkrimi në shqip, fjalët kyçe | 2.3 | ❌ | |
+| Gjuha e app-it dhe e faqeve: shqip; emri BrainSpark kudo | 2.3.7 / 2.3.8 | ✅ | `Tests/check_shqip.py` në CI ndalon tekste anglisht pa dashje dhe emra të vjetër (ScienceQuest, Don Bosko Connect); pjesët angleze për rishikuesit shënohen `lang="en"` |
 
 ## Google Play
 

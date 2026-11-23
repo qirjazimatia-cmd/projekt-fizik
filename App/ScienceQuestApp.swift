@@ -49,7 +49,7 @@ struct ScienceQuestApp: App {
                     Text("Ruaj kodin personal të rikuperimit").font(.title.bold())
                     Text("Ky kod ndryshon fjalëkalimin kur e harron. Mbaje privat dhe ruaje jashtë aplikacionit. Nuk është kod 2FA dhe nuk kërkohet në hyrjet e zakonshme.")
                     Text(account.recoveryNotice).font(.headline.monospaced()).textSelection(.enabled)
-                    ShareLink(item:"ScienceQuest · " + account.email + "\nKodi privat i rikuperimit: " + account.recoveryNotice) { Text("Ruaj kodin") }
+                    ShareLink(item:"BrainSpark · " + account.email + "\nKodi privat i rikuperimit: " + account.recoveryNotice) { Text("Ruaj kodin") }
                     Button("E ruajta kodin") { account.recoveryNotice = "" }.buttonStyle(.liquidProminent)
                 }.interactiveDismissDisabled()
             }
