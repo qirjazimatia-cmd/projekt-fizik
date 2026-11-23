@@ -346,6 +346,18 @@ final class SupabaseAuth {
             throw AuthFailure(message: http.statusCode == 404 ? "Dërgimi i kodit nuk është konfiguruar ende te Supabase (funksioni send-login-code). Kontakto administratorin." : "Kodi nuk u dërgua (\(http.statusCode)). Provo përsëri.")
         }
     }
+    /// Fshin skedarët jetimë në Storage pas fshirjes së klasave/testeve/projekteve/llogarive (#13). Gabimet injorohen:
+    /// pastrimi përsëritet herën tjetër.
+    func cleanupStorage() async {
+        guard let token = try? await accessToken(), let url = try? endpoint("/functions/v1/storage-cleanup", [:]) else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"; request.timeoutInterval = 30
+        request.setValue(SupabaseConfig.key, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = Data("{}".utf8)
+        _ = try? await URLSession.shared.data(for: request)
+    }
     // MARK: Storage · dorëzime me skedarë (kova private `submissions`)
     private struct StorageFault: Decodable { let message: String?; let error: String?; let statusCode: String? }
     private struct SignedReply: Decodable { let signedURL: String? }
