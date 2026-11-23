@@ -312,6 +312,7 @@ struct SecretariatView: View {
                 .font(.callout).foregroundStyle(.secondary)
             stats
             verificationCard
+            ReportsAdminSection()
             HomeroomAdminSection()
             accountsCard
             importCard
@@ -534,6 +535,105 @@ struct SecretariatView: View {
     private func work(_ job: @escaping () async -> Void) {
         guard !busy else { return }; busy = true; store.message = ""
         Task { await job(); busy = false }
+    }
+}
+
+// MARK: - Raportimet (moderatori = sekretaria, #69)
+
+struct ReportedMessage: Decodable, Identifiable { let id, reason, body, place: String; let reporter, sender: String?; let at: Double; let deleted: Bool }
+struct ReportedUser: Decodable, Identifiable { let id, reason: String; let note, reporter, reported, username: String?; let at: Double; let count: Int }
+struct ReportedAI: Decodable, Identifiable { let id, reason, question, answer: String; let at: Double }
+private struct ReportsReply: Decodable { let messages: [ReportedMessage]; let users: [ReportedUser]; let ai: [ReportedAI] }
+
+enum ReportReason {
+    static func text(_ code: String) -> String {
+        switch code {
+        case "bullying": return "Ngacmim"
+        case "inappropriate": return "E papërshtatshme"
+        case "impersonation": return "Hiqet si tjetër"
+        case "spam": return "Spam"
+        case "wrong": return "Përgjigje e gabuar"
+        default: return "Tjetër"
+        }
+    }
+}
+
+/// Radha e raportimeve: mesazhet, përdoruesit dhe përgjigjet e Bosko AI. Apple 1.2 kërkon që raportet të shqyrtohen.
+struct ReportsAdminSection: View {
+    @State private var messages: [ReportedMessage] = []
+    @State private var users: [ReportedUser] = []
+    @State private var ai: [ReportedAI] = []
+    @State private var error = ""
+    private var total: Int { messages.count + users.count + ai.count }
+    var body: some View {
+        DisclosureGroup {
+            VStack(alignment: .leading, spacing: 10) {
+                if !error.isEmpty { Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.red).font(.callout) }
+                if total == 0 { Text("Nuk ka raportime të hapura.").font(.footnote).foregroundStyle(.secondary) }
+                ForEach(messages) { item in
+                    card(Self.title(item), detail: Self.detail(item)) {
+                        if !item.deleted { Button("Fshi mesazhin", role: .destructive) { resolve("message", item.id, "delete") } }
+                        Button("Mbyll") { resolve("message", item.id, "close") }
+                    }
+                }
+                ForEach(users) { item in
+                    card(Self.title(item), detail: Self.detail(item)) {
+                        Button("Mbyll") { resolve("user", item.id, "close") }
+                    }
+                }
+                ForEach(ai) { item in
+                    card("Bosko AI · " + ReportReason.text(item.reason), detail: "Pyetja: " + item.question + "\nPërgjigja: " + item.answer) {
+                        Button("Mbyll") { resolve("ai", item.id, "close") }
+                    }
+                }
+                Text("Për rastet e rënda (ngacmim, rrezik): fol me kujdestarin dhe prindërit. Llogarinë e një nxënësi mund ta shkëpusësh te regjistri.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }.padding(.top, 8)
+        } label: {
+            Label(total == 0 ? "Raportimet" : "Raportimet (\(total))", systemImage: "flag.fill").font(.headline)
+                .foregroundStyle(total == 0 ? Color.primary : Color.red)
+        }
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.lagoon.opacity(0.08)))
+        .task { await load() }
+    }
+    static func title(_ item: ReportedMessage) -> String { "Mesazh · " + ReportReason.text(item.reason) + " · " + item.place }
+    static func detail(_ item: ReportedMessage) -> String {
+        let sender: String = item.sender ?? "—"
+        let reporter: String = item.reporter ?? "—"
+        return "«" + item.body + "»\nNga: " + sender + " · Raportoi: " + reporter
+    }
+    static func title(_ item: ReportedUser) -> String { "Përdorues · " + ReportReason.text(item.reason) + " · \(item.count) raporte" }
+    static func detail(_ item: ReportedUser) -> String {
+        let who: String = item.reported ?? "—"
+        let username: String = item.username ?? "—"
+        let reporter: String = item.reporter ?? "—"
+        var text: String = who + " (@" + username + ")"
+        if let note = item.note, !note.isEmpty { text += "\n" + note }
+        return text + "\nRaportoi: " + reporter
+    }
+    private func card<Actions: View>(_ title: String, detail: String, @ViewBuilder actions: () -> Actions) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title).font(.subheadline.bold())
+            Text(detail).font(.caption).textSelection(.enabled)
+            HStack { actions() }.font(.caption.bold())
+        }
+        .padding(10).frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 12).fill(Color.red.opacity(0.06)))
+    }
+    private func load() async {
+        do {
+            let reply: ReportsReply = try await SchoolAPI.call("adminReports")
+            messages = reply.messages; users = reply.users; ai = reply.ai; error = ""
+        } catch { self.error = error.localizedDescription }
+    }
+    private func resolve(_ kind: String, _ id: String, _ action: String) {
+        Task { @MainActor in
+            do {
+                let _: OKReply = try await SchoolAPI.call("adminReportResolve", body: ["kind": kind, "id": id, "action": action])
+                await load()
+            } catch { self.error = error.localizedDescription }
+        }
     }
 }
 
